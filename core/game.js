@@ -1,3 +1,4 @@
+import { Shelf } from "../entities/Shelf.js";
 // core/game.js
 import { museumMap } from "../maps/museumMap.js";
 
@@ -13,6 +14,10 @@ export class Game {
       speed: 200,
       target: null
     };
+this.shelves = [
+  new Shelf(200, 150, 60, 30, "art_1"),
+  new Shelf(400, 220, 60, 30, "art_2")
+];
 
     this.lastTime = 0;
     this.camera = { x: 0, y: 0 };
