@@ -1,3 +1,4 @@
+import { Shelf } from "./entities/Shelf.js";
 // main.js
 import { Game } from "./core/game.js";
 
