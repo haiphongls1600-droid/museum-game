@@ -5,9 +5,13 @@ import { textures, loadTextures } from "../assets/textures/textures.js";
 
 export class Game {
   constructor(canvas) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
+  this.canvas = canvas;
+  this.ctx = canvas.getContext("2d");
 
+  this.lastTime = 0;
+  this.camera = { x: 0, y: 0 };
+
+  loadTextures(() => {
     this.player = {
       x: 0,
       y: 0,
@@ -15,15 +19,17 @@ export class Game {
       speed: 200,
       target: null
     };
-this.shelves = [
-  new Shelf(200, 150, 60, 30, "art_1"),
-  new Shelf(400, 220, 60, 30, "art_2")
-];
 
-    this.lastTime = 0;
-    this.camera = { x: 0, y: 0 };
+    this.shelves = [
+      new Shelf(200, 150, 60, 30, "art_1"),
+      new Shelf(400, 220, 60, 30, "art_2")
+    ];
 
     this.bindEvents();
+    requestAnimationFrame(this.loop.bind(this));
+  });
+}
+
     requestAnimationFrame(this.loop.bind(this));
   }
 
