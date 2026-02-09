@@ -1,6 +1,7 @@
 import { Shelf } from "../entities/Shelf.js";
 // core/game.js
 import { museumMap } from "../maps/museumMap.js";
+import { textures, loadTextures } from "../assets/textures/textures.js";
 
 export class Game {
   constructor(canvas) {
