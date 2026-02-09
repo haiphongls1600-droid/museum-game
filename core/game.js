@@ -99,23 +99,27 @@ this.shelves = [
     this.drawPlayer();
   }
 
- loop(time) {
+loop(time) {
   const dt = (time - this.lastTime) / 1000;
   this.lastTime = time;
 
   this.update(dt);
+  this.draw();
 
-  // reset camera kiểu Soul Knight
-  this.ctx.setTransform(
-    1, 0, 0, 1,
+  requestAnimationFrame(this.loop.bind(this));
+}
+draw() {
+  // reset camera
+  this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+  this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+  // camera kiểu Soul Knight
+  this.ctx.translate(
     this.canvas.width / 2 - this.camera.x,
     this.canvas.height / 2 - this.camera.y
   );
 
-  // vẽ map
   this.drawRooms();
   this.drawWalls();
   this.drawPlayer();
-
-  requestAnimationFrame(this.loop.bind(this));
 }
