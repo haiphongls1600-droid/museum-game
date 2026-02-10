@@ -30,8 +30,7 @@ export class Game {
   });
 }
 
-    requestAnimationFrame(this.loop.bind(this));
-  }
+  
 
   bindEvents() {
     this.canvas.addEventListener("click", (e) => {
