@@ -76,16 +76,21 @@ export class Game {
     }
   }
 
-  drawPlayer() {
-    const p = this.player;
-    this.ctx.fillStyle = "blue";
-    this.ctx.fillRect(
-      p.x - p.size / 2,
-      p.y - p.size / 2,
-      p.size,
-      p.size
-    );
-  }
+ drawPlayer() {
+  const p = this.player;
+  const img = textures.player;
+
+  if (!img) return; // phòng trường hợp ảnh chưa load
+
+  this.ctx.drawImage(
+    img,
+    p.x - p.size / 2,
+    p.y - p.size / 2,
+    p.size,
+    p.size
+  );
+}
+
 
   render() {
     this.ctx.setTransform(
