@@ -136,3 +136,4 @@ draw() {
   this.drawWalls();
   this.drawPlayer();
 }
+}
