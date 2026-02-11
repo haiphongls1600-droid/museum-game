@@ -61,19 +61,25 @@ export class Game {
     this.camera.y = p.y;
   }
 
-  drawRooms() {
-    this.ctx.fillStyle = "#ddd";
-    for (const r of museumMap.rooms) {
-      this.ctx.fillRect(r.x, r.y, r.w, r.h);
-    }
+ drawRooms() {
+  const img = textures.floor;
+  if (!img) return;
+
+  for (const r of museumMap.rooms) {
+    this.ctx.drawImage(img, r.x, r.y, r.w, r.h);
   }
+}
+
 
   drawWalls() {
-    this.ctx.fillStyle = "#444";
-    for (const w of museumMap.walls) {
-      this.ctx.fillRect(w.x, w.y, w.w, w.h);
-    }
+  const img = textures.wall;
+  if (!img) return;
+
+  for (const w of museumMap.walls) {
+    this.ctx.drawImage(img, w.x, w.y, w.w, w.h);
   }
+}
+
 
  drawPlayer() {
   const p = this.player;
