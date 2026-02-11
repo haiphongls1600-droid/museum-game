@@ -117,10 +117,11 @@ loop(time) {
   this.update(dt);
   this.draw();
 
-  requestAnimationFrame(this.loop.bind(this));
+ requestAnimationFrame(this.loop.bind(this));
 }
-}
+
 draw() {
+
   // reset camera
   this.ctx.setTransform(1, 0, 0, 1, 0, 0);
   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
