@@ -93,6 +93,19 @@ drawWalls() {
     );
   }
 }
+drawShelves() {
+  const img = textures.shelf;
+  for (const s of museumMap.shelves) {
+    this.ctx.drawImage(img, s.x, s.y, s.w, s.h);
+  }
+}
+
+drawPlants() {
+  const img = textures.plant;
+  for (const p of museumMap.plants) {
+    this.ctx.drawImage(img, p.x, p.y, p.w, p.h);
+  }
+}
 
  drawPlayer() {
   const p = this.player;
@@ -151,8 +164,11 @@ draw() {
     this.canvas.height / 2 - this.camera.y
   );
 
-  this.drawRooms();
-  this.drawWalls();
-  this.drawPlayer();
+this.drawRooms();
+this.drawShelves();
+this.drawPlants();
+this.drawWalls();
+this.drawPlayer();
+
 }
 }
