@@ -61,25 +61,38 @@ export class Game {
     this.camera.y = p.y;
   }
 
- drawRooms() {
-  const img = textures.floor;
-  if (!img) return;
-
+drawRooms() {
   for (const r of museumMap.rooms) {
-    this.ctx.drawImage(img, r.x, r.y, r.w, r.h);
+
+    // nền sàn
+    this.ctx.drawImage(
+      textures.floor,
+      r.x,
+      r.y,
+      r.w,
+      r.h
+    );
+
+    // viền phòng
+    this.ctx.strokeStyle = "#222";
+    this.ctx.lineWidth = 8;
+    this.ctx.strokeRect(r.x, r.y, r.w, r.h);
+
   }
 }
 
 
-  drawWalls() {
-  const img = textures.wall;
-  if (!img) return;
-
+drawWalls() {
   for (const w of museumMap.walls) {
-    this.ctx.drawImage(img, w.x, w.y, w.w, w.h);
+    this.ctx.drawImage(
+      textures.wall,
+      w.x,
+      w.y,
+      w.w,
+      w.h
+    );
   }
 }
-
 
  drawPlayer() {
   const p = this.player;
