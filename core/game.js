@@ -51,6 +51,48 @@ window.addEventListener("keydown", (e) => {
     this.activeShelf = null;
   }
 });
+    this.activeShelf = null;
+this.interactDistance = 70;
+
+// CLICK
+this.canvas.addEventListener("click", (e) => {
+
+  if (this.activeShelf) return;
+
+  // chuyển tọa độ chuột sang world
+  const worldX = e.offsetX - (this.canvas.width / 2 - this.camera.x);
+  const worldY = e.offsetY - (this.canvas.height / 2 - this.camera.y);
+
+  for (const s of museumMap.shelves) {
+
+    // kiểm tra click có trúng đúng kệ không
+    const clicked =
+      worldX > s.x &&
+      worldX < s.x + s.w &&
+      worldY > s.y &&
+      worldY < s.y + s.h;
+
+    if (!clicked) continue;
+
+    // kiểm tra player có đứng gần không
+    const dx = this.player.x - (s.x + s.w / 2);
+    const dy = this.player.y - (s.y + s.h / 2);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < this.interactDistance) {
+      this.activeShelf = s;
+      break;
+    }
+  }
+});
+
+// ESC để đóng
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    this.activeShelf = null;
+  }
+});
+
 }
 
   
@@ -227,6 +269,37 @@ if (this.activeShelf) {
   this.ctx.fillStyle = "black";
   this.ctx.font = "18px Arial";
   this.ctx.fillText("Nhấn ESC để đóng", boxX + 20, boxY + boxH - 20);
+}
+if (this.activeShelf) {
+
+  this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  this.ctx.fillStyle = "rgba(0,0,0,0.6)";
+  this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+  const boxW = 600;
+  const boxH = 400;
+  const boxX = (this.canvas.width - boxW) / 2;
+  const boxY = (this.canvas.height - boxH) / 2;
+
+  this.ctx.fillStyle = "white";
+  this.ctx.fillRect(boxX, boxY, boxW, boxH);
+
+  this.ctx.strokeStyle = "black";
+  this.ctx.lineWidth = 5;
+  this.ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+  this.ctx.drawImage(
+    textures.painting,
+    boxX + 50,
+    boxY + 50,
+    boxW - 100,
+    boxH - 100
+  );
+
+  this.ctx.fillStyle = "black";
+  this.ctx.font = "18px Arial";
+  this.ctx.fillText("Nhấn ESC để thoát", boxX + 20, boxY + boxH - 20);
 }
 
 }
