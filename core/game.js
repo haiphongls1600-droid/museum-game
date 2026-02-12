@@ -118,6 +118,26 @@ window.addEventListener("keydown", (e) => {
       } else {
         p.x += (dx / dist) * p.speed * dt;
         p.y += (dy / dist) * p.speed * dt;
+        if (this.activeShelf) return;
+
+// Di chuyển tới điểm click
+if (this.moveTarget) {
+
+  const dx = this.moveTarget.x - this.player.x;
+  const dy = this.moveTarget.y - this.player.y;
+
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  const speed = 200;
+
+  if (dist > 5) {
+    this.player.x += (dx / dist) * speed * dt;
+    this.player.y += (dy / dist) * speed * dt;
+  } else {
+    this.moveTarget = null;
+  }
+}
+
       }
     }
 
@@ -142,6 +162,56 @@ drawRooms() {
     this.ctx.strokeStyle = "#222";
     this.ctx.lineWidth = 8;
     this.ctx.strokeRect(r.x, r.y, r.w, r.h);
+this.activeShelf = null;
+this.moveTarget = null;
+this.interactDistance = 70;
+
+this.canvas.addEventListener("click", (e) => {
+
+  // Nếu đang mở popup thì không làm gì
+  if (this.activeShelf) return;
+
+  const rect = this.canvas.getBoundingClientRect();
+  const screenX = e.clientX - rect.left;
+  const screenY = e.clientY - rect.top;
+
+  const worldX = screenX - this.canvas.width / 2 + this.camera.x;
+  const worldY = screenY - this.canvas.height / 2 + this.camera.y;
+
+  let clickedShelf = null;
+
+  for (const s of museumMap.shelves) {
+    const inside =
+      worldX >= s.x &&
+      worldX <= s.x + s.w &&
+      worldY >= s.y &&
+      worldY <= s.y + s.h;
+
+    if (inside) {
+      clickedShelf = s;
+      break;
+    }
+  }
+
+  // Nếu click trúng kệ
+  if (clickedShelf) {
+
+    const centerX = clickedShelf.x + clickedShelf.w / 2;
+    const centerY = clickedShelf.y + clickedShelf.h / 2;
+
+    const dx = this.player.x - centerX;
+    const dy = this.player.y - centerY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < this.interactDistance) {
+      this.activeShelf = clickedShelf;
+      return;
+    }
+  }
+
+  // Nếu không mở popup thì di chuyển
+  this.moveTarget = { x: worldX, y: worldY };
+});
 
   }
 }
@@ -300,6 +370,29 @@ if (this.activeShelf) {
   this.ctx.fillStyle = "black";
   this.ctx.font = "18px Arial";
   this.ctx.fillText("Nhấn ESC để thoát", boxX + 20, boxY + boxH - 20);
+}
+if (this.activeShelf) {
+
+  this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+  this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+  const w = 600;
+  const h = 400;
+  const x = (this.canvas.width - w) / 2;
+  const y = (this.canvas.height - h) / 2;
+
+  this.ctx.fillStyle = "white";
+  this.ctx.fillRect(x, y, w, h);
+
+  this.ctx.strokeStyle = "black";
+  this.ctx.lineWidth = 5;
+  this.ctx.strokeRect(x, y, w, h);
+
+  this.ctx.fillStyle = "black";
+  this.ctx.font = "20px Arial";
+  this.ctx.fillText("Nhấn ESC để thoát", x + 20, y + h - 20);
 }
 
 }
