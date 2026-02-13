@@ -109,6 +109,7 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     this.activeShelf = null;
   }
+console.log("activeShelf start:", this.activeShelf);
 
 });
 
