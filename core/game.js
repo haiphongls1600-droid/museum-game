@@ -48,9 +48,12 @@ this.canvas.addEventListener("click", (e) => {
 
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    this.activeShelf = null;
+    if (this.activeShelf) {
+      this.activeShelf = null;
+    }
   }
 });
+
     this.activeShelf = null;
 this.interactDistance = 70;
 
