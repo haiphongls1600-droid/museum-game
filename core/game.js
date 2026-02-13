@@ -385,19 +385,23 @@ if (this.activeShelf) {
 
   this.ctx.fillStyle = "black";
   this.ctx.font = "20px Arial";
-  this.ctx.fillText("Nhấn ESC để thoát", x + 20, y + h - 20);
+  draw() {
 
-if (this.nearShelf && !this.activeShelf) {
+   ...
+   this.ctx.fillText("Nhấn ESC để thoát", x + 20, y + h - 20);
 
-  this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+   if (this.nearShelf && !this.activeShelf) {
 
-  this.ctx.fillStyle = "#222";
-  this.ctx.fillRect(20, 20, 60, 60);
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-  this.ctx.fillStyle = "white";
-  this.ctx.font = "40px Arial";
-  this.ctx.fillText("E", 38, 65);
-}
+      this.ctx.fillStyle = "#222";
+      this.ctx.fillRect(20, 20, 60, 60);
 
-}
-}
+      this.ctx.fillStyle = "white";
+      this.ctx.font = "40px Arial";
+      this.ctx.fillText("E", 38, 65);
+   }
+
+}  // ← chỉ đóng draw ở đây
+
+}  // ← đóng class
