@@ -29,7 +29,6 @@ export class Game {
     requestAnimationFrame(this.loop.bind(this));
   });
     this.activeShelf = null;
-this.interactDistance = 60;
 
 this.canvas.addEventListener("click", (e) => {
   
@@ -56,7 +55,6 @@ window.addEventListener("keydown", (e) => {
 });
 
     this.activeShelf = null;
-this.interactDistance = 70;
 
 // =======================
 // CLICK
@@ -66,7 +64,7 @@ this.canvas.addEventListener("click", (e) => {
 
   // Nếu đang mở popup thì không cho click di chuyển
   if (this.activeShelf) return;
-
+this.interactDistance = 150
   // ===================
   // CLICK VÀO NÚT E (GÓC TRÁI)
   // ===================
@@ -126,7 +124,6 @@ window.addEventListener("keydown", (e) => {
     });
     this.activeShelf = null;
 this.nearShelf = null;
-this.interactDistance = 70;
 
   }
 
