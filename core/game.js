@@ -386,7 +386,7 @@ if (this.activeShelf) {
   this.ctx.fillStyle = "black";
   this.ctx.font = "20px Arial";
   this.ctx.fillText("Nhấn ESC để thoát", x + 20, y + h - 20);
-}
+
 if (this.nearShelf && !this.activeShelf) {
 
   this.ctx.setTransform(1, 0, 0, 1, 0, 0);
