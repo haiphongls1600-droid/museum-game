@@ -99,7 +99,7 @@ constructor(canvas) {
   // ==========================
   this.nearShelf = null;
 
-  for (const s of museumMap.shelves) {
+ for (const s of this.shelves) {
 
     const centerX = s.x + s.w / 2;
     const centerY = s.y + s.h / 2;
@@ -139,8 +139,9 @@ constructor(canvas) {
 
 
     // Camera kiểu Soul Knight
-    this.camera.x = p.x;
-    this.camera.y = p.y;
+    this.camera.x = this.player.x;
+    this.camera.y = this.player.y;
+
   }
 
 drawRooms() {
@@ -337,7 +338,6 @@ if (this.activeShelf) {
   this.ctx.font = "18px Arial";
   this.ctx.fillText("Nhấn ESC để đóng", boxX + 20, boxY + boxH - 20);
 }
-if (this.activeShelf) {
 
   this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
@@ -368,7 +368,6 @@ if (this.activeShelf) {
   this.ctx.font = "18px Arial";
   this.ctx.fillText("Nhấn ESC để thoát", boxX + 20, boxY + boxH - 20);
 }
-if (this.activeShelf) {
 
   this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
