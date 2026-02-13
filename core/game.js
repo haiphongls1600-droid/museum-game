@@ -135,13 +135,10 @@ constructor(canvas) {
     }
   }
 
-}
-
 
     // Camera kiểu Soul Knight
     this.camera.x = this.player.x;
     this.camera.y = this.player.y;
-
   }
 
 drawRooms() {
