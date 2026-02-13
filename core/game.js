@@ -32,6 +32,7 @@ export class Game {
 this.interactDistance = 60;
 
 this.canvas.addEventListener("click", (e) => {
+  
   if (this.activeShelf) return; // đang mở popup thì không click tiếp
 
   for (const s of museumMap.shelves) {
@@ -57,46 +58,62 @@ window.addEventListener("keydown", (e) => {
     this.activeShelf = null;
 this.interactDistance = 70;
 
+// =======================
 // CLICK
+// =======================
+
 this.canvas.addEventListener("click", (e) => {
 
+  // Nếu đang mở popup thì không cho click di chuyển
   if (this.activeShelf) return;
 
-  // chuyển tọa độ chuột sang world
+  // ===================
+  // CLICK VÀO NÚT E (GÓC TRÁI)
+  // ===================
+  if (this.nearShelf) {
+    const x = e.offsetX;
+    const y = e.offsetY;
+
+    // vùng nút E (20px → 80px)
+    if (x >= 20 && x <= 80 && y >= 20 && y <= 80) {
+      this.activeShelf = this.nearShelf;
+      return;
+    }
+  }
+
+  // ===================
+  // CLICK ĐỂ DI CHUYỂN
+  // ===================
+
   const worldX = e.offsetX - (this.canvas.width / 2 - this.camera.x);
   const worldY = e.offsetY - (this.canvas.height / 2 - this.camera.y);
 
-  for (const s of museumMap.shelves) {
+  this.moveTarget = { x: worldX, y: worldY };
 
-    // kiểm tra click có trúng đúng kệ không
-    const clicked =
-      worldX > s.x &&
-      worldX < s.x + s.w &&
-      worldY > s.y &&
-      worldY < s.y + s.h;
-
-    if (!clicked) continue;
-
-    // kiểm tra player có đứng gần không
-    const dx = this.player.x - (s.x + s.w / 2);
-    const dy = this.player.y - (s.y + s.h / 2);
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist < this.interactDistance) {
-      this.activeShelf = s;
-      break;
-    }
-  }
 });
 
-// ESC để đóng
+
+// =======================
+// KEYBOARD (E + ESC)
+// =======================
+
 window.addEventListener("keydown", (e) => {
+
+  // Nhấn E để mở kệ nếu đang gần
+  if ((e.key === "e" || e.key === "E") 
+      && this.nearShelf 
+      && !this.activeShelf) {
+
+    this.activeShelf = this.nearShelf;
+  }
+
+  // Nhấn ESC để đóng popup
   if (e.key === "Escape") {
     this.activeShelf = null;
   }
+
 });
 
-}
 
   
 
@@ -107,42 +124,65 @@ window.addEventListener("keydown", (e) => {
       const y = e.clientY - rect.top - this.canvas.height / 2 + this.camera.y;
       this.player.target = { x, y };
     });
+    this.activeShelf = null;
+this.nearShelf = null;
+this.interactDistance = 70;
+
   }
 
   update(dt) {
-    const p = this.player;
-    if (p.target) {
-      const dx = p.target.x - p.x;
-      const dy = p.target.y - p.y;
-      const dist = Math.hypot(dx, dy);
 
-      if (dist < 2) {
-        p.target = null;
-      } else {
-        p.x += (dx / dist) * p.speed * dt;
-        p.y += (dy / dist) * p.speed * dt;
-        if (this.activeShelf) return;
-
-// Di chuyển tới điểm click
-if (this.moveTarget) {
-
-  const dx = this.moveTarget.x - this.player.x;
-  const dy = this.moveTarget.y - this.player.y;
-
-  const dist = Math.sqrt(dx * dx + dy * dy);
-
-  const speed = 200;
-
-  if (dist > 5) {
-    this.player.x += (dx / dist) * speed * dt;
-    this.player.y += (dy / dist) * speed * dt;
-  } else {
-    this.moveTarget = null;
+  // ==========================
+  // 1️⃣ Nếu popup đang mở → không cho di chuyển
+  // ==========================
+  if (this.activeShelf) {
+    this.moveTarget = null; // đảm bảo không còn di chuyển
+    return;
   }
+
+  // ==========================
+  // 2️⃣ Reset nearShelf
+  // ==========================
+  this.nearShelf = null;
+
+  for (const s of museumMap.shelves) {
+
+    const centerX = s.x + s.w / 2;
+    const centerY = s.y + s.h / 2;
+
+    const dx = this.player.x - centerX;
+    const dy = this.player.y - centerY;
+
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < this.interactDistance) {
+      this.nearShelf = s;
+      break;
+    }
+  }
+
+  // ==========================
+  // 3️⃣ Xử lý di chuyển
+  // ==========================
+  if (this.moveTarget) {
+
+    const dx = this.moveTarget.x - this.player.x;
+    const dy = this.moveTarget.y - this.player.y;
+
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist > 2) {
+      const speed = 200;
+
+      this.player.x += (dx / dist) * speed * dt;
+      this.player.y += (dy / dist) * speed * dt;
+    } else {
+      this.moveTarget = null;
+    }
+  }
+
 }
 
-      }
-    }
 
     // Camera kiểu Soul Knight
     this.camera.x = p.x;
@@ -396,6 +436,17 @@ if (this.activeShelf) {
   this.ctx.fillStyle = "black";
   this.ctx.font = "20px Arial";
   this.ctx.fillText("Nhấn ESC để thoát", x + 20, y + h - 20);
+}
+if (this.nearShelf && !this.activeShelf) {
+
+  this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  this.ctx.fillStyle = "#222";
+  this.ctx.fillRect(20, 20, 60, 60);
+
+  this.ctx.fillStyle = "white";
+  this.ctx.font = "40px Arial";
+  this.ctx.fillText("E", 38, 65);
 }
 
 }
