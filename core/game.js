@@ -4,128 +4,85 @@ import { museumMap } from "../maps/museumMap.js";
 import { textures, loadTextures } from "../assets/textures/textures.js";
 
 export class Game {
-  constructor(canvas) {
+constructor(canvas) {
   this.canvas = canvas;
   this.ctx = canvas.getContext("2d");
 
   this.lastTime = 0;
   this.camera = { x: 0, y: 0 };
 
+  // ===== STATE =====
+  this.activeShelf = null;
+  this.nearShelf = null;
+  this.interactDistance = 150;
+  this.moveTarget = null;
+
   loadTextures(() => {
+
+    // ===== PLAYER =====
     this.player = {
-      x: 0,
-      y: 0,
+      x: 100,
+      y: 100,
       size: 20,
-      speed: 200,
-      target: null
+      speed: 200
     };
 
+    // ===== SHELVES =====
     this.shelves = [
       new Shelf(200, 150, 60, 30, "art_1"),
       new Shelf(400, 220, 60, 30, "art_2")
     ];
 
+    // ===== EVENTS =====
     this.bindEvents();
+
+    // ===== START LOOP =====
     requestAnimationFrame(this.loop.bind(this));
   });
-    this.activeShelf = null;
+}
 
-this.canvas.addEventListener("click", (e) => {
-  
-  if (this.activeShelf) return; // đang mở popup thì không click tiếp
-
-  for (const s of museumMap.shelves) {
-    const dx = this.player.x - (s.x + s.w / 2);
-    const dy = this.player.y - (s.y + s.h / 2);
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist < this.interactDistance) {
-      this.activeShelf = s;
-      break;
-    }
-  }
-});
-
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    if (this.activeShelf) {
-      this.activeShelf = null;
-    }
-  }
-});
-
-    this.activeShelf = null;
-
-// =======================
-// CLICK
-// =======================
-
-this.canvas.addEventListener("click", (e) => {
-
-  // Nếu đang mở popup thì không cho click di chuyển
-  if (this.activeShelf) return;
-this.interactDistance = 150
-  // ===================
-  // CLICK VÀO NÚT E (GÓC TRÁI)
-  // ===================
-  if (this.nearShelf) {
-    const x = e.offsetX;
-    const y = e.offsetY;
-
-    // vùng nút E (20px → 80px)
-    if (x >= 20 && x <= 80 && y >= 20 && y <= 80) {
-      this.activeShelf = this.nearShelf;
-      return;
-    }
-  }
-
-  // ===================
-  // CLICK ĐỂ DI CHUYỂN
-  // ===================
-
-  const worldX = e.offsetX - (this.canvas.width / 2 - this.camera.x);
-  const worldY = e.offsetY - (this.canvas.height / 2 - this.camera.y);
-
-  this.moveTarget = { x: worldX, y: worldY };
-
-});
-
-
-// =======================
-// KEYBOARD (E + ESC)
-// =======================
-
-window.addEventListener("keydown", (e) => {
-
-  // Nhấn E để mở kệ nếu đang gần
-  if ((e.key === "e" || e.key === "E") 
-      && this.nearShelf 
-      && !this.activeShelf) {
-
-    this.activeShelf = this.nearShelf;
-  }
-
-  // Nhấn ESC để đóng popup
-  if (e.key === "Escape") {
-    this.activeShelf = null;
-  }
-
-});
-  }
-
-  
 
   bindEvents() {
-    this.canvas.addEventListener("click", (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left - this.canvas.width / 2 + this.camera.x;
-      const y = e.clientY - rect.top - this.canvas.height / 2 + this.camera.y;
-      this.player.target = { x, y };
-    });
-    this.activeShelf = null;
-this.nearShelf = null;
 
-  }
+  // CLICK
+  this.canvas.addEventListener("click", (e) => {
+
+    if (this.activeShelf) return;
+
+    // Click nút E
+    if (this.nearShelf) {
+      const x = e.offsetX;
+      const y = e.offsetY;
+
+      if (x >= 20 && x <= 80 && y >= 20 && y <= 80) {
+        this.activeShelf = this.nearShelf;
+        return;
+      }
+    }
+
+    const worldX = e.offsetX - (this.canvas.width / 2 - this.camera.x);
+    const worldY = e.offsetY - (this.canvas.height / 2 - this.camera.y);
+
+    this.moveTarget = { x: worldX, y: worldY };
+  });
+
+
+  // KEYBOARD
+  window.addEventListener("keydown", (e) => {
+
+    if ((e.key === "e" || e.key === "E") &&
+        this.nearShelf &&
+        !this.activeShelf) {
+
+      this.activeShelf = this.nearShelf;
+    }
+
+    if (e.key === "Escape") {
+      this.activeShelf = null;
+    }
+
+  });
+}
 
   update(dt) {
 
