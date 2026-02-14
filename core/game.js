@@ -145,11 +145,4 @@ export class Game {
   }
 }
 
-// Khởi tạo game
-const canvas = document.getElementById('game');
-if (canvas) {
-  window.game = new Game(canvas);  // gán vào window để dễ debug
-  console.log('Game khởi tạo thành công!');
-} else {
-  console.error('Không tìm thấy canvas id="game"');
-}
+
