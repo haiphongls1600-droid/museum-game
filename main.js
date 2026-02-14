@@ -1,5 +1,5 @@
 // main.js
-import { Game } from "../core/game.js";
+import { Game } from "./core/game.js";
 
 
 const canvas = document.getElementById("game");
