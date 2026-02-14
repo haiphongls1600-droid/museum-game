@@ -1,36 +1,87 @@
-constructor(canvas) {
-  this.canvas = canvas;
-  this.ctx = canvas.getContext("2d");
+update(dt) {
+  // 1. Nếu đang mở popup → khóa di chuyển & tương tác
+  if (this.activeShelf) {
+    this.moveTarget = null;
+    return;
+  }
 
-  this.lastTime = 0;
-  this.camera = { x: 0, y: 0 };
-
-  // ===== STATE =====
-  this.activeShelf = null;
+  // 2. Tìm kệ gần nhất (chỉ cần 1 kệ gần nhất là đủ)
   this.nearShelf = null;
-  this.interactDistance = 150;
-  this.moveTarget = null;
+  for (const shelf of museumMap.shelves) {
+    const centerX = shelf.x + shelf.w / 2;
+    const centerY = shelf.y + shelf.h / 2;
+    const dx = this.player.x - centerX;
+    const dy = this.player.y - centerY;
+    const distance = Math.hypot(dx, dy); // Math.hypot nhanh & gọn hơn
 
-  loadTextures(() => {
+    if (distance < this.interactDistance) {
+      this.nearShelf = shelf;
+      break; // chỉ lấy kệ đầu tiên gần nhất
+    }
+  }
 
-    // ===== PLAYER =====
-    this.player = {
-      x: 100,
-      y: 100,
-      size: 20,
-      speed: 200
-    };
+  // 3. Xử lý di chuyển đến điểm click/chạm
+  if (this.moveTarget) {
+    const dx = this.moveTarget.x - this.player.x;
+    const dy = this.moveTarget.y - this.player.y;
+    const dist = Math.hypot(dx, dy);
 
-    // ===== SHELVES =====
-    this.shelves = [
-      new Shelf(200, 150, 60, 30, "art_1"),
-      new Shelf(400, 220, 60, 30, "art_2")
-    ];
+    if (dist > 2) {  // ngưỡng dừng nhỏ để tránh rung
+      const speed = this.player.speed || 200; // dùng thuộc tính player nếu có
+      const moveX = (dx / dist) * speed * dt;
+      const moveY = (dy / dist) * speed * dt;
+      this.player.x += moveX;
+      this.player.y += moveY;
+    } else {
+      this.moveTarget = null;
+    }
+  }
 
-    // ===== EVENTS =====
-    this.bindEvents();
+  // 4. Camera follow player (kiểu Soul Knight / top-down centering)
+  this.camera.x = this.player.x;
+  this.camera.y = this.player.y;
+}
 
-    // ===== START LOOP =====
-    requestAnimationFrame(this.loop.bind(this));
-  });
+update(dt) {
+  // 1. Nếu đang mở popup → khóa di chuyển & tương tác
+  if (this.activeShelf) {
+    this.moveTarget = null;
+    return;
+  }
+
+  // 2. Tìm kệ gần nhất (chỉ cần 1 kệ gần nhất là đủ)
+  this.nearShelf = null;
+  for (const shelf of museumMap.shelves) {
+    const centerX = shelf.x + shelf.w / 2;
+    const centerY = shelf.y + shelf.h / 2;
+    const dx = this.player.x - centerX;
+    const dy = this.player.y - centerY;
+    const distance = Math.hypot(dx, dy); // Math.hypot nhanh & gọn hơn
+
+    if (distance < this.interactDistance) {
+      this.nearShelf = shelf;
+      break; // chỉ lấy kệ đầu tiên gần nhất
+    }
+  }
+
+  // 3. Xử lý di chuyển đến điểm click/chạm
+  if (this.moveTarget) {
+    const dx = this.moveTarget.x - this.player.x;
+    const dy = this.moveTarget.y - this.player.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > 2) {  // ngưỡng dừng nhỏ để tránh rung
+      const speed = this.player.speed || 200; // dùng thuộc tính player nếu có
+      const moveX = (dx / dist) * speed * dt;
+      const moveY = (dy / dist) * speed * dt;
+      this.player.x += moveX;
+      this.player.y += moveY;
+    } else {
+      this.moveTarget = null;
+    }
+  }
+
+  // 4. Camera follow player (kiểu Soul Knight / top-down centering)
+  this.camera.x = this.player.x;
+  this.camera.y = this.player.y;
 }
