@@ -5,6 +5,7 @@ class Game {
     this.lastTime = 0;
     this.camera = { x: 0, y: 0 };
 
+    
     this.activeShelf = null;
     this.nearShelf = null;
     this.interactDistance = 150;
