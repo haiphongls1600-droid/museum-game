@@ -1,52 +1,36 @@
-update(dt) {
+constructor(canvas) {
+  this.canvas = canvas;
+  this.ctx = canvas.getContext("2d");
 
-  // ==========================
-  // 1️⃣ Nếu popup đang mở → không cho di chuyển
-  // ==========================
-  if (this.activeShelf) {
-    this.moveTarget = null; // đảm bảo không còn di chuyển
-    return;
-  }
+  this.lastTime = 0;
+  this.camera = { x: 0, y: 0 };
 
-  // ==========================
-  // 2️⃣ Reset nearShelf
-  // ==========================
+  // ===== STATE =====
+  this.activeShelf = null;
   this.nearShelf = null;
+  this.interactDistance = 150;
+  this.moveTarget = null;
 
-  for (const s of museumMap.shelves) {
+  loadTextures(() => {
 
-    const centerX = s.x + s.w / 2;
-    const centerY = s.y + s.h / 2;
+    // ===== PLAYER =====
+    this.player = {
+      x: 100,
+      y: 100,
+      size: 20,
+      speed: 200
+    };
 
-    const dx = this.player.x - centerX;
-    const dy = this.player.y - centerY;
+    // ===== SHELVES =====
+    this.shelves = [
+      new Shelf(200, 150, 60, 30, "art_1"),
+      new Shelf(400, 220, 60, 30, "art_2")
+    ];
 
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    // ===== EVENTS =====
+    this.bindEvents();
 
-    if (dist < this.interactDistance) {
-      this.nearShelf = s;
-      break;
-    }
-  }
-
-  // ==========================
-  // 3️⃣ Xử lý di chuyển
-  // ==========================
-  if (this.moveTarget) {
-
-    const dx = this.moveTarget.x - this.player.x;
-    const dy = this.moveTarget.y - this.player.y;
-
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist > 2) {
-      const speed = 200;
-
-      this.player.x += (dx / dist) * speed * dt;
-      this.player.y += (dy / dist) * speed * dt;
-    } else {
-      this.moveTarget = null;
-    }
-  }
-
+    // ===== START LOOP =====
+    requestAnimationFrame(this.loop.bind(this));
+  });
 }
