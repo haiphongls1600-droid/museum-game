@@ -4,16 +4,35 @@ export class Game {
     this.ctx = canvas.getContext("2d");
 
     this.player = {
-      x: 0,
-      y: 0,
+      x: 400,
+      y: 300,
       size: 40,
       speed: 4
     };
 
     this.camera = { x: 0, y: 0 };
-
     this.keys = {};
-    this.shelves = [];
+
+    this.mapWidth = 2000;
+    this.mapHeight = 2000;
+
+    this.walls = [
+      { x: 300, y: 300, w: 400, h: 40 },
+      { x: 900, y: 600, w: 40, h: 400 }
+    ];
+
+    this.tables = [
+      { x: 600, y: 400, w: 120, h: 60 }
+    ];
+
+    this.trees = [
+      { x: 1000, y: 1000, r: 40 }
+    ];
+
+    this.shelves = [
+      { x: 800, y: 300 }
+    ];
+
     this.nearShelf = null;
     this.activeShelf = null;
     this.interactDistance = 80;
@@ -43,17 +62,44 @@ export class Game {
   update() {
     if (this.activeShelf) return;
 
-    if (this.keys["w"]) this.player.y -= this.player.speed;
-    if (this.keys["s"]) this.player.y += this.player.speed;
-    if (this.keys["a"]) this.player.x -= this.player.speed;
-    if (this.keys["d"]) this.player.x += this.player.speed;
+    let dx = 0;
+    let dy = 0;
 
+    if (this.keys["w"] || this.keys["ArrowUp"]) dy -= this.player.speed;
+    if (this.keys["s"] || this.keys["ArrowDown"]) dy += this.player.speed;
+    if (this.keys["a"] || this.keys["ArrowLeft"]) dx -= this.player.speed;
+    if (this.keys["d"] || this.keys["ArrowRight"]) dx += this.player.speed;
+
+    this.movePlayer(dx, dy);
     this.checkShelfDistance();
+  }
+
+  movePlayer(dx, dy) {
+    const newX = this.player.x + dx;
+    const newY = this.player.y + dy;
+
+    if (!this.isColliding(newX, newY)) {
+      this.player.x = newX;
+      this.player.y = newY;
+    }
+  }
+
+  isColliding(x, y) {
+    for (let wall of this.walls) {
+      if (
+        x + 20 > wall.x &&
+        x - 20 < wall.x + wall.w &&
+        y + 20 > wall.y &&
+        y - 20 < wall.y + wall.h
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   checkShelfDistance() {
     this.nearShelf = null;
-
     for (let shelf of this.shelves) {
       const dx = this.player.x - shelf.x;
       const dy = this.player.y - shelf.y;
@@ -78,38 +124,60 @@ export class Game {
       this.canvas.height / 2 - this.camera.y
     );
 
+    this.drawMap();
+    this.drawWalls();
+    this.drawTables();
+    this.drawTrees();
     this.drawShelves();
     this.drawPlayer();
 
-    if (this.activeShelf) {
-      this.drawPopup();
-    }
+    if (this.activeShelf) this.drawPopup();
+    if (this.nearShelf && !this.activeShelf) this.drawEHint();
+  }
 
-    if (this.nearShelf && !this.activeShelf) {
-      this.drawEHint();
+  drawMap() {
+    this.ctx.fillStyle = "#3a3a3a";
+    this.ctx.fillRect(0, 0, this.mapWidth, this.mapHeight);
+  }
+
+  drawWalls() {
+    this.ctx.fillStyle = "#555";
+    for (let wall of this.walls) {
+      this.ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
+    }
+  }
+
+  drawTables() {
+    this.ctx.fillStyle = "#8B4513";
+    for (let table of this.tables) {
+      this.ctx.fillRect(table.x, table.y, table.w, table.h);
+    }
+  }
+
+  drawTrees() {
+    this.ctx.fillStyle = "green";
+    for (let tree of this.trees) {
+      this.ctx.beginPath();
+      this.ctx.arc(tree.x, tree.y, tree.r, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+  }
+
+  drawShelves() {
+    this.ctx.fillStyle = "brown";
+    for (let shelf of this.shelves) {
+      this.ctx.fillRect(shelf.x - 30, shelf.y - 30, 60, 60);
     }
   }
 
   drawPlayer() {
     this.ctx.fillStyle = "deepskyblue";
     this.ctx.fillRect(
-      this.player.x - this.player.size / 2,
-      this.player.y - this.player.size / 2,
-      this.player.size,
-      this.player.size
+      this.player.x - 20,
+      this.player.y - 20,
+      40,
+      40
     );
-  }
-
-  drawShelves() {
-    for (let shelf of this.shelves) {
-      this.ctx.fillStyle = "brown";
-      this.ctx.fillRect(
-        shelf.x - 30,
-        shelf.y - 30,
-        60,
-        60
-      );
-    }
   }
 
   drawPopup() {
@@ -118,26 +186,22 @@ export class Game {
     this.ctx.fillStyle = "rgba(0,0,0,0.6)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const w = 600;
-    const h = 400;
+    const w = 500;
+    const h = 300;
     const x = (this.canvas.width - w) / 2;
     const y = (this.canvas.height - h) / 2;
 
     this.ctx.fillStyle = "white";
     this.ctx.fillRect(x, y, w, h);
 
-    this.ctx.strokeStyle = "black";
-    this.ctx.lineWidth = 5;
-    this.ctx.strokeRect(x, y, w, h);
-
     this.ctx.fillStyle = "black";
     this.ctx.font = "20px Arial";
-    this.ctx.fillText("Nhấn ESC để đóng", x + 20, y + h - 20);
+    this.ctx.fillText("Đây là hiện vật trưng bày", x + 40, y + 100);
+    this.ctx.fillText("Nhấn ESC để đóng", x + 40, y + 150);
   }
 
   drawEHint() {
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-
     this.ctx.fillStyle = "#222";
     this.ctx.fillRect(20, 20, 60, 60);
 
