@@ -9,7 +9,6 @@ update(dt) {
     const cx = shelf.x + shelf.w / 2;
     const cy = shelf.y + shelf.h / 2;
     const dist = Math.hypot(this.player.x - cx, this.player.y - cy);
-
     if (dist < this.interactDistance) {
       this.nearShelf = shelf;
       break;
@@ -20,7 +19,6 @@ update(dt) {
     const dx = this.moveTarget.x - this.player.x;
     const dy = this.moveTarget.y - this.player.y;
     const dist = Math.hypot(dx, dy);
-
     if (dist > 2) {
       const speed = this.player.speed ?? 200;
       this.player.x += (dx / dist) * speed * dt;
