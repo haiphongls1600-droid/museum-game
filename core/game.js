@@ -1,12 +1,3 @@
-import { Game } from "./Game.js";
-
-const canvas = document.getElementById("game");
-const game = new Game(canvas);
-
-// Thêm kệ trưng bày
-game.shelves.push({ x: 200, y: 0 });
-game.shelves.push({ x: -200, y: 100 });
-
 export class Game {
   constructor(canvas) {
     this.canvas = canvas;
@@ -31,7 +22,6 @@ export class Game {
     this.loop();
   }
 
-  // ================= EVENTS =================
   bindEvents() {
     window.addEventListener("keydown", (e) => {
       this.keys[e.key] = true;
@@ -50,9 +40,7 @@ export class Game {
     });
   }
 
-  // ================= UPDATE =================
   update() {
-    // Nếu đang mở popup → không cho di chuyển
     if (this.activeShelf) return;
 
     if (this.keys["w"]) this.player.y -= this.player.speed;
@@ -78,13 +66,10 @@ export class Game {
     }
   }
 
-  // ================= DRAW =================
   draw() {
-    // reset transform
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // camera follow player
     this.camera.x = this.player.x;
     this.camera.y = this.player.y;
 
@@ -106,7 +91,7 @@ export class Game {
   }
 
   drawPlayer() {
-    this.ctx.fillStyle = "blue";
+    this.ctx.fillStyle = "deepskyblue";
     this.ctx.fillRect(
       this.player.x - this.player.size / 2,
       this.player.y - this.player.size / 2,
@@ -161,7 +146,6 @@ export class Game {
     this.ctx.fillText("E", 38, 65);
   }
 
-  // ================= LOOP =================
   loop() {
     this.update();
     this.draw();
