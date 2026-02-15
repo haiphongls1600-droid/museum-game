@@ -1,252 +1,264 @@
-export class Game {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
+// ================================
+// GAME CORE - MUSEUM ENGINE v2
+// Zoom 1.2 - Camera Follow
+// ================================
 
-    this.lastTime = 0;
+export default class Game {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
 
-    // ===== MAP =====
-    this.map = {
-      width: 2000,
-      height: 2000
-    };
+        // ===== CONFIG =====
+        this.tileSize = 64;
+        this.zoom = 1.2;
+        this.mapWidth = 3200;
+        this.mapHeight = 2400;
 
-    // ===== CAMERA =====
-    this.camera = { x: 0, y: 0 };
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
 
-    // ===== PLAYER =====
-    this.player = {
-      x: 300,
-      y: 300,
-      size: 20,
-      speed: 250,
-      vx: 0,
-      vy: 0
-    };
+        // ===== CAMERA =====
+        this.camera = {
+            x: 0,
+            y: 0
+        };
 
-    // ===== INPUT =====
-    this.keys = {};
-    this.moveTarget = null;
+        // ===== PLAYER =====
+        this.player = {
+            x: 400,
+            y: 400,
+            width: 48,
+            height: 48,
+            speed: 4,
+            moving: false
+        };
 
-    // ===== INTERACTION =====
-    this.interactDistance = 120;
-    this.nearShelf = null;
-    this.activeShelf = null;
+        // ===== INPUT =====
+        this.keys = {};
+        this.popupOpen = false;
 
-    // ===== OBJECTS =====
-    this.shelves = [
-      { x: 600, y: 500, w: 120, h: 60 },
-      { x: 1200, y: 900, w: 120, h: 60 }
-    ];
+        // ===== ASSETS =====
+        this.images = {};
+        this.loadAssets();
 
-    this.walls = [
-      { x: 800, y: 200, w: 60, h: 400 },
-      { x: 400, y: 1000, w: 600, h: 60 }
-    ];
+        // ===== MAP DATA =====
+        this.walls = [];
+        this.plants = [];
+        this.shelves = [];
 
-    this.bindEvents();
-    requestAnimationFrame(this.loop.bind(this));
-  }
+        this.buildMap();
 
-  // ================= LOOP =================
-  loop(timestamp) {
-    if (!this.lastTime) this.lastTime = timestamp;
-    const dt = (timestamp - this.lastTime) / 1000;
-    this.lastTime = timestamp;
-
-    this.update(dt);
-    this.draw();
-
-    requestAnimationFrame(this.loop.bind(this));
-  }
-
-  // ================= INPUT =================
-  bindEvents() {
-    window.addEventListener("keydown", e => {
-      this.keys[e.key.toLowerCase()] = true;
-
-      if (e.key === "e" && this.nearShelf) {
-        this.activeShelf = this.nearShelf;
-      }
-
-      if (e.key === "Escape") {
-        this.activeShelf = null;
-      }
-    });
-
-    window.addEventListener("keyup", e => {
-      this.keys[e.key.toLowerCase()] = false;
-    });
-
-    this.canvas.addEventListener("click", e => {
-      const rect = this.canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const worldX = x + this.camera.x - this.canvas.width / 2;
-      const worldY = y + this.camera.y - this.canvas.height / 2;
-
-      this.moveTarget = { x: worldX, y: worldY };
-    });
-  }
-
-  // ================= UPDATE =================
-  update(dt) {
-    if (this.activeShelf) return;
-
-    this.handleMovement(dt);
-    this.checkCollision();
-    this.updateCamera();
-    this.detectShelf();
-  }
-
-  handleMovement(dt) {
-    const p = this.player;
-    p.vx = 0;
-    p.vy = 0;
-
-    if (this.keys["w"]) p.vy = -1;
-    if (this.keys["s"]) p.vy = 1;
-    if (this.keys["a"]) p.vx = -1;
-    if (this.keys["d"]) p.vx = 1;
-
-    // Normalize WASD
-    const len = Math.hypot(p.vx, p.vy);
-    if (len > 0) {
-      p.vx /= len;
-      p.vy /= len;
-      this.moveTarget = null;
+        this.addEvents();
+        this.loop();
     }
 
-    // Click move
-    if (this.moveTarget) {
-      const dx = this.moveTarget.x - p.x;
-      const dy = this.moveTarget.y - p.y;
-      const dist = Math.hypot(dx, dy);
+    // ===========================
+    // LOAD ASSETS
+    // ===========================
+    loadAssets() {
+        const files = [
+            "floor",
+            "wall",
+            "plant",
+            "shelf",
+            "player"
+        ];
 
-      if (dist > 5) {
-        p.vx = dx / dist;
-        p.vy = dy / dist;
-      } else {
-        this.moveTarget = null;
-      }
+        files.forEach(name => {
+            const img = new Image();
+            img.src = `./${name}.png`;
+            this.images[name] = img;
+        });
     }
 
-    p.x += p.vx * p.speed * dt;
-    p.y += p.vy * p.speed * dt;
+    // ===========================
+    // BUILD MAP
+    // ===========================
+    buildMap() {
 
-    // Clamp map
-    p.x = Math.max(p.size, Math.min(this.map.width - p.size, p.x));
-    p.y = Math.max(p.size, Math.min(this.map.height - p.size, p.y));
-  }
+        // Outer walls
+        for (let x = 0; x < this.mapWidth; x += this.tileSize) {
+            this.walls.push({ x: x, y: 0 });
+            this.walls.push({ x: x, y: this.mapHeight - this.tileSize });
+        }
 
-  checkCollision() {
-    const p = this.player;
+        for (let y = 0; y < this.mapHeight; y += this.tileSize) {
+            this.walls.push({ x: 0, y: y });
+            this.walls.push({ x: this.mapWidth - this.tileSize, y: y });
+        }
 
-    for (const wall of this.walls) {
-      if (
-        p.x + p.size > wall.x &&
-        p.x - p.size < wall.x + wall.w &&
-        p.y + p.size > wall.y &&
-        p.y - p.size < wall.y + wall.h
-      ) {
-        p.x -= p.vx * 5;
-        p.y -= p.vy * 5;
-      }
-    }
-  }
+        // Internal room walls
+        for (let x = 600; x < 2600; x += this.tileSize) {
+            this.walls.push({ x: x, y: 800 });
+            this.walls.push({ x: x, y: 1600 });
+        }
 
-  detectShelf() {
-    this.nearShelf = null;
+        for (let y = 800; y <= 1600; y += this.tileSize) {
+            this.walls.push({ x: 600, y: y });
+            this.walls.push({ x: 2600 - this.tileSize, y: y });
+        }
 
-    for (const s of this.shelves) {
-      const cx = s.x + s.w / 2;
-      const cy = s.y + s.h / 2;
+        // Plants
+        this.plants.push({ x: 700, y: 700 });
+        this.plants.push({ x: 2400, y: 700 });
+        this.plants.push({ x: 700, y: 1700 });
+        this.plants.push({ x: 2400, y: 1700 });
 
-      const dist = Math.hypot(this.player.x - cx, this.player.y - cy);
-
-      if (dist < this.interactDistance) {
-        this.nearShelf = s;
-        break;
-      }
-    }
-  }
-
-  updateCamera() {
-    this.camera.x = this.player.x;
-    this.camera.y = this.player.y;
-
-    this.camera.x = Math.max(
-      this.canvas.width / 2,
-      Math.min(this.map.width - this.canvas.width / 2, this.camera.x)
-    );
-
-    this.camera.y = Math.max(
-      this.canvas.height / 2,
-      Math.min(this.map.height - this.canvas.height / 2, this.camera.y)
-    );
-  }
-
-  // ================= DRAW =================
-  draw() {
-    const ctx = this.ctx;
-    const cw = this.canvas.width;
-    const ch = this.canvas.height;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, cw, ch);
-
-    ctx.translate(cw / 2 - this.camera.x, ch / 2 - this.camera.y);
-
-    // MAP
-    ctx.fillStyle = "#2e2e2e";
-    ctx.fillRect(0, 0, this.map.width, this.map.height);
-
-    // Walls
-    ctx.fillStyle = "#555";
-    for (const w of this.walls) {
-      ctx.fillRect(w.x, w.y, w.w, w.h);
+        // Shelves
+        for (let x = 900; x < 2300; x += 200) {
+            this.shelves.push({ x: x, y: 1000 });
+            this.shelves.push({ x: x, y: 1400 });
+        }
     }
 
-    // Shelves
-    ctx.fillStyle = "green";
-    for (const s of this.shelves) {
-      ctx.fillRect(s.x, s.y, s.w, s.h);
+    // ===========================
+    // EVENTS
+    // ===========================
+    addEvents() {
+        window.addEventListener("keydown", e => {
+            this.keys[e.key.toLowerCase()] = true;
+
+            if (e.key.toLowerCase() === "e") {
+                this.popupOpen = true;
+            }
+
+            if (e.key === "Escape") {
+                this.popupOpen = false;
+            }
+        });
+
+        window.addEventListener("keyup", e => {
+            this.keys[e.key.toLowerCase()] = false;
+        });
     }
 
-    // Player
-    ctx.fillStyle = "red";
-    ctx.beginPath();
-    ctx.arc(this.player.x, this.player.y, this.player.size, 0, Math.PI * 2);
-    ctx.fill();
+    // ===========================
+    // COLLISION
+    // ===========================
+    checkCollision(x, y) {
+        const rect1 = {
+            x: x,
+            y: y,
+            w: this.player.width,
+            h: this.player.height
+        };
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+        for (let wall of this.walls) {
+            const rect2 = {
+                x: wall.x,
+                y: wall.y,
+                w: this.tileSize,
+                h: this.tileSize
+            };
 
-    // UI
-    if (this.activeShelf) {
-      ctx.fillStyle = "rgba(0,0,0,0.7)";
-      ctx.fillRect(0, 0, cw, ch);
+            if (
+                rect1.x < rect2.x + rect2.w &&
+                rect1.x + rect1.w > rect2.x &&
+                rect1.y < rect2.y + rect2.h &&
+                rect1.y + rect1.h > rect2.y
+            ) {
+                return true;
+            }
+        }
 
-      ctx.fillStyle = "white";
-      ctx.fillRect(cw / 2 - 300, ch / 2 - 200, 600, 400);
-
-      ctx.fillStyle = "black";
-      ctx.font = "24px Arial";
-      ctx.fillText("Artwork Info - ESC to close", cw / 2 - 200, ch / 2);
+        return false;
     }
-    else if (this.nearShelf) {
-      ctx.fillStyle = "black";
-      ctx.beginPath();
-      ctx.arc(60, 60, 40, 0, Math.PI * 2);
-      ctx.fill();
 
-      ctx.fillStyle = "white";
-      ctx.font = "40px Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("E", 60, 60);
-      ctx.textAlign = "left";
-      ctx.textBaseline = "alphabetic";
+    // ===========================
+    // UPDATE
+    // ===========================
+    update() {
+        if (this.popupOpen) return;
+
+        let newX = this.player.x;
+        let newY = this.player.y;
+
+        if (this.keys["w"]) newY -= this.player.speed;
+        if (this.keys["s"]) newY += this.player.speed;
+        if (this.keys["a"]) newX -= this.player.speed;
+        if (this.keys["d"]) newX += this.player.speed;
+
+        if (!this.checkCollision(newX, this.player.y)) {
+            this.player.x = newX;
+        }
+
+        if (!this.checkCollision(this.player.x, newY)) {
+            this.player.y = newY;
+        }
+
+        // Camera follow
+        this.camera.x = this.player.x - this.canvas.width / (2 * this.zoom);
+        this.camera.y = this.player.y - this.canvas.height / (2 * this.zoom);
+
+        // Clamp camera
+        this.camera.x = Math.max(0, Math.min(this.camera.x, this.mapWidth - this.canvas.width / this.zoom));
+        this.camera.y = Math.max(0, Math.min(this.camera.y, this.mapHeight - this.canvas.height / this.zoom));
     }
-  }
+
+    // ===========================
+    // DRAW
+    // ===========================
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.save();
+        this.ctx.scale(this.zoom, this.zoom);
+        this.ctx.translate(-this.camera.x, -this.camera.y);
+
+        // Floor
+        for (let x = 0; x < this.mapWidth; x += this.tileSize) {
+            for (let y = 0; y < this.mapHeight; y += this.tileSize) {
+                this.ctx.drawImage(this.images.floor, x, y, this.tileSize, this.tileSize);
+            }
+        }
+
+        // Plants
+        for (let plant of this.plants) {
+            this.ctx.drawImage(this.images.plant, plant.x, plant.y, 64, 64);
+        }
+
+        // Shelves
+        for (let shelf of this.shelves) {
+            this.ctx.drawImage(this.images.shelf, shelf.x, shelf.y, 64, 64);
+        }
+
+        // Walls
+        for (let wall of this.walls) {
+            this.ctx.drawImage(this.images.wall, wall.x, wall.y, this.tileSize, this.tileSize);
+        }
+
+        // Player
+        this.ctx.drawImage(
+            this.images.player,
+            this.player.x,
+            this.player.y,
+            this.player.width,
+            this.player.height
+        );
+
+        this.ctx.restore();
+
+        if (this.popupOpen) {
+            this.drawPopup();
+        }
+    }
+
+    drawPopup() {
+        this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "30px Arial";
+        this.ctx.fillText("Museum Information", 100, 100);
+        this.ctx.fillText("Press ESC to close", 100, 150);
+    }
+
+    // ===========================
+    // LOOP
+    // ===========================
+    loop() {
+        this.update();
+        this.draw();
+        requestAnimationFrame(() => this.loop());
+    }
 }
