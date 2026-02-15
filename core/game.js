@@ -1,36 +1,54 @@
 export class Game {
   constructor(canvas) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
+    this.ctx = canvas.getContext("2d");
+
     this.lastTime = 0;
+
+    // ===== MAP =====
+    this.map = {
+      width: 2000,
+      height: 2000
+    };
+
+    // ===== CAMERA =====
     this.camera = { x: 0, y: 0 };
 
-    
-    this.activeShelf = null;
-    this.nearShelf = null;
-    this.interactDistance = 150;
+    // ===== PLAYER =====
+    this.player = {
+      x: 300,
+      y: 300,
+      size: 20,
+      speed: 250,
+      vx: 0,
+      vy: 0
+    };
+
+    // ===== INPUT =====
+    this.keys = {};
     this.moveTarget = null;
 
-    // Giả sử bạn có hàm loadTextures (nếu chưa có thì tạm comment phần này)
-    // loadTextures(() => {
-      this.player = {
-        x: 100,
-        y: 100,
-        size: 20,
-        speed: 200
-      };
+    // ===== INTERACTION =====
+    this.interactDistance = 120;
+    this.nearShelf = null;
+    this.activeShelf = null;
 
-      // Giả sử museumMap.shelves tồn tại, nếu chưa có thì dùng this.shelves tạm
-      this.shelves = [
-        { x: 200, y: 150, w: 60, h: 30, texture: "art_1" },
-        { x: 400, y: 220, w: 60, h: 30, texture: "art_2" }
-      ];
+    // ===== OBJECTS =====
+    this.shelves = [
+      { x: 600, y: 500, w: 120, h: 60 },
+      { x: 1200, y: 900, w: 120, h: 60 }
+    ];
 
-      // this.bindEvents();   // comment tạm nếu chưa định nghĩa
-      requestAnimationFrame(this.loop.bind(this));
-    // });
+    this.walls = [
+      { x: 800, y: 200, w: 60, h: 400 },
+      { x: 400, y: 1000, w: 600, h: 60 }
+    ];
+
+    this.bindEvents();
+    requestAnimationFrame(this.loop.bind(this));
   }
 
+  // ================= LOOP =================
   loop(timestamp) {
     if (!this.lastTime) this.lastTime = timestamp;
     const dt = (timestamp - this.lastTime) / 1000;
@@ -42,107 +60,193 @@ export class Game {
     requestAnimationFrame(this.loop.bind(this));
   }
 
-  update(dt) {
-    if (this.activeShelf) {
-      this.moveTarget = null;
-      return;
-    }
+  // ================= INPUT =================
+  bindEvents() {
+    window.addEventListener("keydown", e => {
+      this.keys[e.key.toLowerCase()] = true;
 
-    this.nearShelf = null;
-    for (const shelf of this.shelves) {  // dùng this.shelves tạm nếu chưa có museumMap
-      const cx = shelf.x + shelf.w / 2;
-      const cy = shelf.y + shelf.h / 2;
-      const dist = Math.hypot(this.player.x - cx, this.player.y - cy);
-
-      if (dist < this.interactDistance) {
-        this.nearShelf = shelf;
-        break;
+      if (e.key === "e" && this.nearShelf) {
+        this.activeShelf = this.nearShelf;
       }
+
+      if (e.key === "Escape") {
+        this.activeShelf = null;
+      }
+    });
+
+    window.addEventListener("keyup", e => {
+      this.keys[e.key.toLowerCase()] = false;
+    });
+
+    this.canvas.addEventListener("click", e => {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const worldX = x + this.camera.x - this.canvas.width / 2;
+      const worldY = y + this.camera.y - this.canvas.height / 2;
+
+      this.moveTarget = { x: worldX, y: worldY };
+    });
+  }
+
+  // ================= UPDATE =================
+  update(dt) {
+    if (this.activeShelf) return;
+
+    this.handleMovement(dt);
+    this.checkCollision();
+    this.updateCamera();
+    this.detectShelf();
+  }
+
+  handleMovement(dt) {
+    const p = this.player;
+    p.vx = 0;
+    p.vy = 0;
+
+    if (this.keys["w"]) p.vy = -1;
+    if (this.keys["s"]) p.vy = 1;
+    if (this.keys["a"]) p.vx = -1;
+    if (this.keys["d"]) p.vx = 1;
+
+    // Normalize WASD
+    const len = Math.hypot(p.vx, p.vy);
+    if (len > 0) {
+      p.vx /= len;
+      p.vy /= len;
+      this.moveTarget = null;
     }
 
+    // Click move
     if (this.moveTarget) {
-      const dx = this.moveTarget.x - this.player.x;
-      const dy = this.moveTarget.y - this.player.y;
+      const dx = this.moveTarget.x - p.x;
+      const dy = this.moveTarget.y - p.y;
       const dist = Math.hypot(dx, dy);
 
-      if (dist > 2) {
-        const speed = this.player.speed ?? 200;
-        this.player.x += (dx / dist) * speed * dt;
-        this.player.y += (dy / dist) * speed * dt;
+      if (dist > 5) {
+        p.vx = dx / dist;
+        p.vy = dy / dist;
       } else {
         this.moveTarget = null;
       }
     }
 
-    this.camera.x = this.player.x;
-    this.camera.y = this.player.y;
+    p.x += p.vx * p.speed * dt;
+    p.y += p.vy * p.speed * dt;
+
+    // Clamp map
+    p.x = Math.max(p.size, Math.min(this.map.width - p.size, p.x));
+    p.y = Math.max(p.size, Math.min(this.map.height - p.size, p.y));
   }
 
+  checkCollision() {
+    const p = this.player;
+
+    for (const wall of this.walls) {
+      if (
+        p.x + p.size > wall.x &&
+        p.x - p.size < wall.x + wall.w &&
+        p.y + p.size > wall.y &&
+        p.y - p.size < wall.y + wall.h
+      ) {
+        p.x -= p.vx * 5;
+        p.y -= p.vy * 5;
+      }
+    }
+  }
+
+  detectShelf() {
+    this.nearShelf = null;
+
+    for (const s of this.shelves) {
+      const cx = s.x + s.w / 2;
+      const cy = s.y + s.h / 2;
+
+      const dist = Math.hypot(this.player.x - cx, this.player.y - cy);
+
+      if (dist < this.interactDistance) {
+        this.nearShelf = s;
+        break;
+      }
+    }
+  }
+
+  updateCamera() {
+    this.camera.x = this.player.x;
+    this.camera.y = this.player.y;
+
+    this.camera.x = Math.max(
+      this.canvas.width / 2,
+      Math.min(this.map.width - this.canvas.width / 2, this.camera.x)
+    );
+
+    this.camera.y = Math.max(
+      this.canvas.height / 2,
+      Math.min(this.map.height - this.canvas.height / 2, this.camera.y)
+    );
+  }
+
+  // ================= DRAW =================
   draw() {
     const ctx = this.ctx;
     const cw = this.canvas.width;
     const ch = this.canvas.height;
-    const camera = this.camera;
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, cw, ch);
 
-    // Camera follow player
-    ctx.translate(cw / 2 - camera.x, ch / 2 - camera.y);
+    ctx.translate(cw / 2 - this.camera.x, ch / 2 - this.camera.y);
 
-    // Vẽ nền tạm (màu xám)
-    ctx.fillStyle = '#2b2b2b';
-    ctx.fillRect(-2000, -2000, 4000, 4000);  // nền lớn để test
+    // MAP
+    ctx.fillStyle = "#2e2e2e";
+    ctx.fillRect(0, 0, this.map.width, this.map.height);
 
-    // Vẽ player tạm (hình tròn đỏ)
-    ctx.fillStyle = 'red';
-    ctx.beginPath();
-    ctx.arc(this.player.x, this.player.y, this.player.size, 0, Math.PI * 2);
-    ctx.fill();
+    // Walls
+    ctx.fillStyle = "#555";
+    for (const w of this.walls) {
+      ctx.fillRect(w.x, w.y, w.w, w.h);
+    }
 
-    // Vẽ shelves tạm (hình chữ nhật xanh)
-    ctx.fillStyle = 'green';
+    // Shelves
+    ctx.fillStyle = "green";
     for (const s of this.shelves) {
       ctx.fillRect(s.x, s.y, s.w, s.h);
     }
 
-    // Reset transform cho UI
+    // Player
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(this.player.x, this.player.y, this.player.size, 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
+    // UI
     if (this.activeShelf) {
-      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillStyle = "rgba(0,0,0,0.7)";
       ctx.fillRect(0, 0, cw, ch);
 
-      const w = 620;
-      const h = 440;
-      const x = (cw - w) / 2;
-      const y = (ch - h) / 2;
+      ctx.fillStyle = "white";
+      ctx.fillRect(cw / 2 - 300, ch / 2 - 200, 600, 400);
 
-      ctx.fillStyle = '#f8f9fa';
-      ctx.fillRect(x, y, w, h);
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 6;
-      ctx.strokeRect(x, y, w, h);
-
-      ctx.fillStyle = '#222';
-      ctx.font = '20px Arial';
-      ctx.fillText('Nhấn ESC để thoát', x + 30, y + h - 30);
+      ctx.fillStyle = "black";
+      ctx.font = "24px Arial";
+      ctx.fillText("Artwork Info - ESC to close", cw / 2 - 200, ch / 2);
     }
     else if (this.nearShelf) {
-      ctx.fillStyle = 'rgba(0,0,0,0.85)';
+      ctx.fillStyle = "black";
       ctx.beginPath();
       ctx.arc(60, 60, 40, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = '#fff';
-      ctx.font = '50px Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('E', 60, 60);
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = "white";
+      ctx.font = "40px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("E", 60, 60);
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
     }
   }
 }
-
-
