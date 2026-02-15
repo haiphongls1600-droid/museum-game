@@ -1,14 +1,6 @@
-import { Game } from "./core/game.js";
+import Game from "./core/game.js";
 
-const canvas = document.getElementById("game");
-
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-
-resize();
-window.addEventListener("resize", resize);
-
-new Game(canvas);
- 
+window.onload = () => {
+    const canvas = document.getElementById("gameCanvas");
+    new Game(canvas);
+};
