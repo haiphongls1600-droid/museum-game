@@ -11,3 +11,4 @@ resize();
 window.addEventListener("resize", resize);
 
 new Game(canvas);
+ 
