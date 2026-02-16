@@ -1,3 +1,8 @@
+import { museumMap } from "./map.js";
+
+this.tileSize = 64;
+this.map = museumMap;
+
 export default class Game {
     constructor(canvas) {
         this.canvas = canvas;
@@ -42,17 +47,19 @@ this.plantImg  = this.loadImage("./assets/textures/plant.png");
         this.ctx.scale(this.zoom, this.zoom);
 
         // Vẽ nếu ảnh đã load xong
-        if (this.floorImg.complete && this.floorImg.naturalWidth !== 0)
-            this.ctx.drawImage(this.floorImg, 0, 0);
+        for (let y = 0; y < this.map.length; y++) {
+    for (let x = 0; x < this.map[y].length; x++) {
 
-        if (this.wallImg.complete && this.wallImg.naturalWidth !== 0)
-            this.ctx.drawImage(this.wallImg, 300, 200);
+        const tile = this.map[y][x];
+        const posX = x * this.tileSize;
+        const posY = y * this.tileSize;
 
-        if (this.playerImg.complete && this.playerImg.naturalWidth !== 0)
-            this.ctx.drawImage(this.playerImg, 500, 350);
+        if (tile === "W" && this.wallImg.complete)
+            this.ctx.drawImage(this.wallImg, posX, posY, this.tileSize, this.tileSize);
 
-        this.ctx.restore();
-
-        requestAnimationFrame(() => this.loop());
+        if ((tile === "F" || tile === "C") && this.floorImg.complete)
+            this.ctx.drawImage(this.floorImg, posX, posY, this.tileSize, this.tileSize);
     }
 }
+
+this.ctx.drawImage(this.playerImg, 6 * this.tileSize, 4 * this.tileSize, 64, 64);
