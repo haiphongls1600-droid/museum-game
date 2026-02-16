@@ -9,15 +9,14 @@ export default class Game {
         this.zoom = 1.2;
 
         // ===== LOAD IMAGES (PATH CHUẨN) =====
-const BASE = window.location.pathname.includes("museum-game")
-  ? "/museum-game/"
-  : "/";
 
-this.wallImg   = this.loadImage(BASE + "assets/wall.png");
-this.floorImg  = this.loadImage(BASE + "assets/floor.png");
-this.playerImg = this.loadImage(BASE + "assets/player.png");
-this.shelfImg  = this.loadImage(BASE + "assets/shelf.png");
-this.plantImg  = this.loadImage(BASE + "assets/plant.png");
+const BASE = "/museum-game/";
+
+this.wallImg   = this.loadImage(BASE + "assets/textures/wall.png");
+this.floorImg  = this.loadImage(BASE + "assets/textures/floor.png");
+this.playerImg = this.loadImage(BASE + "assets/textures/player.png");
+this.shelfImg  = this.loadImage(BASE + "assets/textures/shelf.png");
+this.plantImg  = this.loadImage(BASE + "assets/textures/plant.png");
 
 
 
