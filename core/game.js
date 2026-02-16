@@ -10,13 +10,14 @@ export default class Game {
 
         // ===== LOAD IMAGES (PATH CHUẨN) =====
 
-const BASE = "/museum-game/";
+const BASE = "./";
 
-this.wallImg   = this.loadImage(BASE + "assets/textures/wall.png");
-this.floorImg  = this.loadImage(BASE + "assets/textures/floor.png");
-this.playerImg = this.loadImage(BASE + "assets/textures/player.png");
-this.shelfImg  = this.loadImage(BASE + "assets/textures/shelf.png");
-this.plantImg  = this.loadImage(BASE + "assets/textures/plant.png");
+this.wallImg   = this.loadImage("./assets/textures/wall.png");
+this.floorImg  = this.loadImage("./assets/textures/floor.png");
+this.playerImg = this.loadImage("./assets/textures/player.png");
+this.shelfImg  = this.loadImage("./assets/textures/shelf.png");
+this.plantImg  = this.loadImage("./assets/textures/plant.png");
+
 
 
 
