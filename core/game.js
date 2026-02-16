@@ -9,11 +9,12 @@ export default class Game {
         this.zoom = 1.2;
 
         // ===== LOAD IMAGES (PATH CHUẨN) =====
-        this.wallImg   = this.loadImage("../assets/wall.png");
-        this.floorImg  = this.loadImage("../assets/floor.png");
-        this.playerImg = this.loadImage("../assets/player.png");
-        this.shelfImg  = this.loadImage("../assets/shelf.png");
-        this.plantImg  = this.loadImage("../assets/plant.png");
+this.wallImg   = this.loadImage("/museum-game/assets/wall.png");
+this.floorImg  = this.loadImage("/museum-game/assets/floor.png");
+this.playerImg = this.loadImage("/museum-game/assets/player.png");
+this.shelfImg  = this.loadImage("/museum-game/assets/shelf.png");
+this.plantImg  = this.loadImage("/museum-game/assets/plant.png");
+
 
         this.loop();
     }
