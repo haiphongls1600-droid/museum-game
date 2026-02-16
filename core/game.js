@@ -1,7 +1,6 @@
-import { museumMap } from "../maps/museumMap.js";
+import { museumMap } from "./map.js";
 
 export default class Game {
-
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
@@ -12,38 +11,46 @@ export default class Game {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
 
-        this.zoom = 1;
+        this.zoom = 1.2;
 
         // ===== LOAD IMAGES =====
-        this.wallImg  = this.loadImage("../assets/textures/wall.png");
-        this.floorImg = this.loadImage("../assets/textures/floor.png");
-        this.playerImg= this.loadImage("../assets/textures/player.png");
-        this.shelfImg = this.loadImage("../assets/textures/shelf.png");
-        this.plantImg = this.loadImage("../assets/textures/plant.png");
+        this.wallImg   = this.loadImage("../assets/textures/wall.png");
+        this.floorImg  = this.loadImage("../assets/textures/floor.png");
+        this.playerImg = this.loadImage("../assets/textures/player.png");
+        this.shelfImg  = this.loadImage("../assets/textures/shelf.png");
+        this.plantImg  = this.loadImage("../assets/textures/plant.png");
+        this.tableImg  = this.loadImage("../assets/textures/table.png");
+        this.glassImg  = this.loadImage("../assets/textures/glass.png");
 
         // ===== PLAYER =====
         this.player = {
-            x: 4,
-            y: 4,
-            speed: 0.1,
-            frameX: 0,
-            frameY: 0,
-            frameWidth: 32,
-            frameHeight: 32
+            x: 6 * this.tileSize,
+            y: 4 * this.tileSize,
+            size: 64,
+            speed: 4
         };
 
         this.keys = {};
 
-        window.addEventListener("keydown", (e) => this.keys[e.key] = true);
-        window.addEventListener("keyup", (e) => this.keys[e.key] = false);
+        window.addEventListener("keydown", e => {
+            this.keys[e.key] = true;
+        });
 
-        requestAnimationFrame(() => this.loop());
+        window.addEventListener("keyup", e => {
+            this.keys[e.key] = false;
+        });
+
+        this.loop();
     }
 
     loadImage(path) {
         const img = new Image();
-        img.src = path;
-        img.onerror = () => console.error("Không load được:", path);
+        img.src = new URL(path, import.meta.url).href;
+
+        img.onerror = () => {
+            console.error("Không load được:", img.src);
+        };
+
         return img;
     }
 
@@ -56,19 +63,19 @@ export default class Game {
         if (this.keys["ArrowLeft"] || this.keys["a"]) newX -= this.player.speed;
         if (this.keys["ArrowRight"] || this.keys["d"]) newX += this.player.speed;
 
-        if (!this.isWall(newX, newY)) {
+        if (!this.isColliding(newX, newY)) {
             this.player.x = newX;
             this.player.y = newY;
         }
     }
 
-    isWall(x, y) {
-        const tileX = Math.floor(x);
-        const tileY = Math.floor(y);
+    isColliding(x, y) {
+        const tileX = Math.floor(x / this.tileSize);
+        const tileY = Math.floor(y / this.tileSize);
 
-        if (!this.map[tileY] || !this.map[tileY][tileX]) return true;
+        const tile = this.map[tileY]?.[tileX];
 
-        return this.map[tileY][tileX] === "W";
+        return tile === "W" || tile === "S" || tile === "T" || tile === "G";
     }
 
     drawMap() {
@@ -84,35 +91,34 @@ export default class Game {
 
                 if (tile === "W" && this.wallImg.complete)
                     this.ctx.drawImage(this.wallImg, posX, posY, this.tileSize, this.tileSize);
+
+                if (tile === "S" && this.shelfImg.complete)
+                    this.ctx.drawImage(this.shelfImg, posX, posY, this.tileSize, this.tileSize);
+
+                if (tile === "T" && this.tableImg.complete)
+                    this.ctx.drawImage(this.tableImg, posX, posY, this.tileSize, this.tileSize);
+
+                if (tile === "G" && this.glassImg.complete)
+                    this.ctx.drawImage(this.glassImg, posX, posY, this.tileSize, this.tileSize);
             }
         }
-
-        // ===== TỦ KÍNH =====
-        if (this.shelfImg.complete)
-            this.ctx.drawImage(this.shelfImg, 2 * this.tileSize, 2 * this.tileSize, 64, 64);
-
-        // ===== BÀN =====
-        if (this.plantImg.complete)
-            this.ctx.drawImage(this.plantImg, 6 * this.tileSize, 6 * this.tileSize, 64, 64);
     }
 
     drawPlayer() {
-        if (!this.playerImg.complete) return;
-
-        this.ctx.drawImage(
-            this.playerImg,
-            this.player.frameX * this.player.frameWidth,
-            this.player.frameY * this.player.frameHeight,
-            this.player.frameWidth,
-            this.player.frameHeight,
-            this.player.x * this.tileSize,
-            this.player.y * this.tileSize,
-            this.tileSize,
-            this.tileSize
-        );
+        if (this.playerImg.complete) {
+            this.ctx.drawImage(
+                this.playerImg,
+                this.player.x,
+                this.player.y,
+                this.player.size,
+                this.player.size
+            );
+        }
     }
 
     loop() {
+        requestAnimationFrame(() => this.loop());
+
         this.update();
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -124,7 +130,5 @@ export default class Game {
         this.drawPlayer();
 
         this.ctx.restore();
-
-        requestAnimationFrame(() => this.loop());
     }
 }
