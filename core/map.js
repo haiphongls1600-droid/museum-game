@@ -1,11 +1,8 @@
 export const museumMap = [
-  "      WWWWW      ",
-  "      WFFFFW      ",
-  "      WFFFFW      ",
-  "WWWWWWFFFFFWWWWWW",
-  "WFFFFFCCCCCF     W",
-  "WWWWWWFFFFFWWWWWW",
-  "      WFFFFW      ",
-  "      WFFFFW      ",
-  "      WWWWW      "
+["W","W","W","W","W","W","W","W","W","W"],
+["W","F","F","F","T","F","F","G","F","W"],
+["W","F","S","F","F","F","S","F","F","W"],
+["W","F","F","F","F","F","F","F","F","W"],
+["W","F","F","F","F","F","F","F","F","W"],
+["W","W","W","W","W","W","W","W","W","W"],
 ];
