@@ -17,7 +17,8 @@ export default class Game {
 
 const BASE = "./";
 
-this.wallImg   = this.loadImage("./assets/textures/wall.png");
+this.wallImg = new Image();
+this.wallImg.src = new URL("../assets/textures/wall.png", import.meta.url);
 this.floorImg  = this.loadImage("./assets/textures/floor.png");
 this.playerImg = this.loadImage("./assets/textures/player.png");
 this.shelfImg  = this.loadImage("./assets/textures/shelf.png");
