@@ -14,13 +14,13 @@ export default class Game {
         this.zoom = 1.2;
 
         // ===== LOAD IMAGES =====
-        this.wallImg   = this.loadImage("assets/textures/wall.png");
-        this.floorImg  = this.loadImage("assets/textures/floor.png");
-        this.playerImg = this.loadImage("assets/textures/player.png");
-        this.shelfImg  = this.loadImage("assets/textures/shelf.png");
-        this.plantImg  = this.loadImage("assets/textures/plant.png");
-        this.tableImg  = this.loadImage("assets/textures/table.png");
-        this.glassImg  = this.loadImage("assets/textures/glass.png");
+       this.wallImg   = this.loadImage("../assets/textures/wall.png");
+       this.floorImg  = this.loadImage("../assets/textures/floor.png");
+       this.playerImg = this.loadImage("../assets/textures/player.png");
+       this.shelfImg  = this.loadImage("../assets/textures/shelf.png");
+       this.tableImg  = this.loadImage("../assets/textures/table.png");
+       this.glassImg  = this.loadImage("../assets/textures/glass.png");
+       this.plantImg  = this.loadImage("../assets/textures/plant.png");
 
         // ===== PLAYER =====
         this.player = {
@@ -44,15 +44,16 @@ export default class Game {
     }
 
     loadImage(path) {
-        const img = new Image();
-        img.src = new URL(path, import.meta.url).href;
+    const img = new Image();
+    img.src = new URL(path, import.meta.url).href;
 
-        img.onerror = () => {
-            console.error("Không load được:", img.src);
-        };
+    img.onerror = () => {
+        console.error("Không load được:", img.src);
+    };
 
-        return img;
-    }
+    return img;
+}
+
 
     update() {
         let newX = this.player.x;
