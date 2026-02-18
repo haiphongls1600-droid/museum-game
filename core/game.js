@@ -9,26 +9,24 @@ export default class Game {
         this.map = museumMap;
         this.zoom = 1.2;
 
-        // Resize canvas
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
 
-        // Player
         this.player = {
             x: 6 * this.tileSize,
             y: 4 * this.tileSize,
             size: this.tileSize,
             speed: 4,
-            direction: "down"  // Có thể dùng sau nếu thêm sprite sheet
+            direction: "down"
         };
 
         this.keys = {};
         this.shelves = [];
         this.target = null;
         this.popup = null;
-        this.nearShelfText = null; // Text gợi ý khi gần tủ
+        this.nearShelfText = null;
 
-        // Tạo shelves từ map "S"
+        // Tạo shelves
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 if (this.map[y][x] === "S") {
@@ -42,17 +40,21 @@ export default class Game {
         // Load images
         this.wallImg = this.loadImage("../assets/textures/wall.png");
         this.floorImg = this.loadImage("../assets/textures/floor.png");
-        this.playerImg = this.loadImage("../assets/textures/player.png"); // Fallback chính
+        this.playerImg = this.loadImage("../assets/textures/player.png");
         this.shelfImg = this.loadImage("../assets/textures/shelf.png");
         this.plantImg = this.loadImage("../assets/textures/plant.png");
 
-        // Comment tạm 4 image hướng riêng để tránh 404
-        // this.playerImages = {
-        //     up: this.loadImage("../assets/textures/player_up.png"),
-        //     down: this.loadImage("../assets/textures/player_down.png"),
-        //     left: this.loadImage("../assets/textures/player_left.png"),
-        //     right: this.loadImage("../assets/textures/player_right.png")
-        // };
+        // Nút interact cho mobile
+        this.interactBtn = document.getElementById("interactBtn");
+        if (this.interactBtn) {
+            this.interactBtn.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                this.handleInteract();
+            });
+            this.interactBtn.addEventListener("click", () => {
+                this.handleInteract();
+            });
+        }
 
         // Key events
         window.addEventListener("keydown", (e) => {
@@ -76,7 +78,6 @@ export default class Game {
             this.target = { x: worldX, y: worldY };
         });
 
-        // Bắt đầu loop
         this.loop();
     }
 
@@ -95,16 +96,13 @@ export default class Game {
     update() {
         let newX = this.player.x;
         let newY = this.player.y;
-
         this.nearShelfText = null;
 
-        // Di chuyển bằng phím
         if (this.keys["w"] || this.keys["arrowup"]) newY -= this.player.speed;
         if (this.keys["s"] || this.keys["arrowdown"]) newY += this.player.speed;
         if (this.keys["a"] || this.keys["arrowleft"]) newX -= this.player.speed;
         if (this.keys["d"] || this.keys["arrowright"]) newX += this.player.speed;
 
-        // Nếu không phím thì dùng target (click)
         if (!this.keys["w"] && !this.keys["s"] && !this.keys["a"] && !this.keys["d"] &&
             !this.keys["arrowup"] && !this.keys["arrowdown"] && !this.keys["arrowleft"] && !this.keys["arrowright"] &&
             this.target) {
@@ -119,18 +117,25 @@ export default class Game {
             }
         }
 
-        // Collision check
         if (!this.isColliding(newX, newY)) {
             this.player.x = newX;
             this.player.y = newY;
         }
 
-        // Check gần shelf
         this.shelves.forEach(shelf => {
             if (shelf.isPlayerNear(this.player, 80)) {
-                this.nearShelfText = "Nhấn E để xem hiện vật";
+                this.nearShelfText = "Nhấn E hoặc chạm nút để xem";
             }
         });
+
+        // Hiện/ẩn nút interact mobile
+        if (this.interactBtn) {
+            if (this.nearShelfText) {
+                this.interactBtn.classList.add("active");
+            } else {
+                this.interactBtn.classList.remove("active");
+            }
+        }
     }
 
     isColliding(x, y) {
@@ -173,7 +178,7 @@ export default class Game {
     }
 
     drawPlayer() {
-        const img = this.playerImg;  // Luôn dùng player.png cũ (không 404)
+        const img = this.playerImg;
 
         if (img && img.complete && img.naturalWidth !== 0) {
             this.ctx.drawImage(
@@ -210,7 +215,6 @@ export default class Game {
         this.drawPlayer();
         this.ctx.restore();
 
-        // Gợi ý text khi gần tủ
         if (this.nearShelfText) {
             this.ctx.fillStyle = "rgba(0,0,0,0.6)";
             this.ctx.fillRect(this.canvas.width / 2 - 180, this.canvas.height - 80, 360, 50);
@@ -221,7 +225,6 @@ export default class Game {
             this.ctx.fillText(this.nearShelfText, this.canvas.width / 2, this.canvas.height - 55);
         }
 
-        // Popup overlay
         if (this.popup) {
             this.ctx.fillStyle = "rgba(0,0,0,0.7)";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -241,7 +244,7 @@ export default class Game {
             this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + boxHeight / 2 - 20);
 
             this.ctx.font = "18px Arial";
-            this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, boxY + boxHeight / 2 + 40);
+            this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight / 2 + 40);
         }
     }
 }
