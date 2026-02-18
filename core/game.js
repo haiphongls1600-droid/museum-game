@@ -36,21 +36,21 @@ export default class Game {
             }
         }
 
-        // Key events
-        window.addEventListener("keydown", (e) => {
-            this.keys[e.key.toLowerCase()] = true;
-        });
+// Key events
+window.addEventListener("keydown", (e) => {
+    this.keys[e.key] = true;  // Giữ nguyên key (không toLowerCase ở đây)
+});
 
-        window.addEventListener("keyup", (e) => {
-            const key = e.key.toLowerCase();
-            this.keys[key] = false;
+window.addEventListener("keyup", (e) => {
+    this.keys[e.key] = false;
 
-            // Xử lý phím E khi THẢ phím (tránh spam)
-            if (key === "e") {
-                this.handleInteract();
-                console.log("E pressed - checking interact, popup:", this.popup);
-            }
-        });
+    // Check cho phím E (case insensitive)
+    if (e.key.toLowerCase() === "e") {
+        this.handleInteract();
+        console.log("E key released - triggering interact, current popup:", this.popup ? this.popup : "null");
+        console.log("Player position:", this.player.x, this.player.y);
+    }
+});
 
         // Click để di chuyển
         this.canvas.addEventListener("click", (e) => {
@@ -133,25 +133,36 @@ export default class Game {
         return tile === "W" || tile === "S";
     }
 
-    handleInteract() {
-        if (this.popup) {
-            this.popup = null;
-            return;
-        }
+   handleInteract() {
+  console.log("handleInteract được gọi! Popup hiện tại:", this.popup ? this.popup : "null");
+  console.log("Số lượng shelf:", this.shelves.length);
+  console.log("Vị trí player:", this.player.x.toFixed(0), this.player.y.toFixed(0));
 
-        let interacted = false;
-        for (const shelf of this.shelves) {
-            if (shelf.isPlayerNear(this.player, 80)) {
-                this.popup = shelf.text || "Hiện vật bí ẩn";
-                interacted = true;
-                break;
-            }
-        }
+  if (this.popup) {
+    this.popup = null;
+    console.log("Đóng popup thành công");
+    return;
+  }
 
-        if (!interacted) {
-            console.log("Không có shelf nào gần để interact");
-        }
+  let interacted = false;
+  this.shelves.forEach((shelf, index) => {
+    const distance = Math.hypot(
+      this.player.x - shelf.x,
+      this.player.y - shelf.y
+    );
+    console.log(`Shelf ${index} tại (${shelf.x.toFixed(0)}, ${shelf.y.toFixed(0)}) - khoảng cách: ${distance.toFixed(1)}`);
+    
+    if (distance < 120) {  // Tăng tạm lên 120 để dễ test
+      this.popup = shelf.text || "Hiện vật bí ẩn";
+      interacted = true;
+      console.log("Mở popup:", this.popup);
     }
+  });
+
+  if (!interacted) {
+    console.log("Không shelf nào gần đủ để interact (khoảng cách tối thiểu 120)");
+  }
+}
 
     drawMap() {
         for (let y = 0; y < this.map.length; y++) {
