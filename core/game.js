@@ -13,59 +13,54 @@ export default class Game {
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
 
-        // Khởi tạo các biến cần thiết
+        // Player
         this.player = {
             x: 6 * this.tileSize,
             y: 4 * this.tileSize,
             size: this.tileSize,
             speed: 4
         };
+
         this.keys = {};
         this.shelves = [];
         this.target = null;
         this.popup = null;
+        this.nearShelfText = null; // Text gợi ý khi gần tủ
 
-        // Tạo shelves từ map
+        // Tạo shelves từ map "S"
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 if (this.map[y][x] === "S") {
                     const shelfX = x * this.tileSize + this.tileSize / 2;
                     const shelfY = y * this.tileSize + this.tileSize / 2;
-                    this.shelves.push(new Shelf(shelfX, shelfY, 40, 20, `Shelf_${x}_${y}`));
+                    // Tạo Shelf với text mẫu (bạn có thể customize sau)
+                    this.shelves.push(new Shelf(shelfX, shelfY, 40, 20, `Hiện vật ${x}-${y}`));
                 }
             }
         }
 
-// Key events
-window.addEventListener("keydown", (e) => {
-    this.keys[e.key] = true;  // Giữ nguyên key (không toLowerCase ở đây)
-});
+        // Key events (dùng toLowerCase để xử lý nhất quán)
+        window.addEventListener("keydown", (e) => {
+            this.keys[e.key.toLowerCase()] = true;
+        });
+        window.addEventListener("keyup", (e) => {
+            this.keys[e.key.toLowerCase()] = false;
+            // Trigger interact khi thả phím E (tránh giữ phím spam)
+            if (e.key.toLowerCase() === "e") {
+                this.handleInteract();
+            }
+        });
 
-window.addEventListener("keyup", (e) => {
-    this.keys[e.key] = false;
-
-    // Check cho phím E (case insensitive)
-    if (e.key.toLowerCase() === "e") {
-        this.handleInteract();
-        console.log("E key released - triggering interact, current popup:", this.popup ? this.popup : "null");
-        console.log("Player position:", this.player.x, this.player.y);
-    }
-});
-
-        // Click để di chuyển
+        // Click để di chuyển (pathfinding đơn giản)
         this.canvas.addEventListener("click", (e) => {
             if (this.popup) return; // Không di chuyển khi popup mở
-
             const rect = this.canvas.getBoundingClientRect();
             const mouseScreenX = e.clientX - rect.left;
             const mouseScreenY = e.clientY - rect.top;
-
-            // Chuyển screen → world coord (ngược camera + zoom)
+            // Chuyển screen → world coord
             const worldX = this.player.x + (mouseScreenX - this.canvas.width / 2) / this.zoom;
             const worldY = this.player.y + (mouseScreenY - this.canvas.height / 2) / this.zoom;
-
             this.target = { x: worldX, y: worldY };
-            console.log("Click target set to:", this.target); // Debug
         });
 
         // Load images
@@ -95,22 +90,22 @@ window.addEventListener("keyup", (e) => {
         let newX = this.player.x;
         let newY = this.player.y;
 
-        // Kiểm tra có input từ phím không
-        const hasKeyMove = ["w", "s", "a", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"]
-            .some(k => this.keys[k]);
+        // Reset text mỗi frame
+        this.nearShelfText = null;
 
-        if (hasKeyMove) {
-            // Di chuyển bằng phím (ưu tiên hơn click)
-            if (this.keys["w"] || this.keys["arrowup"]) newY -= this.player.speed;
-            if (this.keys["s"] || this.keys["arrowdown"]) newY += this.player.speed;
-            if (this.keys["a"] || this.keys["arrowleft"]) newX -= this.player.speed;
-            if (this.keys["d"] || this.keys["arrowright"]) newX += this.player.speed;
-        } else if (this.target) {
-            // Di chuyển bằng click
+        // Di chuyển bằng phím (ưu tiên)
+        if (this.keys["w"] || this.keys["arrowup"]) newY -= this.player.speed;
+        if (this.keys["s"] || this.keys["arrowdown"]) newY += this.player.speed;
+        if (this.keys["a"] || this.keys["arrowleft"]) newX -= this.player.speed;
+        if (this.keys["d"] || this.keys["arrowright"]) newX += this.player.speed;
+
+        // Nếu không phím thì dùng target (click)
+        if (!this.keys["w"] && !this.keys["s"] && !this.keys["a"] && !this.keys["d"] &&
+            !this.keys["arrowup"] && !this.keys["arrowdown"] && !this.keys["arrowleft"] && !this.keys["arrowright"] &&
+            this.target) {
             const dx = this.target.x - this.player.x;
             const dy = this.target.y - this.player.y;
             const dist = Math.hypot(dx, dy);
-
             if (dist > 5) {
                 newX += (dx / dist) * this.player.speed;
                 newY += (dy / dist) * this.player.speed;
@@ -124,6 +119,13 @@ window.addEventListener("keyup", (e) => {
             this.player.x = newX;
             this.player.y = newY;
         }
+
+        // Check gần shelf để hiển thị text gợi ý
+        this.shelves.forEach(shelf => {
+            if (shelf.isPlayerNear(this.player, 80)) {  // 80px range
+                this.nearShelfText = "Nhấn E để xem hiện vật";
+            }
+        });
     }
 
     isColliding(x, y) {
@@ -133,36 +135,24 @@ window.addEventListener("keyup", (e) => {
         return tile === "W" || tile === "S";
     }
 
-   handleInteract() {
-  console.log("handleInteract được gọi! Popup hiện tại:", this.popup ? this.popup : "null");
-  console.log("Số lượng shelf:", this.shelves.length);
-  console.log("Vị trí player:", this.player.x.toFixed(0), this.player.y.toFixed(0));
+    handleInteract() {
+        if (this.popup) {
+            this.popup = null;
+            return;
+        }
 
-  if (this.popup) {
-    this.popup = null;
-    console.log("Đóng popup thành công");
-    return;
-  }
+        let interacted = false;
+        this.shelves.forEach(shelf => {
+            if (shelf.isPlayerNear(this.player, 120)) {  // Range lớn hơn để dễ interact
+                this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
+                interacted = true;
+            }
+        });
 
-  let interacted = false;
-  this.shelves.forEach((shelf, index) => {
-    const distance = Math.hypot(
-      this.player.x - shelf.x,
-      this.player.y - shelf.y
-    );
-    console.log(`Shelf ${index} tại (${shelf.x.toFixed(0)}, ${shelf.y.toFixed(0)}) - khoảng cách: ${distance.toFixed(1)}`);
-    
-    if (distance < 120) {  // Tăng tạm lên 120 để dễ test
-      this.popup = shelf.text || "Hiện vật bí ẩn";
-      interacted = true;
-      console.log("Mở popup:", this.popup);
+        if (!interacted) {
+            // Optional: console.log("Không có tủ nào gần để tương tác");
+        }
     }
-  });
-
-  if (!interacted) {
-    console.log("Không shelf nào gần đủ để interact (khoảng cách tối thiểu 120)");
-  }
-}
 
     drawMap() {
         for (let y = 0; y < this.map.length; y++) {
@@ -172,22 +162,15 @@ window.addEventListener("keyup", (e) => {
                 const posY = y * this.tileSize;
                 let img = null;
 
-                if (tile === "F") img = this.floorImg;
+                if (tile === "F" || tile === "C") img = this.floorImg;
                 if (tile === "W") img = this.wallImg;
+                if (tile === "S") img = this.shelfImg;
 
                 if (img && img.complete && img.naturalWidth !== 0) {
                     this.ctx.drawImage(img, posX, posY, this.tileSize, this.tileSize);
-                } else {
-                    this.ctx.fillStyle = tile === "W" ? "#555" : "#333";
-                    this.ctx.fillRect(posX, posY, this.tileSize, this.tileSize);
                 }
             }
         }
-
-        // Vẽ shelves entity
-        this.shelves.forEach(shelf => {
-            shelf.draw(this.ctx);
-        });
     }
 
     drawPlayer() {
@@ -207,28 +190,39 @@ window.addEventListener("keyup", (e) => {
 
     loop() {
         requestAnimationFrame(() => this.loop());
-
         this.update();
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.save();
+        // Camera follow player + zoom
         this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
         this.ctx.scale(this.zoom, this.zoom);
         this.ctx.translate(-this.player.x - this.player.size / 2, -this.player.y - this.player.size / 2);
 
         this.drawMap();
+        this.shelves.forEach(shelf => shelf.draw(this.ctx));  // Vẽ shelves entity
         this.drawPlayer();
-
         this.ctx.restore();
 
-        // Popup overlay (không bị ảnh hưởng camera/zoom)
+        // Gợi ý text khi gần tủ (UI overlay)
+        if (this.nearShelfText) {
+            this.ctx.fillStyle = "rgba(0,0,0,0.6)";
+            this.ctx.fillRect(this.canvas.width / 2 - 180, this.canvas.height - 80, 360, 50);
+            this.ctx.fillStyle = "#ffffff";
+            this.ctx.font = "bold 18px Arial";
+            this.ctx.textAlign = "center";
+            this.ctx.textBaseline = "middle";
+            this.ctx.fillText(this.nearShelfText, this.canvas.width / 2, this.canvas.height - 55);
+        }
+
+        // Popup overlay
         if (this.popup) {
-            this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            this.ctx.fillStyle = "rgba(0,0,0,0.7)";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            const boxWidth = 440;
-            const boxHeight = 240;
+            const boxWidth = 500;
+            const boxHeight = 300;
             const boxX = (this.canvas.width - boxWidth) / 2;
             const boxY = (this.canvas.height - boxHeight) / 2;
 
@@ -236,13 +230,13 @@ window.addEventListener("keyup", (e) => {
             this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
             this.ctx.fillStyle = "#000000";
-            this.ctx.font = "28px Arial";
+            this.ctx.font = "24px Arial";
             this.ctx.textAlign = "center";
             this.ctx.textBaseline = "middle";
-            this.ctx.fillText(this.popup, this.canvas.width / 2, this.canvas.height / 2 - 20);
+            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + boxHeight / 2 - 20);
 
             this.ctx.font = "18px Arial";
-            this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, this.canvas.height / 2 + 40);
+            this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, boxY + boxHeight / 2 + 40);
         }
     }
 }
