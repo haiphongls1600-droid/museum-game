@@ -18,7 +18,8 @@ export default class Game {
             x: 6 * this.tileSize,
             y: 4 * this.tileSize,
             size: this.tileSize,
-            speed: 4
+            speed: 4,
+            direction: "down"  // Hướng mặc định
         };
 
         this.keys = {};
@@ -33,40 +34,45 @@ export default class Game {
                 if (this.map[y][x] === "S") {
                     const shelfX = x * this.tileSize + this.tileSize / 2;
                     const shelfY = y * this.tileSize + this.tileSize / 2;
-                    // Tạo Shelf với text mẫu (bạn có thể customize sau)
                     this.shelves.push(new Shelf(shelfX, shelfY, 40, 20, `Hiện vật ${x}-${y}`));
                 }
             }
         }
 
-        // Key events (dùng toLowerCase để xử lý nhất quán)
+        // Load 4 image riêng cho các hướng di chuyển
+        this.playerImages = {
+            up: this.loadImage("../assets/textures/player_up.png"),
+            down: this.loadImage("../assets/textures/player_down.png"),
+            left: this.loadImage("../assets/textures/player_left.png"),
+            right: this.loadImage("../assets/textures/player_right.png")
+        };
+
+        // Key events
         window.addEventListener("keydown", (e) => {
             this.keys[e.key.toLowerCase()] = true;
         });
         window.addEventListener("keyup", (e) => {
             this.keys[e.key.toLowerCase()] = false;
-            // Trigger interact khi thả phím E (tránh giữ phím spam)
             if (e.key.toLowerCase() === "e") {
                 this.handleInteract();
             }
         });
 
-        // Click để di chuyển (pathfinding đơn giản)
+        // Click để di chuyển
         this.canvas.addEventListener("click", (e) => {
-            if (this.popup) return; // Không di chuyển khi popup mở
+            if (this.popup) return;
             const rect = this.canvas.getBoundingClientRect();
             const mouseScreenX = e.clientX - rect.left;
             const mouseScreenY = e.clientY - rect.top;
-            // Chuyển screen → world coord
             const worldX = this.player.x + (mouseScreenX - this.canvas.width / 2) / this.zoom;
             const worldY = this.player.y + (mouseScreenY - this.canvas.height / 2) / this.zoom;
             this.target = { x: worldX, y: worldY };
         });
 
-        // Load images
+        // Load images cơ bản
         this.wallImg = this.loadImage("../assets/textures/wall.png");
         this.floorImg = this.loadImage("../assets/textures/floor.png");
-        this.playerImg = this.loadImage("../assets/textures/player.png");
+        this.playerImg = this.loadImage("../assets/textures/player.png"); // fallback
         this.shelfImg = this.loadImage("../assets/textures/shelf.png");
         this.plantImg = this.loadImage("../assets/textures/plant.png");
 
@@ -90,19 +96,33 @@ export default class Game {
         let newX = this.player.x;
         let newY = this.player.y;
 
-        // Reset text mỗi frame
         this.nearShelfText = null;
 
-        // Di chuyển bằng phím (ưu tiên)
-        if (this.keys["w"] || this.keys["arrowup"]) newY -= this.player.speed;
-        if (this.keys["s"] || this.keys["arrowdown"]) newY += this.player.speed;
-        if (this.keys["a"] || this.keys["arrowleft"]) newX -= this.player.speed;
-        if (this.keys["d"] || this.keys["arrowright"]) newX += this.player.speed;
+        // Di chuyển bằng phím + cập nhật hướng
+        let moved = false;
+        if (this.keys["w"] || this.keys["arrowup"]) {
+            newY -= this.player.speed;
+            this.player.direction = "up";
+            moved = true;
+        }
+        if (this.keys["s"] || this.keys["arrowdown"]) {
+            newY += this.player.speed;
+            this.player.direction = "down";
+            moved = true;
+        }
+        if (this.keys["a"] || this.keys["arrowleft"]) {
+            newX -= this.player.speed;
+            this.player.direction = "left";
+            moved = true;
+        }
+        if (this.keys["d"] || this.keys["arrowright"]) {
+            newX += this.player.speed;
+            this.player.direction = "right";
+            moved = true;
+        }
 
-        // Nếu không phím thì dùng target (click)
-        if (!this.keys["w"] && !this.keys["s"] && !this.keys["a"] && !this.keys["d"] &&
-            !this.keys["arrowup"] && !this.keys["arrowdown"] && !this.keys["arrowleft"] && !this.keys["arrowright"] &&
-            this.target) {
+        // Nếu không phím thì dùng click target
+        if (!moved && this.target) {
             const dx = this.target.x - this.player.x;
             const dy = this.target.y - this.player.y;
             const dist = Math.hypot(dx, dy);
@@ -122,7 +142,7 @@ export default class Game {
 
         // Check gần shelf để hiển thị text gợi ý
         this.shelves.forEach(shelf => {
-            if (shelf.isPlayerNear(this.player, 80)) {  // 80px range
+            if (shelf.isPlayerNear(this.player, 80)) {
                 this.nearShelfText = "Nhấn E để xem hiện vật";
             }
         });
@@ -143,15 +163,11 @@ export default class Game {
 
         let interacted = false;
         this.shelves.forEach(shelf => {
-            if (shelf.isPlayerNear(this.player, 120)) {  // Range lớn hơn để dễ interact
+            if (shelf.isPlayerNear(this.player, 120)) {
                 this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
                 interacted = true;
             }
         });
-
-        if (!interacted) {
-            // Optional: console.log("Không có tủ nào gần để tương tác");
-        }
     }
 
     drawMap() {
@@ -161,11 +177,9 @@ export default class Game {
                 const posX = x * this.tileSize;
                 const posY = y * this.tileSize;
                 let img = null;
-
                 if (tile === "F" || tile === "C") img = this.floorImg;
                 if (tile === "W") img = this.wallImg;
                 if (tile === "S") img = this.shelfImg;
-
                 if (img && img.complete && img.naturalWidth !== 0) {
                     this.ctx.drawImage(img, posX, posY, this.tileSize, this.tileSize);
                 }
@@ -174,74 +188,44 @@ export default class Game {
     }
 
     drawPlayer() {
-    // Default image nếu chưa có hướng
-    let img = this.playerImg;
+        let img = this.playerImg; // fallback
 
-    // Chọn image theo hướng di chuyển hiện tại
-    if (this.player.direction) {
-        switch (this.player.direction) {
-            case "up":
-                img = this.playerImages?.up || this.playerImg;
-                break;
-            case "down":
-                img = this.playerImages?.down || this.playerImg;
-                break;
-            case "left":
-                img = this.playerImages?.left || this.playerImg;
-                break;
-            case "right":
-                img = this.playerImages?.right || this.playerImg;
-                break;
+        if (this.player.direction && this.playerImages) {
+            switch (this.player.direction) {
+                case "up":
+                    img = this.playerImages.up || this.playerImg;
+                    break;
+                case "down":
+                    img = this.playerImages.down || this.playerImg;
+                    break;
+                case "left":
+                    img = this.playerImages.left || this.playerImg;
+                    break;
+                case "right":
+                    img = this.playerImages.right || this.playerImg;
+                    break;
+            }
+        }
+
+        if (img && img.complete && img.naturalWidth !== 0) {
+            this.ctx.drawImage(
+                img,
+                this.player.x - this.player.size / 2,
+                this.player.y - this.player.size / 2,
+                this.player.size,
+                this.player.size
+            );
+        } else {
+            this.ctx.fillStyle = "#ffcc00";
+            this.ctx.fillRect(
+                this.player.x - this.player.size / 2,
+                this.player.y - this.player.size / 2,
+                this.player.size,
+                this.player.size
+            );
         }
     }
 
-    if (img && img.complete && img.naturalWidth !== 0) {
-        // Vẽ image căn giữa player position (tâm nhân vật)
-        this.ctx.drawImage(
-            img,
-            this.player.x - this.player.size / 2,   // Căn giữa X
-            this.player.y - this.player.size / 2,   // Căn giữa Y
-            this.player.size,
-            this.player.size
-        );
-    } else {
-        // Placeholder vàng nếu image chưa load
-        this.ctx.fillStyle = "#ffcc00";
-        this.ctx.fillRect(
-            this.player.x - this.player.size / 2,
-            this.player.y - this.player.size / 2,
-            this.player.size,
-            this.player.size
-        );
-    }
-}
-// Hướng mặc định
-this.player.direction = "down";
-
-// Load 4 image riêng cho các hướng
-this.playerImages = {
-    up: this.loadImage("../assets/textures/player_up.png"),
-    down: this.loadImage("../assets/textures/player_down.png"),
-    left: this.loadImage("../assets/textures/player_left.png"),
-    right: this.loadImage("../assets/textures/player_right.png")
-};
-    // Di chuyển bằng phím (ưu tiên)
-if (this.keys["w"] || this.keys["arrowup"]) {
-    newY -= this.player.speed;
-    this.player.direction = "up";
-}
-if (this.keys["s"] || this.keys["arrowdown"]) {
-    newY += this.player.speed;
-    this.player.direction = "down";
-}
-if (this.keys["a"] || this.keys["arrowleft"]) {
-    newX -= this.player.speed;
-    this.player.direction = "left";
-}
-if (this.keys["d"] || this.keys["arrowright"]) {
-    newX += this.player.speed;
-    this.player.direction = "right";
-}
     loop() {
         requestAnimationFrame(() => this.loop());
         this.update();
@@ -249,17 +233,16 @@ if (this.keys["d"] || this.keys["arrowright"]) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.save();
-        // Camera follow player + zoom
         this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
         this.ctx.scale(this.zoom, this.zoom);
         this.ctx.translate(-this.player.x - this.player.size / 2, -this.player.y - this.player.size / 2);
 
         this.drawMap();
-        this.shelves.forEach(shelf => shelf.draw(this.ctx));  // Vẽ shelves entity
+        this.shelves.forEach(shelf => shelf.draw(this.ctx));
         this.drawPlayer();
         this.ctx.restore();
 
-        // Gợi ý text khi gần tủ (UI overlay)
+        // Gợi ý text khi gần tủ
         if (this.nearShelfText) {
             this.ctx.fillStyle = "rgba(0,0,0,0.6)";
             this.ctx.fillRect(this.canvas.width / 2 - 180, this.canvas.height - 80, 360, 50);
