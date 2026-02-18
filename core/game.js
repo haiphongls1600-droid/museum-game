@@ -1,57 +1,48 @@
 import { museumMap } from "./map.js";
 
 export default class Game {
-    constructor(canvas) {
-        this.canvas = canvas;
-        this.ctx = canvas.getContext("2d");
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.tileSize = 64;
+    this.map = museumMap;
+    this.zoom = 1.2;
+    this.keys = {};
 
-        this.tileSize = 64;
-        this.map = museumMap;
+    window.addEventListener("keydown", e => { this.keys[e.key] = true; });
+    window.addEventListener("keyup", e => { this.keys[e.key] = false; });
+    window.addEventListener("resize", () => {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    });
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
 
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+    this.init();  // Bắt đầu load
+  }
 
-        this.zoom = 1.2;
+  async init() {
+    const loader = new AssetsLoader();
+    this.images = await loader.loadAll("../assets/textures/textures.json");
 
-        // ===== LOAD IMAGES =====
-       this.wallImg   = this.loadImage("../assets/textures/wall.png");
-       this.floorImg  = this.loadImage("../assets/textures/floor.png");
-       this.playerImg = this.loadImage("../assets/textures/player.png");
-       this.shelfImg  = this.loadImage("../assets/textures/shelf.png");
-       this.plantImg  = this.loadImage("../assets/textures/plant.png");
+    this.wallImg  = this.images.wall;
+    this.floorImg = this.images.floor;
+    this.playerImg = this.images.player;
+    this.shelfImg = this.images.shelf;
+    // this.plantImg = this.images.plant;  // nếu dùng sau
 
-        // ===== PLAYER =====
-        this.player = {
-            x: 6 * this.tileSize,
-            y: 4 * this.tileSize,
-            size: 64,
-            speed: 4
-        };
-
-        this.keys = {};
-
-        window.addEventListener("keydown", e => {
-            this.keys[e.key] = true;
-        });
-
-        window.addEventListener("keyup", e => {
-            this.keys[e.key] = false;
-        });
-
-        this.loop();
-    }
-
-    loadImage(path) {
-    const img = new Image();
-    img.src = new URL(path, import.meta.url).href;
-
-    img.onerror = () => {
-        console.error("Không load được:", img.src);
+    this.player = {
+      x: 6 * this.tileSize,
+      y: 4 * this.tileSize,
+      size: this.tileSize,
+      speed: 4
     };
 
-    return img;
-}
+    this.loop();  // Chỉ start loop sau khi load xong
+  }
 
+  // ... phần update, drawMap, drawPlayer giữ nguyên như bước 3
+}
 
     update() {
         let newX = this.player.x;
@@ -117,19 +108,35 @@ drawPlayer() {
   }
 }
 
-    loop() {
-        requestAnimationFrame(() => this.loop());
+    loop = () => {
+  requestAnimationFrame(this.loop);
 
-        this.update();
+  // Update player position
+  let newX = this.player.x;
+  let newY = this.player.y;
+  if (this.keys["ArrowUp"] || this.keys["w"]) newY -= this.player.speed;
+  if (this.keys["ArrowDown"] || this.keys["s"]) newY += this.player.speed;
+  if (this.keys["ArrowLeft"] || this.keys["a"]) newX -= this.player.speed;
+  if (this.keys["ArrowRight"] || this.keys["d"]) newX += this.player.speed;
 
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  if (!this.isColliding(newX, newY)) {
+    this.player.x = newX;
+    this.player.y = newY;
+  }
 
-        this.ctx.save();
-        this.ctx.scale(this.zoom, this.zoom);
+  this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.drawMap();
-        this.drawPlayer();
+  this.ctx.save();
 
-        this.ctx.restore();
-    }
+  // Camera follow: player ở giữa màn hình
+  this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+  this.ctx.scale(this.zoom, this.zoom);
+  this.ctx.translate(-this.player.x - this.player.size / 2, -this.player.y - this.player.size / 2);
+
+  this.drawMap();
+  this.drawPlayer();
+
+  this.ctx.restore();
+
+  requestAnimationFrame(this.loop);
 }
