@@ -18,8 +18,6 @@ export default class Game {
        this.floorImg  = this.loadImage("../assets/textures/floor.png");
        this.playerImg = this.loadImage("../assets/textures/player.png");
        this.shelfImg  = this.loadImage("../assets/textures/shelf.png");
-       this.tableImg  = this.loadImage("../assets/textures/table.png");
-       this.glassImg  = this.loadImage("../assets/textures/glass.png");
        this.plantImg  = this.loadImage("../assets/textures/plant.png");
 
         // ===== PLAYER =====
@@ -95,12 +93,6 @@ export default class Game {
 
                 if (tile === "S" && this.shelfImg.complete)
                     this.ctx.drawImage(this.shelfImg, posX, posY, this.tileSize, this.tileSize);
-
-                if (tile === "T" && this.tableImg.complete)
-                    this.ctx.drawImage(this.tableImg, posX, posY, this.tileSize, this.tileSize);
-
-                if (tile === "G" && this.glassImg.complete)
-                    this.ctx.drawImage(this.glassImg, posX, posY, this.tileSize, this.tileSize);
             }
         }
     }
