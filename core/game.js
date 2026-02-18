@@ -174,20 +174,74 @@ export default class Game {
     }
 
     drawPlayer() {
-        if (this.playerImg && this.playerImg.complete && this.playerImg.naturalWidth !== 0) {
-            this.ctx.drawImage(
-                this.playerImg,
-                this.player.x,
-                this.player.y,
-                this.player.size,
-                this.player.size
-            );
-        } else {
-            this.ctx.fillStyle = "#ffcc00";
-            this.ctx.fillRect(this.player.x, this.player.y, this.player.size, this.player.size);
+    // Default image nếu chưa có hướng
+    let img = this.playerImg;
+
+    // Chọn image theo hướng di chuyển hiện tại
+    if (this.player.direction) {
+        switch (this.player.direction) {
+            case "up":
+                img = this.playerImages?.up || this.playerImg;
+                break;
+            case "down":
+                img = this.playerImages?.down || this.playerImg;
+                break;
+            case "left":
+                img = this.playerImages?.left || this.playerImg;
+                break;
+            case "right":
+                img = this.playerImages?.right || this.playerImg;
+                break;
         }
     }
 
+    if (img && img.complete && img.naturalWidth !== 0) {
+        // Vẽ image căn giữa player position (tâm nhân vật)
+        this.ctx.drawImage(
+            img,
+            this.player.x - this.player.size / 2,   // Căn giữa X
+            this.player.y - this.player.size / 2,   // Căn giữa Y
+            this.player.size,
+            this.player.size
+        );
+    } else {
+        // Placeholder vàng nếu image chưa load
+        this.ctx.fillStyle = "#ffcc00";
+        this.ctx.fillRect(
+            this.player.x - this.player.size / 2,
+            this.player.y - this.player.size / 2,
+            this.player.size,
+            this.player.size
+        );
+    }
+}
+// Hướng mặc định
+this.player.direction = "down";
+
+// Load 4 image riêng cho các hướng
+this.playerImages = {
+    up: this.loadImage("../assets/textures/player_up.png"),
+    down: this.loadImage("../assets/textures/player_down.png"),
+    left: this.loadImage("../assets/textures/player_left.png"),
+    right: this.loadImage("../assets/textures/player_right.png")
+};
+    // Di chuyển bằng phím (ưu tiên)
+if (this.keys["w"] || this.keys["arrowup"]) {
+    newY -= this.player.speed;
+    this.player.direction = "up";
+}
+if (this.keys["s"] || this.keys["arrowdown"]) {
+    newY += this.player.speed;
+    this.player.direction = "down";
+}
+if (this.keys["a"] || this.keys["arrowleft"]) {
+    newX -= this.player.speed;
+    this.player.direction = "left";
+}
+if (this.keys["d"] || this.keys["arrowright"]) {
+    newX += this.player.speed;
+    this.player.direction = "right";
+}
     loop() {
         requestAnimationFrame(() => this.loop());
         this.update();
