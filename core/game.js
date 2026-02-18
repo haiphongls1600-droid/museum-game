@@ -78,36 +78,44 @@ export default class Game {
     }
 
     drawMap() {
-        for (let y = 0; y < this.map.length; y++) {
-            for (let x = 0; x < this.map[y].length; x++) {
+  for (let y = 0; y < this.map.length; y++) {
+    for (let x = 0; x < this.map[y].length; x++) {
+      const tile = this.map[y][x];
+      const posX = x * this.tileSize;
+      const posY = y * this.tileSize;
 
-                const tile = this.map[y][x];
-                const posX = x * this.tileSize;
-                const posY = y * this.tileSize;
+      let img = null;
+      if (tile === "F" || tile === "C") img = this.floorImg;
+      if (tile === "W") img = this.wallImg;
+      if (tile === "S") img = this.shelfImg;
 
-                if ((tile === "F" || tile === "C") && this.floorImg.complete)
-                    this.ctx.drawImage(this.floorImg, posX, posY, this.tileSize, this.tileSize);
-
-                if (tile === "W" && this.wallImg.complete)
-                    this.ctx.drawImage(this.wallImg, posX, posY, this.tileSize, this.tileSize);
-
-                if (tile === "S" && this.shelfImg.complete)
-                    this.ctx.drawImage(this.shelfImg, posX, posY, this.tileSize, this.tileSize);
-            }
-        }
+      if (img && img.complete && img.naturalWidth !== 0) {
+        this.ctx.drawImage(img, posX, posY, this.tileSize, this.tileSize);
+      }
+      // Nếu muốn vẽ placeholder khi thiếu ảnh:
+      // else {
+      //   this.ctx.fillStyle = tile === "W" ? "#555" : "#222";
+      //   this.ctx.fillRect(posX, posY, this.tileSize, this.tileSize);
+      // }
     }
+  }
+}
 
-    drawPlayer() {
-        if (this.playerImg.complete) {
-            this.ctx.drawImage(
-                this.playerImg,
-                this.player.x,
-                this.player.y,
-                this.player.size,
-                this.player.size
-            );
-        }
-    }
+drawPlayer() {
+  if (this.playerImg && this.playerImg.complete && this.playerImg.naturalWidth !== 0) {
+    this.ctx.drawImage(
+      this.playerImg,
+      this.player.x,
+      this.player.y,
+      this.player.size,
+      this.player.size
+    );
+  } else {
+    // Placeholder nếu player image lỗi
+    this.ctx.fillStyle = "#ffcc00";
+    this.ctx.fillRect(this.player.x, this.player.y, this.player.size, this.player.size);
+  }
+}
 
     loop() {
         requestAnimationFrame(() => this.loop());
