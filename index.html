@@ -1,37 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Để mobile zoom tốt -->
-    <title>Museum Game</title>
-    <style>
-        body { margin: 0; overflow: hidden; background: #000; }
-        canvas { display: block; }
-        #interactBtn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: rgba(0, 150, 255, 0.8);
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            border: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            cursor: pointer;
-            display: none; /* Ẩn mặc định */
-            z-index: 10;
-            touch-action: manipulation; /* Tối ưu chạm mobile */
-        }
-        #interactBtn.active { display: flex; align-items: center; justify-content: center; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Museum Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #interactBtn {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(0, 150, 255, 0.8);
+      color: white;
+      font-size: 40px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      z-index: 100; /* lên trên canvas */
+      display: none; /* ẩn mặc định, chỉ hiện khi cần */
+      touch-action: manipulation; /* tối ưu chạm mobile */
+    }
+
+    #interactBtn.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="game"></canvas>
-    <button id="interactBtn">E</button> <!-- Nút interact cho mobile -->
+  <canvas id="game"></canvas>
 
-    <script type="module" src="./main.js"></script>
+  <!-- Nút interact cho mobile (hiện khi gần shelf) -->
+  <button id="interactBtn">E</button>
+
+  <!-- Script - sửa đường dẫn nếu cần -->
+  <script type="module" src="./main.js"></script>
+  <!-- Nếu file game.js nằm trong core/ thì dùng src="./core/game.js" -->
 </body>
 </html>
