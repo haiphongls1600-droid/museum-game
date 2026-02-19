@@ -13,9 +13,9 @@ export default class Game {
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
 
-        // Player - chỉ khai báo 1 lần, spawn ở trung tâm
+        // Player - chỉ khai báo 1 lần, spawn ở trung tâm map
         this.player = {
-            x: 12 * this.tileSize,
+            x: 12 * this.tileSize,  // Giữa trung tâm
             y: 8 * this.tileSize,
             size: this.tileSize,
             speed: 4,
