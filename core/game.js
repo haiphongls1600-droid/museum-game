@@ -9,12 +9,14 @@ export default class Game {
         this.map = museumMap;
         this.zoom = 1.2;
 
+        // Resize canvas
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
 
+        // Player - chỉ khai báo 1 lần, spawn ở trung tâm
         this.player = {
-            x: 6 * this.tileSize,
-            y: 4 * this.tileSize,
+            x: 12 * this.tileSize,
+            y: 8 * this.tileSize,
             size: this.tileSize,
             speed: 4,
             direction: "down"
@@ -25,15 +27,8 @@ export default class Game {
         this.target = null;
         this.popup = null;
         this.nearShelfText = null;
-        
-this.player = {
-    x: 12 * this.tileSize,  // Giữa trung tâm
-    y: 8 * this.tileSize,
-    size: this.tileSize,
-    speed: 4,
-    direction: "down"
-};
-        // Tạo shelves
+
+        // Tạo shelves từ map "S"
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 if (this.map[y][x] === "S") {
@@ -52,8 +47,7 @@ this.player = {
         this.plantImg = this.loadImage("../assets/textures/plant.png");
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
-        // plantImg đã có rồi
-        
+
         // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
@@ -137,12 +131,7 @@ this.player = {
                 this.nearShelfText = "Nhấn E hoặc chạm nút để xem";
             }
         });
-isColliding(x, y) {
-    const tileX = Math.floor(x / this.tileSize);
-    const tileY = Math.floor(y / this.tileSize);
-    const tile = this.map[tileY]?.[tileX];
-    return tile === "W" || tile === "S" || tile === "T" || tile === "G" || tile === "P";
-}
+
         // Hiện/ẩn nút interact mobile
         if (this.interactBtn) {
             if (this.nearShelfText) {
@@ -157,7 +146,7 @@ isColliding(x, y) {
         const tileX = Math.floor(x / this.tileSize);
         const tileY = Math.floor(y / this.tileSize);
         const tile = this.map[tileY]?.[tileX];
-        return tile === "W" || tile === "S";
+        return tile === "W" || tile === "S" || tile === "T" || tile === "G" || tile === "P";
     }
 
     handleInteract() {
@@ -176,26 +165,26 @@ isColliding(x, y) {
     }
 
     drawMap() {
-    for (let y = 0; y < this.map.length; y++) {
-        for (let x = 0; x < this.map[y].length; x++) {
-            const tile = this.map[y][x];
-            const posX = x * this.tileSize;
-            const posY = y * this.tileSize;
-            let img = null;
+        for (let y = 0; y < this.map.length; y++) {
+            for (let x = 0; x < this.map[y].length; x++) {
+                const tile = this.map[y][x];
+                const posX = x * this.tileSize;
+                const posY = y * this.tileSize;
+                let img = null;
 
-            if (tile === "F" || tile === "C") img = this.floorImg;
-            if (tile === "W") img = this.wallImg;
-            if (tile === "S") img = this.shelfImg;
-            if (tile === "T") img = this.tableImg || this.shelfImg; // fallback nếu chưa có file
-            if (tile === "G") img = this.glassImg || this.shelfImg;
-            if (tile === "P") img = this.plantImg;
+                if (tile === "F" || tile === "C") img = this.floorImg;
+                if (tile === "W") img = this.wallImg;
+                if (tile === "S") img = this.shelfImg;
+                if (tile === "T") img = this.tableImg || this.shelfImg;
+                if (tile === "G") img = this.glassImg || this.shelfImg;
+                if (tile === "P") img = this.plantImg;
 
-            if (img && img.complete && img.naturalWidth !== 0) {
-                this.ctx.drawImage(img, posX, posY, this.tileSize, this.tileSize);
+                if (img && img.complete && img.naturalWidth !== 0) {
+                    this.ctx.drawImage(img, posX, posY, this.tileSize, this.tileSize);
+                }
             }
         }
     }
-}
 
     drawPlayer() {
         const img = this.playerImg;
