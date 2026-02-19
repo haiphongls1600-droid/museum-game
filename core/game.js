@@ -25,7 +25,14 @@ export default class Game {
         this.target = null;
         this.popup = null;
         this.nearShelfText = null;
-
+        
+this.player = {
+    x: 12 * this.tileSize,  // Giữa trung tâm
+    y: 8 * this.tileSize,
+    size: this.tileSize,
+    speed: 4,
+    direction: "down"
+};
         // Tạo shelves
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
