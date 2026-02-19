@@ -45,9 +45,6 @@ export default class Game {
         this.playerImg = this.loadImage("../assets/textures/player.png");
         this.shelfImg = this.loadImage("../assets/textures/shelf.png");
         this.plantImg = this.loadImage("../assets/textures/plant.png");
-        this.tableImg = this.loadImage("../assets/textures/table.png");
-        this.glassImg = this.loadImage("../assets/textures/glass.png");
-
         // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
