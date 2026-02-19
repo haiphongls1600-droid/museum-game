@@ -43,7 +43,10 @@ export default class Game {
         this.playerImg = this.loadImage("../assets/textures/player.png");
         this.shelfImg = this.loadImage("../assets/textures/shelf.png");
         this.plantImg = this.loadImage("../assets/textures/plant.png");
-
+        this.tableImg = this.loadImage("../assets/textures/table.png");
+        this.glassImg = this.loadImage("../assets/textures/glass.png");
+        // plantImg đã có rồi
+        
         // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
@@ -127,7 +130,12 @@ export default class Game {
                 this.nearShelfText = "Nhấn E hoặc chạm nút để xem";
             }
         });
-
+isColliding(x, y) {
+    const tileX = Math.floor(x / this.tileSize);
+    const tileY = Math.floor(y / this.tileSize);
+    const tile = this.map[tileY]?.[tileX];
+    return tile === "W" || tile === "S" || tile === "T" || tile === "G" || tile === "P";
+}
         // Hiện/ẩn nút interact mobile
         if (this.interactBtn) {
             if (this.nearShelfText) {
@@ -161,21 +169,26 @@ export default class Game {
     }
 
     drawMap() {
-        for (let y = 0; y < this.map.length; y++) {
-            for (let x = 0; x < this.map[y].length; x++) {
-                const tile = this.map[y][x];
-                const posX = x * this.tileSize;
-                const posY = y * this.tileSize;
-                let img = null;
-                if (tile === "F" || tile === "C") img = this.floorImg;
-                if (tile === "W") img = this.wallImg;
-                if (tile === "S") img = this.shelfImg;
-                if (img && img.complete && img.naturalWidth !== 0) {
-                    this.ctx.drawImage(img, posX, posY, this.tileSize, this.tileSize);
-                }
+    for (let y = 0; y < this.map.length; y++) {
+        for (let x = 0; x < this.map[y].length; x++) {
+            const tile = this.map[y][x];
+            const posX = x * this.tileSize;
+            const posY = y * this.tileSize;
+            let img = null;
+
+            if (tile === "F" || tile === "C") img = this.floorImg;
+            if (tile === "W") img = this.wallImg;
+            if (tile === "S") img = this.shelfImg;
+            if (tile === "T") img = this.tableImg || this.shelfImg; // fallback nếu chưa có file
+            if (tile === "G") img = this.glassImg || this.shelfImg;
+            if (tile === "P") img = this.plantImg;
+
+            if (img && img.complete && img.naturalWidth !== 0) {
+                this.ctx.drawImage(img, posX, posY, this.tileSize, this.tileSize);
             }
         }
     }
+}
 
     drawPlayer() {
         const img = this.playerImg;
