@@ -9,16 +9,20 @@ export class Shelf {
     this.text = `Hiện vật ${popupId}`;  // Thêm text mặc định, bạn có thể custom sau
   }
 
-  draw(ctx) {
-    ctx.fillStyle = "#8b5a2b";
-    ctx.fillRect(
-      this.x - this.width / 2,
-      this.y - this.height / 2,
-      this.width,
-      this.height
-    );
-  }
-
+  draw(ctx, shelfImg) {  // Thêm tham số shelfImg
+    if (shelfImg && shelfImg.complete && shelfImg.naturalWidth !== 0) {
+        ctx.drawImage(
+            shelfImg,
+            this.x - this.width / 2,
+            this.y - this.height / 2,
+            this.width,
+            this.height
+        );
+    } else {
+        ctx.fillStyle = "#8b5a2b";
+        ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+    }
+}
   isPlayerNear(player, distance = 80) {  // Tăng distance lên 80 cho dễ interact
     const dx = player.x - this.x;
     const dy = player.y - this.y;
