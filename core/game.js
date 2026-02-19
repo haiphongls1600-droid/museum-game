@@ -15,12 +15,12 @@ export default class Game {
 
         // Player - chỉ khai báo 1 lần, spawn ở trung tâm map
         this.player = {
-            x: 12 * this.tileSize,  // Giữa trung tâm
-            y: 8 * this.tileSize,
-            size: this.tileSize,
-            speed: 4,
-            direction: "down"
-        };
+    x: 12 * this.tileSize,   // Giữa theo chiều ngang
+    y: 5 * this.tileSize,    // Giữa theo chiều dọc (hành lang trung tâm)
+    size: this.tileSize,
+    speed: 4,
+    direction: "down"
+};
 
         this.keys = {};
         this.shelves = [];
