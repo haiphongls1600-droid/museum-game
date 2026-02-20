@@ -46,25 +46,17 @@ export default class Game {
                 description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
                 x: 10 * this.tileSize + this.tileSize / 2,  // Vị trí tile 10,10
                 y: 10 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact_4-3.png")
+                img: this.loadImage("../assets/textures/artifact_4-3.png")  // Ảnh riêng
             },
             {
                 id: "5-1",
                 name: "Hiện vật 5-1 - Bình gốm cổ",
                 description: "Đây là hiện vật cổ từ thời Lý - Trần.",
-                x: 15 * this.tileSize + this.tileSize / 2,  // Vị trí khác
+                x: 15 * this.tileSize + this.tileSize / 2,
                 y: 15 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact_5-1.png")  // Nếu có ảnh
-            },
-            // Thêm hiện vật khác nếu cần, ví dụ:
-            // {
-            //     id: "3-2",
-            //     name: "Hiện vật 3-2 - Tượng đồng",
-            //     description: "Mô tả cho hiện vật 3-2...",
-            //     x: 20 * this.tileSize + this.tileSize / 2,
-            //     y: 20 * this.tileSize + this.tileSize / 2,
-            //     img: this.loadImage("../assets/textures/artifact_3-2.png")
-            // }
+                img: this.loadImage("../assets/textures/artifact_5-1.png")  // Ảnh riêng (nếu có)
+            }
+            // Thêm hiện vật khác nếu cần
         ];
 
         // Load images cơ bản
@@ -203,7 +195,7 @@ export default class Game {
             const dist = Math.hypot(this.player.x - artifact.x, this.player.y - artifact.y);
             if (dist < 120) {
                 this.activeArtifact = artifact.id;
-                this.popup = artifact.name;  // Tên riêng của hiện vật
+                this.popup = artifact.name; // Tên riêng của hiện vật
                 interacted = true;
             }
         });
@@ -298,7 +290,7 @@ export default class Game {
             this.ctx.fillStyle = "#000000";
             this.ctx.font = "bold 32px Arial";
             this.ctx.textAlign = "center";
-            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + 60);  // Tên riêng của hiện vật
+            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + 60); // Tên riêng của hiện vật
 
             // Tìm hiện vật đang active để lấy ảnh và mô tả
             const currentArtifact = this.artifacts.find(a => a.id === this.activeArtifact);
