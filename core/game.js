@@ -46,7 +46,7 @@ export default class Game {
         this.plantImg = this.loadImage("../assets/textures/plant.png");
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
-        this.artifact43Img = this.loadImage("../assets/textures/artifact_4-3.png");  // Ảnh hiện vật 4-3
+        this.artifact43Img = this.loadImage("../assets/textures/artifact_4-3 . png");  // Ảnh hiện vật 4-3
 
         // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
