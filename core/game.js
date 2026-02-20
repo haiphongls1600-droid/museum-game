@@ -25,7 +25,7 @@ export default class Game {
         this.target = null;
         this.popup = null;
         this.nearShelfText = null;
-        this.activeArtifact = null;  // Để biết đang mở hiện vật nào
+        this.activeArtifact = null; // Lưu id hiện vật đang mở
 
         // Tạo shelves từ map "S"
         for (let y = 0; y < this.map.length; y++) {
@@ -38,17 +38,50 @@ export default class Game {
             }
         }
 
-        // Load images
-this.wallImg = this.loadImage("../assets/textures/wall.png");
-this.floorImg = this.loadImage("../assets/textures/floor.png");
-this.playerImg = this.loadImage("../assets/textures/player.png");
-this.shelfImg = this.loadImage("../assets/textures/shelf.png");
-this.plantImg = this.loadImage("../assets/textures/plant.png");
-this.tableImg = this.loadImage("../assets/textures/table.png");
-this.glassImg = this.loadImage("../assets/textures/glass.png");
-this.artifact43Img = this.loadImage("../assets/textures/artifact43.png");  // Ảnh hiện vật 4-3
-this.artifact43Img.onload = () => console.log("Ảnh hiện vật 4-3 đã load thành công!");
-this.artifact43Img.onerror = () => console.log("Lỗi load ảnh hiện vật 4-3 - kiểm tra tên file/đường dẫn!");
+        // Danh sách hiện vật riêng biệt (tên, mô tả, vị trí, ảnh riêng)
+        this.artifacts = [
+            {
+                id: "4-3",
+                name: "Hiện vật 4-3 - Rồng đất nung",
+                description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
+                x: 10 * this.tileSize + this.tileSize / 2,  // Vị trí tile 10,10
+                y: 10 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage("../assets/textures/artifact_4-3.png")
+            },
+            {
+                id: "5-1",
+                name: "Hiện vật 5-1 - Bình gốm cổ",
+                description: "Đây là hiện vật cổ từ thời Lý - Trần.",
+                x: 15 * this.tileSize + this.tileSize / 2,  // Vị trí khác
+                y: 15 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage("../assets/textures/artifact_5-1.png")  // Nếu có ảnh
+            },
+            // Thêm hiện vật khác nếu cần, ví dụ:
+            // {
+            //     id: "3-2",
+            //     name: "Hiện vật 3-2 - Tượng đồng",
+            //     description: "Mô tả cho hiện vật 3-2...",
+            //     x: 20 * this.tileSize + this.tileSize / 2,
+            //     y: 20 * this.tileSize + this.tileSize / 2,
+            //     img: this.loadImage("../assets/textures/artifact_3-2.png")
+            // }
+        ];
+
+        // Load images cơ bản
+        this.wallImg = this.loadImage("../assets/textures/wall.png");
+        this.floorImg = this.loadImage("../assets/textures/floor.png");
+        this.playerImg = this.loadImage("../assets/textures/player.png");
+        this.shelfImg = this.loadImage("../assets/textures/shelf.png");
+        this.plantImg = this.loadImage("../assets/textures/plant.png");
+        this.tableImg = this.loadImage("../assets/textures/table.png");
+        this.glassImg = this.loadImage("../assets/textures/glass.png");
+
+        // Debug load ảnh hiện vật (xem console để kiểm tra)
+        this.artifacts.forEach(art => {
+            art.img.onload = () => console.log(`Ảnh ${art.name} đã load thành công!`);
+            art.img.onerror = () => console.log(`Lỗi load ảnh ${art.name} - kiểm tra tên file/đường dẫn!`);
+        });
+
         // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
@@ -156,7 +189,7 @@ this.artifact43Img.onerror = () => console.log("Lỗi load ảnh hiện vật 4-
 
         let interacted = false;
 
-        // Tủ cũ
+        // Tủ cũ (shelves)
         this.shelves.forEach(shelf => {
             if (shelf.isPlayerNear(this.player, 120)) {
                 this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
@@ -165,16 +198,15 @@ this.artifact43Img.onerror = () => console.log("Lỗi load ảnh hiện vật 4-
             }
         });
 
-        // Hiện vật 4-3 (vị trí ví dụ: tile 10,10 - bạn thay đổi nếu cần)
-        const artifactX = 10 * this.tileSize + this.tileSize / 2;
-        const artifactY = 10 * this.tileSize + this.tileSize / 2;
-        const dist = Math.hypot(this.player.x - artifactX, this.player.y - artifactY);
-
-        if (dist < 120) {
-            this.activeArtifact = "4-3";
-            this.popup = "Hiện vật 4-3";
-            interacted = true;
-        }
+        // Check từng hiện vật riêng (tên + mô tả + ảnh riêng)
+        this.artifacts.forEach(artifact => {
+            const dist = Math.hypot(this.player.x - artifact.x, this.player.y - artifact.y);
+            if (dist < 120) {
+                this.activeArtifact = artifact.id;
+                this.popup = artifact.name;  // Tên riêng của hiện vật
+                interacted = true;
+            }
+        });
 
         if (!interacted) {
             console.log("Không có hiện vật nào gần để tương tác");
@@ -266,27 +298,31 @@ this.artifact43Img.onerror = () => console.log("Lỗi load ảnh hiện vật 4-
             this.ctx.fillStyle = "#000000";
             this.ctx.font = "bold 32px Arial";
             this.ctx.textAlign = "center";
-            this.ctx.fillText("Hiện vật 4-3", this.canvas.width / 2, boxY + 60);
+            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + 60);  // Tên riêng của hiện vật
 
-            // Vẽ ảnh hiện vật 4-3
-            if (this.activeArtifact === "4-3" && this.artifact43Img && this.artifact43Img.complete && this.artifact43Img.naturalWidth !== 0) {
-                const imgWidth = 400;
-                const imgHeight = 400 * (this.artifact43Img.height / this.artifact43Img.width);  // Giữ tỷ lệ
-                this.ctx.drawImage(
-                    this.artifact43Img,
-                    this.canvas.width / 2 - imgWidth / 2,
-                    boxY + 100,
-                    imgWidth,
-                    imgHeight
-                );
+            // Tìm hiện vật đang active để lấy ảnh và mô tả
+            const currentArtifact = this.artifacts.find(a => a.id === this.activeArtifact);
 
-                // Mô tả (dưới ảnh, không trùng dòng)
-                this.ctx.font = "20px Arial";
-                this.ctx.fillText("Đây là hiện vật ở Việt Nam từ rất lâu về trước", this.canvas.width / 2, boxY + 100 + imgHeight + 40);
-            } else {
-                // Nếu ảnh chưa load
-                this.ctx.font = "20px Arial";
-                this.ctx.fillText("(Ảnh hiện vật đang tải...)", this.canvas.width / 2, boxY + 250);
+            if (currentArtifact) {
+                // Vẽ ảnh (nếu có)
+                if (currentArtifact.img && currentArtifact.img.complete && currentArtifact.img.naturalWidth !== 0) {
+                    const imgWidth = 400;
+                    const imgHeight = 400 * (currentArtifact.img.height / currentArtifact.img.width);
+                    this.ctx.drawImage(
+                        currentArtifact.img,
+                        this.canvas.width / 2 - imgWidth / 2,
+                        boxY + 100,
+                        imgWidth,
+                        imgHeight
+                    );
+
+                    // Mô tả riêng (dưới ảnh)
+                    this.ctx.font = "20px Arial";
+                    this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 100 + imgHeight + 40);
+                } else {
+                    this.ctx.font = "20px Arial";
+                    this.ctx.fillText("(Ảnh hiện vật đang tải...)", this.canvas.width / 2, boxY + 250);
+                }
             }
 
             this.ctx.font = "18px Arial";
