@@ -25,6 +25,7 @@ export default class Game {
         this.target = null;
         this.popup = null;
         this.nearShelfText = null;
+        this.activeArtifact = null;  // Để biết đang mở hiện vật nào
 
         // Tạo shelves từ map "S"
         for (let y = 0; y < this.map.length; y++) {
@@ -45,6 +46,7 @@ export default class Game {
         this.plantImg = this.loadImage("../assets/textures/plant.png");
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
+        this.artifact43Img = this.loadImage("../assets/textures/artifact_4-3.png");  // Ảnh hiện vật 4-3
 
         // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
@@ -147,16 +149,31 @@ export default class Game {
     handleInteract() {
         if (this.popup) {
             this.popup = null;
+            this.activeArtifact = null;
             return;
         }
 
         let interacted = false;
+
+        // Tủ cũ
         this.shelves.forEach(shelf => {
             if (shelf.isPlayerNear(this.player, 120)) {
                 this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
+                this.activeArtifact = null;
                 interacted = true;
             }
         });
+
+        // Hiện vật 4-3 (vị trí ví dụ: tile 10,10 - bạn thay đổi nếu cần)
+        const artifactX = 10 * this.tileSize + this.tileSize / 2;
+        const artifactY = 10 * this.tileSize + this.tileSize / 2;
+        const dist = Math.hypot(this.player.x - artifactX, this.player.y - artifactY);
+
+        if (dist < 120) {
+            this.activeArtifact = "4-3";
+            this.popup = "Hiện vật 4-3";
+            interacted = true;
+        }
 
         if (!interacted) {
             console.log("Không có hiện vật nào gần để tương tác");
@@ -237,8 +254,8 @@ export default class Game {
             this.ctx.fillStyle = "rgba(0,0,0,0.7)";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            const boxWidth = 500;
-            const boxHeight = 300;
+            const boxWidth = 600;
+            const boxHeight = 550;
             const boxX = (this.canvas.width - boxWidth) / 2;
             const boxY = (this.canvas.height - boxHeight) / 2;
 
@@ -246,13 +263,33 @@ export default class Game {
             this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
             this.ctx.fillStyle = "#000000";
-            this.ctx.font = "24px Arial";
+            this.ctx.font = "bold 32px Arial";
             this.ctx.textAlign = "center";
-            this.ctx.textBaseline = "middle";
-            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + boxHeight / 2 - 20);
+            this.ctx.fillText("Hiện vật 4-3", this.canvas.width / 2, boxY + 60);
+
+            // Vẽ ảnh hiện vật 4-3
+            if (this.activeArtifact === "4-3" && this.artifact43Img && this.artifact43Img.complete && this.artifact43Img.naturalWidth !== 0) {
+                const imgWidth = 400;
+                const imgHeight = 400 * (this.artifact43Img.height / this.artifact43Img.width);  // Giữ tỷ lệ
+                this.ctx.drawImage(
+                    this.artifact43Img,
+                    this.canvas.width / 2 - imgWidth / 2,
+                    boxY + 100,
+                    imgWidth,
+                    imgHeight
+                );
+
+                // Mô tả (dưới ảnh, không trùng dòng)
+                this.ctx.font = "20px Arial";
+                this.ctx.fillText("Đây là hiện vật ở Việt Nam từ rất lâu về trước", this.canvas.width / 2, boxY + 100 + imgHeight + 40);
+            } else {
+                // Nếu ảnh chưa load
+                this.ctx.font = "20px Arial";
+                this.ctx.fillText("(Ảnh hiện vật đang tải...)", this.canvas.width / 2, boxY + 250);
+            }
 
             this.ctx.font = "18px Arial";
-            this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight / 2 + 40);
+            this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight - 40);
         }
     }
 }
