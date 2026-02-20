@@ -39,16 +39,14 @@ export default class Game {
         }
 
         // Load images
-        this.wallImg = this.loadImage("../assets/textures/wall.png");
-        this.floorImg = this.loadImage("../assets/textures/floor.png");
-        this.playerImg = this.loadImage("../assets/textures/player.png");
-        this.shelfImg = this.loadImage("../assets/textures/shelf.png");
-        this.plantImg = this.loadImage("../assets/textures/plant.png");
-        this.tableImg = this.loadImage("../assets/textures/table.png");
-        this.glassImg = this.loadImage("../assets/textures/glass.png");
-        this.artifact43Img = this.loadImage("../assets/textures/artifact43.png");  // Ảnh hiện vật 4-3
-this.artifact43Img.onload = () => console.log("Ảnh hiện vật 4-3 đã load thành công!");
-this.artifact43Img.onerror = () => console.log("Lỗi load ảnh hiện vật 4-3 - kiểm tra tên file/đường dẫn!");
+this.wallImg = this.loadImage("../assets/textures/wall.png");
+this.floorImg = this.loadImage("../assets/textures/floor.png");
+this.playerImg = this.loadImage("../assets/textures/player.png");
+this.shelfImg = this.loadImage("../assets/textures/shelf.png");
+this.plantImg = this.loadImage("../assets/textures/plant.png");
+this.tableImg = this.loadImage("../assets/textures/table.png");
+this.glassImg = this.loadImage("../assets/textures/glass.png");
+this.artifact43Img = this.loadImage("../assets/textures/artifact43.png");  // Ảnh hiện vật 4-3
         // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
