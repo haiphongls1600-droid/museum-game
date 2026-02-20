@@ -25,9 +25,8 @@ export default class Game {
         this.target = null;
         this.popup = null;
         this.nearShelfText = null;
-        this.activeArtifact = null;  // Để biết đang mở hiện vật nào
 
-        // Tạo shelves
+        // Tạo shelves từ map "S"
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 if (this.map[y][x] === "S") {
@@ -46,9 +45,8 @@ export default class Game {
         this.plantImg = this.loadImage("../assets/textures/plant.png");
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
-        this.artifact43Img = this.loadImage("../assets/textures/artifact_4-3.png");  // Ảnh rồng đất nung
 
-        // Nút interact mobile
+        // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
             this.interactBtn.addEventListener("touchstart", (e) => {
@@ -64,10 +62,12 @@ export default class Game {
         });
         window.addEventListener("keyup", (e) => {
             this.keys[e.key.toLowerCase()] = false;
-            if (e.key.toLowerCase() === "e") this.handleInteract();
+            if (e.key.toLowerCase() === "e") {
+                this.handleInteract();
+            }
         });
 
-        // Click di chuyển
+        // Click để di chuyển
         this.canvas.addEventListener("click", (e) => {
             if (this.popup) return;
             const rect = this.canvas.getBoundingClientRect();
@@ -147,30 +147,16 @@ export default class Game {
     handleInteract() {
         if (this.popup) {
             this.popup = null;
-            this.activeArtifact = null;
             return;
         }
 
         let interacted = false;
-
-        // Tủ cũ (shelves)
         this.shelves.forEach(shelf => {
             if (shelf.isPlayerNear(this.player, 120)) {
                 this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
                 interacted = true;
             }
         });
-
-        // Hiện vật 4-3 (vị trí cố định, bạn có thể thay đổi tọa độ này)
-        const artifactX = 10 * this.tileSize + this.tileSize / 2;
-        const artifactY = 10 * this.tileSize + this.tileSize / 2;
-        const dist = Math.hypot(this.player.x - artifactX, this.player.y - artifactY);
-
-        if (dist < 120) {
-            this.activeArtifact = "4-3";
-            this.popup = "Hiện vật 4-3\nĐây là hiện vật ở Việt Nam từ rất lâu về trước.";
-            interacted = true;
-        }
 
         if (!interacted) {
             console.log("Không có hiện vật nào gần để tương tác");
@@ -251,8 +237,8 @@ export default class Game {
             this.ctx.fillStyle = "rgba(0,0,0,0.7)";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            const boxWidth = 600;
-            const boxHeight = 500;
+            const boxWidth = 500;
+            const boxHeight = 300;
             const boxX = (this.canvas.width - boxWidth) / 2;
             const boxY = (this.canvas.height - boxHeight) / 2;
 
@@ -260,29 +246,13 @@ export default class Game {
             this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
             this.ctx.fillStyle = "#000000";
-            this.ctx.font = "28px Arial";
+            this.ctx.font = "24px Arial";
             this.ctx.textAlign = "center";
             this.ctx.textBaseline = "middle";
-            this.ctx.fillText("Hiện vật 4-3", this.canvas.width / 2, boxY + 60);
-
-            // Hiển thị ảnh hiện vật 4-3
-            if (this.activeArtifact === "4-3" && this.artifact43Img && this.artifact43Img.complete && this.artifact43Img.naturalWidth !== 0) {
-                const imgSize = 320;  // Kích thước ảnh
-                this.ctx.drawImage(
-                    this.artifact43Img,
-                    this.canvas.width / 2 - imgSize / 2,
-                    boxY + 100,
-                    imgSize,
-                    imgSize
-                );
-            }
-
-            // Mô tả
-            this.ctx.font = "20px Arial";
-            this.ctx.fillText("Đây là hiện vật ở Việt Nam từ rất lâu về trước", this.canvas.width / 2, boxY + 450);
+            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + boxHeight / 2 - 20);
 
             this.ctx.font = "18px Arial";
-            this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight - 40);
+            this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight / 2 + 40);
         }
     }
 }
