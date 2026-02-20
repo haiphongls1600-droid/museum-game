@@ -45,17 +45,40 @@ export default class Game {
         this.playerImg = this.loadImage("../assets/textures/player.png");
         this.shelfImg = this.loadImage("../assets/textures/shelf.png");
         this.plantImg = this.loadImage("../assets/textures/plant.png");
+        this.artifact43Img = this.loadImage("../assets/textures/artifact_4-3.png");
         // Nút interact cho mobile
-        this.interactBtn = document.getElementById("interactBtn");
-        if (this.interactBtn) {
-            this.interactBtn.addEventListener("touchstart", (e) => {
-                e.preventDefault();
-                this.handleInteract();
-            });
-            this.interactBtn.addEventListener("click", () => {
-                this.handleInteract();
-            });
+        handleInteract() {
+    if (this.popup) {
+        this.popup = null;
+        this.activeArtifact = null;
+        return;
+    }
+
+    let interacted = false;
+
+    // Check shelf (tủ cũ)
+    this.shelves.forEach(shelf => {
+        if (shelf.isPlayerNear(this.player, 120)) {
+            this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
+            interacted = true;
         }
+    });
+
+    // Check hiện vật 4-3 (vị trí cố định ví dụ hàng 10, cột 10 - bạn có thể thay đổi)
+    const artifactX = 10 * this.tileSize + this.tileSize / 2;  // Tọa độ X giữa tile
+    const artifactY = 10 * this.tileSize + this.tileSize / 2;  // Tọa độ Y giữa tile
+    const dist = Math.hypot(this.player.x - artifactX, this.player.y - artifactY);
+
+    if (dist < 120) {
+        this.activeArtifact = "4-3";
+        this.popup = "Hiện vật 4-3\nĐây là hiện vật ở Việt Nam từ rất lâu về trước.";
+        interacted = true;
+    }
+
+    if (!interacted) {
+        // Optional: console.log("Không có hiện vật nào gần để tương tác");
+    }
+}
 
         // Key events
         window.addEventListener("keydown", (e) => {
@@ -128,7 +151,43 @@ export default class Game {
                 this.nearShelfText = "Nhấn E hoặc chạm nút để xem";
             }
         });
+if (this.popup) {
+    this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+    const boxWidth = 600;
+    const boxHeight = 500;
+    const boxX = (this.canvas.width - boxWidth) / 2;
+    const boxY = (this.canvas.height - boxHeight) / 2;
+
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+    this.ctx.fillStyle = "#000000";
+    this.ctx.font = "28px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText("Hiện vật 4-3", this.canvas.width / 2, boxY + 60);
+
+    // Vẽ ảnh hiện vật
+    if (this.activeArtifact === "4-3" && this.artifact43Img && this.artifact43Img.complete && this.artifact43Img.naturalWidth !== 0) {
+        const imgSize = 300;  // Kích thước ảnh hiển thị
+        this.ctx.drawImage(
+            this.artifact43Img,
+            this.canvas.width / 2 - imgSize / 2,
+            boxY + 100,
+            imgSize,
+            imgSize
+        );
+    }
+
+    // Mô tả
+    this.ctx.font = "20px Arial";
+    this.ctx.fillText("Đây là hiện vật ở Việt Nam từ rất lâu về trước", this.canvas.width / 2, boxY + 450);
+
+    this.ctx.font = "18px Arial";
+    this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight - 40);
+}
         // Hiện/ẩn nút interact mobile
         if (this.interactBtn) {
             if (this.nearShelfText) {
@@ -151,7 +210,8 @@ export default class Game {
             this.popup = null;
             return;
         }
-
+this.activeArtifact = null;  // Lưu hiện vật đang mở popup
+        
         let interacted = false;
         this.shelves.forEach(shelf => {
             if (shelf.isPlayerNear(this.player, 120)) {
