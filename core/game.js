@@ -47,6 +47,8 @@ this.plantImg = this.loadImage("../assets/textures/plant.png");
 this.tableImg = this.loadImage("../assets/textures/table.png");
 this.glassImg = this.loadImage("../assets/textures/glass.png");
 this.artifact43Img = this.loadImage("../assets/textures/artifact43.png");  // Ảnh hiện vật 4-3
+this.artifact43Img.onload = () => console.log("Ảnh hiện vật 4-3 đã load thành công!");
+this.artifact43Img.onerror = () => console.log("Lỗi load ảnh hiện vật 4-3 - kiểm tra tên file/đường dẫn!");
         // Nút interact cho mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
