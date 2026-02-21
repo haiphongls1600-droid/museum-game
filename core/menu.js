@@ -8,14 +8,14 @@ export default class Menu {
 
         // Load ảnh texture pack
         this.textureImg = new Image();
-        this.textureImg.src = "../assets/textures/menu_texture.png";  // Đường dẫn đúng, không khoảng trắng
+        this.textureImg.src = "../assets/textures/menu_texture.png";
         this.textureImg.onload = () => {
             console.log("Ảnh menu_texture.png load thành công rùi nè ~ 💖");
             this.draw();
         };
         this.textureImg.onerror = () => {
-            console.error("Lỗi load menu_texture.png - kiểm tra đường dẫn hoặc upload lại nhé!");
-            this.drawPlaceholder();  // Gọi placeholder khi lỗi
+            console.error("LỖI 404: Không tìm thấy menu_texture.png - kiểm tra upload và tên file nhé em!");
+            this.drawPlaceholder(); // Gọi placeholder khi lỗi
         };
 
         // Resize canvas full màn hình
@@ -27,7 +27,7 @@ export default class Menu {
         window.addEventListener('resize', resize);
         resize();
 
-        // Focus canvas để click mượt hơn
+        // Focus canvas
         canvas.tabIndex = 1;
         canvas.focus();
 
@@ -37,7 +37,7 @@ export default class Menu {
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
-            console.log(`Chị thấy em click tại: x=${Math.round(clickX)}, y=${Math.round(clickY)}`);
+            console.log(`Em click tại: x=${Math.round(clickX)}, y=${Math.round(clickY)}`);
 
             if (this.inGuide) {
                 if (clickX > this.canvas.width / 2 - 200 && clickX < this.canvas.width / 2 + 200 &&
@@ -81,31 +81,20 @@ export default class Menu {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Vẽ toàn bộ menu bằng ảnh texture pack
         if (this.textureImg.complete && this.textureImg.naturalWidth !== 0) {
-            this.ctx.drawImage(
-                this.textureImg,
-                0, 0,
-                this.textureImg.width,
-                this.textureImg.height,
-                0, 0,
-                this.canvas.width,
-                this.canvas.height
-            );
+            this.ctx.drawImage(this.textureImg, 0, 0, this.canvas.width, this.canvas.height);
         } else {
-            // Nếu ảnh chưa load xong thì gọi placeholder
             this.drawPlaceholder();
         }
     }
 
-    // Hàm placeholder khi ảnh lỗi (nền cam chấm chấm + text dễ thương)
     drawPlaceholder() {
-        this.ctx.fillStyle = "#FF8C00"; // Cam đậm
+        this.ctx.fillStyle = "#FF8C00";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         for (let y = 0; y < this.canvas.height; y += 6) {
             for (let x = 0; x < this.canvas.width; x += 6) {
-                this.ctx.fillStyle = "#FFD700"; // Chấm vàng
+                this.ctx.fillStyle = "#FFD700";
                 this.ctx.fillRect(x, y, 3, 3);
             }
         }
@@ -150,7 +139,7 @@ export default class Menu {
 
     loop() {
         requestAnimationFrame(() => this.loop());
-        this.draw();  // Luôn vẽ menu từ texture
+        this.draw();
 
         if (this.inGuide) {
             this.drawGuide();
