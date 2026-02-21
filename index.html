@@ -1,59 +1,12 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Museum Game</title>
-<link rel="icon" href="data:,">
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: #000;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-    }
+// index.js - File khởi tạo chính (thay hết nội dung)
+import Game from './core/game.js';  // Đường dẫn đến game.js của bạn
+import Menu from './core/menu.js';  // Đường dẫn đến menu.js mới tạo
 
-    canvas {
-      display: block;
-    }
+const canvas = document.getElementById("gameCanvas");
 
-    #interactBtn {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: rgba(0, 150, 255, 0.8);
-      color: white;
-      font-size: 40px;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-      z-index: 100; /* lên trên canvas */
-      display: none; /* ẩn mặc định, chỉ hiện khi cần */
-      touch-action: manipulation; /* tối ưu chạm mobile */
-    }
-
-    #interactBtn.active {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  </style>
-</head>
-<body>
-  <canvas id="game"></canvas>
-  
-<input type="file" id="uploadArtifact" accept="image/*,.pdf" style="display: none;" />
-
-  <!-- Nút interact cho mobile (hiện khi gần shelf) -->
-  <button id="interactBtn">E</button>
-
-  <!-- Script - sửa đường dẫn nếu cần -->
-  <script type="module" src="./main.js"></script>
-  <!-- Nếu file game.js nằm trong core/ thì dùng src="./core/game.js" -->
-</body>
-</html>
+// Khởi tạo menu trước
+const menu = new Menu(canvas, () => {
+    // Khi nhấn GAME START trong menu, khởi tạo và chạy game
+    const game = new Game(canvas);
+    console.log("Game started!");
+});
