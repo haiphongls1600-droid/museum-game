@@ -41,7 +41,7 @@ export default class Game {
             }
         }
 
-        // Danh sách hiện vật (tất cả đều có upload)
+        // Danh sách hiện vật (tất cả đều có nút upload)
         this.artifacts = [
             {
                 id: "4-3",
@@ -59,6 +59,7 @@ export default class Game {
                 y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage("../assets/textures/artifact_5-1.png")
             }
+            // Thêm hiện vật mới ở đây
         ];
 
         // Load images cơ bản
@@ -352,7 +353,7 @@ export default class Game {
                 this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 500);
             }
 
-            // Nút "Tải file lên" ở giữa
+            // Nút "Tải file lên" ở giữa (bấm để upload)
             this.ctx.fillStyle = "#4CAF50";
             this.ctx.fillRect(boxX + boxWidth/2 - 150, boxY + 550, 300, 60);
             this.ctx.fillStyle = "#ffffff";
