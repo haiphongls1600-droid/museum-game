@@ -25,10 +25,10 @@ export default class Game {
         this.target = null;
         this.popup = null;
         this.nearShelfText = null;
-        this.activeArtifact = null; // Lưu id hiện vật đang mở
-        this.uploadedFileURL = null;     // Link tạm thời của file upload
-        this.uploadedFileName = "";      // Tên file
-        this.uploadedFileType = "";      // Loại file (image/png, application/pdf,...)
+        this.activeArtifact = null;
+        this.uploadedFileURL = null;
+        this.uploadedFileName = "";
+        this.uploadedFileType = "";
 
         // Tạo shelves từ map "S"
         for (let y = 0; y < this.map.length; y++) {
@@ -41,14 +41,14 @@ export default class Game {
             }
         }
 
-        // Danh sách hiện vật riêng biệt (tên, mô tả, vị trí, ảnh riêng)
+        // Danh sách tất cả hiện vật (mỗi cái có upload riêng)
         this.artifacts = [
             {
                 id: "4-3",
                 name: "Hiện vật 4-3 - Rồng đất nung",
                 description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
-                x: 4 * this.tileSize + this.tileSize / 2,  // Vị trí đúng x=4
-                y: 3 * this.tileSize + this.tileSize / 2,  // Vị trí đúng y=3
+                x: 4 * this.tileSize + this.tileSize / 2,
+                y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage("../assets/textures/artifact_4-3.png")
             },
             {
@@ -57,9 +57,17 @@ export default class Game {
                 description: "Đây là hiện vật cổ từ thời Lý - Trần.",
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact_5-1.png") // Nếu có ảnh
+                img: this.loadImage("../assets/textures/artifact_5-1.png")
             }
-            // Thêm hiện vật khác nếu cần
+            // Thêm hiện vật mới ở đây, ví dụ:
+            // {
+            //     id: "3-2",
+            //     name: "Hiện vật 3-2 - Tượng đồng",
+            //     description: "Mô tả cho hiện vật 3-2...",
+            //     x: 20 * this.tileSize + this.tileSize / 2,
+            //     y: 20 * this.tileSize + this.tileSize / 2,
+            //     img: this.loadImage("../assets/textures/artifact_3-2.png")
+            // }
         ];
 
         // Load images cơ bản
@@ -71,13 +79,13 @@ export default class Game {
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
 
-        // Debug load ảnh hiện vật (xem console để kiểm tra)
+        // Debug load ảnh gốc hiện vật
         this.artifacts.forEach(art => {
-            art.img.onload = () => console.log(`Ảnh ${art.name} đã load thành công!`);
-            art.img.onerror = () => console.log(`Lỗi load ảnh ${art.name} - kiểm tra tên file/đường dẫn!`);
+            art.img.onload = () => console.log(`Ảnh gốc ${art.name} đã load thành công!`);
+            art.img.onerror = () => console.log(`Lỗi load ảnh gốc ${art.name}`);
         });
 
-        // Nút interact cho mobile
+        // Nút interact mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
             this.interactBtn.addEventListener("touchstart", (e) => {
@@ -87,7 +95,7 @@ export default class Game {
             this.interactBtn.addEventListener("click", () => this.handleInteract());
         }
 
-        // Xử lý upload file từ input
+        // Xử lý upload file (áp dụng cho mọi hiện vật)
         this.uploadInput = document.getElementById("uploadArtifact");
         if (this.uploadInput) {
             this.uploadInput.addEventListener("change", (e) => {
@@ -95,10 +103,21 @@ export default class Game {
                 if (file) {
                     this.uploadedFileName = file.name;
                     this.uploadedFileType = file.type;
-                    this.uploadedFileURL = URL.createObjectURL(file); // Tạo link tạm để hiển thị
+                    this.uploadedFileURL = URL.createObjectURL(file);
                     console.log("File uploaded:", file.name, "Type:", file.type);
-                    // Force redraw popup để hiện file mới
-                    this.loop(); // Gọi lại loop để vẽ ngay
+
+                    // Nếu là ảnh, preload và redraw
+                    if (file.type.startsWith('image/')) {
+                        const uploadedImg = new Image();
+                        uploadedImg.src = this.uploadedFileURL;
+                        uploadedImg.onload = () => {
+                            console.log("Ảnh preview đã load thành công!");
+                            this.loop(); // Vẽ lại ngay
+                        };
+                        uploadedImg.onerror = () => console.log("Lỗi load ảnh preview");
+                    } else {
+                        this.loop(); // Vẽ lại để hiện tên file
+                    }
                 }
             });
         }
@@ -195,6 +214,9 @@ export default class Game {
         if (this.popup) {
             this.popup = null;
             this.activeArtifact = null;
+            this.uploadedFileURL = null; // Reset upload khi đóng popup
+            this.uploadedFileName = "";
+            this.uploadedFileType = "";
             return;
         }
 
@@ -209,20 +231,20 @@ export default class Game {
             }
         });
 
-        // Check từng hiện vật riêng (tên + mô tả + ảnh riêng)
+        // Check từng hiện vật (tất cả đều có upload)
         this.artifacts.forEach(artifact => {
             const dist = Math.hypot(this.player.x - artifact.x, this.player.y - artifact.y);
             if (dist < 120) {
                 this.activeArtifact = artifact.id;
-                this.popup = artifact.name; // Tên riêng của hiện vật
+                this.popup = artifact.name;
                 interacted = true;
             }
         });
 
-        // Khi mở popup hiện vật, tự động mở input upload
+        // Khi mở popup bất kỳ hiện vật nào, tự động mở input upload
         if (this.activeArtifact && this.uploadInput) {
-            this.uploadInput.value = ""; // Reset input
-            this.uploadInput.click();   // Mở hộp thoại chọn file
+            this.uploadInput.value = "";
+            this.uploadInput.click();
         }
 
         if (!interacted) {
@@ -317,29 +339,25 @@ export default class Game {
             this.ctx.textAlign = "center";
             this.ctx.fillText(this.popup || "Khám phá hiện vật", this.canvas.width / 2, boxY + 60);
 
-            // Nếu có hiện vật gốc
+            // Hiện vật gốc
             const currentArtifact = this.artifacts.find(a => a.id === this.activeArtifact);
             if (currentArtifact) {
-                // Ảnh gốc (nếu có)
                 if (currentArtifact.img && currentArtifact.img.complete && currentArtifact.img.naturalWidth !== 0) {
                     const imgWidth = 300;
                     const imgHeight = 300 * (currentArtifact.img.height / currentArtifact.img.width);
                     this.ctx.drawImage(currentArtifact.img, boxX + 50, boxY + 100, imgWidth, imgHeight);
                 }
 
-                // Mô tả gốc
                 this.ctx.font = "20px Arial";
                 this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 500);
             }
 
-            // Phần upload & preview file người chơi tải lên
+            // Upload & preview (áp dụng cho mọi hiện vật)
             this.ctx.font = "22px Arial";
             this.ctx.fillText("Tải file lên để xem hiện vật của bạn", this.canvas.width / 2, boxY + 550);
 
-            // Nếu đã upload file
             if (this.uploadedFileURL) {
                 if (this.uploadedFileType.startsWith('image/')) {
-                    // Hiển thị ảnh preview
                     const uploadedImg = new Image();
                     uploadedImg.src = this.uploadedFileURL;
                     if (uploadedImg.complete) {
@@ -347,10 +365,9 @@ export default class Game {
                         const imgHeight = 400 * (uploadedImg.height / uploadedImg.width);
                         this.ctx.drawImage(uploadedImg, boxX + boxWidth - 450, boxY + 100, imgWidth, imgHeight);
                     } else {
-                        uploadedImg.onload = () => this.loop(); // Redraw khi ảnh load xong
+                        uploadedImg.onload = () => this.loop(); // Redraw khi load xong
                     }
                 } else {
-                    // File không phải ảnh → hiển thị tên
                     this.ctx.font = "20px Arial";
                     this.ctx.fillText("File đã tải: " + this.uploadedFileName, boxX + boxWidth - 450, boxY + 150);
                 }
