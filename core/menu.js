@@ -14,13 +14,13 @@ export default class Menu {
 
         // Load nút GAME START
         this.gameStartImg = new Image();
-        this.gameStartImg.src = "../assets/textures/game_start.png";
+        this.gameStartImg.src = "../assets/textures/game_start.png"; // tên đúng
         this.gameStartImg.onload = () => this.draw();
         this.gameStartImg.onerror = () => this.draw(); // không lỗi
 
         // Load nút HƯỚNG DẪN
         this.huongDanImg = new Image();
-        this.huongDanImg.src = "../assets/textures/huong_dan.png";
+        this.huongDanImg.src = "../assets/textures/huong_dan.png"; // tên đúng
         this.huongDanImg.onload = () => this.draw();
         this.huongDanImg.onerror = () => this.draw(); // không lỗi
 
@@ -55,7 +55,7 @@ export default class Menu {
                 return;
             }
 
-            // Vùng nút GAME START (từ game_start.png)
+            // Vùng nút GAME START từ game_start.png
             const gameStartX = this.canvas.width / 2 - 200;
             const gameStartY = this.canvas.height / 2 - 100;
             if (clickX > gameStartX && clickX < gameStartX + 400 &&
@@ -65,7 +65,7 @@ export default class Menu {
                 return;
             }
 
-            // Vùng nút HƯỚNG DẪN (từ huong_dan.png)
+            // Vùng nút HƯỚNG DẪN từ huong_dan.png
             const huongDanX = this.canvas.width / 2 - 200;
             const huongDanY = this.canvas.height / 2 + 50;
             if (clickX > huongDanX && clickX < huongDanX + 400 &&
