@@ -54,7 +54,7 @@ export default class Game {
                 description: "Đây là hiện vật cổ từ thời Lý - Trần.",
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact_5-1.png")
+                img: this.loadImage("../assets/textures/artifact51.png")
             }
         ];
 
