@@ -1,4 +1,4 @@
-// core/menu.js - Menu dùng texture pack + 2 nút riêng game_start.png và huong_dan.png
+// core/menu.js - Menu kiểu map texture + click vùng nút
 export default class Menu {
     constructor(canvas, startGameCallback) {
         this.canvas = canvas;
@@ -6,28 +6,33 @@ export default class Menu {
         this.startGameCallback = startGameCallback;
         this.inGuide = false;
 
-        // Load nền + tiêu đề
-        this.menuBgImg = new Image();
-        this.menuBgImg.src = "../assets/textures/menu_texture.png";
-        this.menuBgImg.onload = () => this.draw();
-        this.menuBgImg.onerror = () => this.draw(); // fallback im lặng
+        // Load tất cả texture
+        this.textures = {
+            background: this.loadTexture("../assets/textures/menu_texture.png"),
+            title: this.loadTexture("../assets/textures/title_texture.png"), // nếu có, nếu không thì bỏ
+            gameStart: this.loadTexture("../assets/textures/game_start.png"),
+            huongDan: this.loadTexture("../assets/textures/huong_dan.png")
+        };
 
-        // Load nút GAME START
-        this.gameStartImg = new Image();
-        this.gameStartImg.src = "../assets/textures/game_start.png"; // tên đúng
-        this.gameStartImg.onload = () => this.draw();
-        this.gameStartImg.onerror = () => this.draw(); // không lỗi
+        // Mảng kí hiệu giống map (định vị vị trí texture)
+        this.menuMap = [
+            ['B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B'], // B = background
+            ['B', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'B'], // T = title
+            ['B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B'],
+            ['B', 'B', 'B', 'G', 'G', 'G', 'G', 'B', 'B', 'B'], // G = game_start
+            ['B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B'],
+            ['B', 'B', 'B', 'H', 'H', 'H', 'H', 'B', 'B', 'B'], // H = huong_dan
+            ['B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B']
+        ];
 
-        // Load nút HƯỚNG DẪN
-        this.huongDanImg = new Image();
-        this.huongDanImg.src = "../assets/textures/huong_dan.png"; // tên đúng
-        this.huongDanImg.onload = () => this.draw();
-        this.huongDanImg.onerror = () => this.draw(); // không lỗi
+        // Kích thước "tile" cho menu (tùy chỉnh để khớp ảnh)
+        this.tileSize = Math.min(this.canvas.width / 10, this.canvas.height / 7);
 
         // Resize full màn hình
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            this.tileSize = Math.min(this.canvas.width / 10, this.canvas.height / 7);
             this.draw();
         };
         window.addEventListener('resize', resize);
@@ -37,7 +42,7 @@ export default class Menu {
         canvas.tabIndex = 1;
         canvas.focus();
 
-        // Click xử lý
+        // Click xử lý (click vào vùng tile G hoặc H)
         this.canvas.addEventListener("click", (e) => {
             const rect = this.canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
@@ -55,24 +60,21 @@ export default class Menu {
                 return;
             }
 
-            // Vùng nút GAME START từ game_start.png
-            const gameStartX = this.canvas.width / 2 - 200;
-            const gameStartY = this.canvas.height / 2 - 100;
-            if (clickX > gameStartX && clickX < gameStartX + 400 &&
-                clickY > gameStartY && clickY < gameStartY + 80) {
-                console.log("Anh nhấn GAME START rồi nè ~ Vào game thôi!");
-                this.startGameCallback();
-                return;
-            }
+            // Tính tile click
+            const tileX = Math.floor(clickX / this.tileSize);
+            const tileY = Math.floor(clickY / this.tileSize);
 
-            // Vùng nút HƯỚNG DẪN từ huong_dan.png
-            const huongDanX = this.canvas.width / 2 - 200;
-            const huongDanY = this.canvas.height / 2 + 50;
-            if (clickX > huongDanX && clickX < huongDanX + 400 &&
-                clickY > huongDanY && clickY < huongDanY + 80) {
-                console.log("Anh nhấn HƯỚNG DẪN nha ~ Mở hướng dẫn đây!");
-                this.inGuide = true;
-                this.drawGuide();
+            if (tileY >= 0 && tileY < this.menuMap.length && tileX >= 0 && tileX < this.menuMap[tileY].length) {
+                const tile = this.menuMap[tileY][tileX];
+
+                if (tile === 'G') {
+                    console.log("Anh nhấn GAME START rồi nè ~ Vào game thôi!");
+                    this.startGameCallback();
+                } else if (tile === 'H') {
+                    console.log("Anh nhấn HƯỚNG DẪN nha ~ Mở hướng dẫn đây!");
+                    this.inGuide = true;
+                    this.drawGuide();
+                }
             }
         });
 
@@ -88,14 +90,21 @@ export default class Menu {
         this.loop();
     }
 
+    loadTexture(path) {
+        const img = new Image();
+        img.src = path;
+        img.onload = () => this.draw();
+        img.onerror = () => this.draw(); // fallback im lặng
+        return img;
+    }
+
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Nền + tiêu đề từ menu_texture.png
+        // Vẽ nền full từ menu_texture.png (hoặc fallback)
         if (this.menuBgImg.complete && this.menuBgImg.naturalWidth !== 0) {
             this.ctx.drawImage(this.menuBgImg, 0, 0, this.canvas.width, this.canvas.height);
         } else {
-            // Fallback nền cam chấm chấm (không lỗi, không text)
             this.ctx.fillStyle = "#FF8C00";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -107,30 +116,22 @@ export default class Menu {
             }
         }
 
-        // Vẽ nút GAME START từ game_start.png (ở giữa trên)
+        // Vẽ nút GAME START từ game_start.png (ở vị trí 'G')
         if (this.gameStartImg.complete && this.gameStartImg.naturalWidth !== 0) {
-            const btnWidth = 400;
-            const btnHeight = 80;
-            this.ctx.drawImage(
-                this.gameStartImg,
-                this.canvas.width / 2 - btnWidth / 2,
-                this.canvas.height / 2 - 100,
-                btnWidth,
-                btnHeight
-            );
+            const btnWidth = this.tileSize * 4;
+            const btnHeight = this.tileSize * 1;
+            const btnX = this.tileSize * 3;
+            const btnY = this.tileSize * 3;
+            this.ctx.drawImage(this.gameStartImg, btnX, btnY, btnWidth, btnHeight);
         }
 
-        // Vẽ nút HƯỚNG DẪN từ huong_dan.png (ở giữa dưới)
+        // Vẽ nút HƯỚNG DẪN từ huong_dan.png (ở vị trí 'H')
         if (this.huongDanImg.complete && this.huongDanImg.naturalWidth !== 0) {
-            const btnWidth = 400;
-            const btnHeight = 80;
-            this.ctx.drawImage(
-                this.huongDanImg,
-                this.canvas.width / 2 - btnWidth / 2,
-                this.canvas.height / 2 + 50,
-                btnWidth,
-                btnHeight
-            );
+            const btnWidth = this.tileSize * 4;
+            const btnHeight = this.tileSize * 1;
+            const btnX = this.tileSize * 3;
+            const btnY = this.tileSize * 5;
+            this.ctx.drawImage(this.huongDanImg, btnX, btnY, btnWidth, btnHeight);
         }
     }
 
