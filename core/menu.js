@@ -1,22 +1,22 @@
 // menu.js - Màn hình menu khởi đầu
 export default class Menu {
-    constructor(canvas) {
+    constructor(canvas, startGameCallback) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
+        this.startGameCallback = startGameCallback; // Hàm gọi khi nhấn GAME START
+        this.inGuide = false;
 
-        this.inGuide = false; // Có đang hiển thị hướng dẫn không
-
-        // Xử lý click menu
         this.canvas.addEventListener("click", (e) => {
             const rect = this.canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
             if (this.inGuide) {
-                // Nút ĐÓNG trong popup hướng dẫn
+                // Nút ĐÓNG
                 if (clickX > this.canvas.width / 2 - 150 && clickX < this.canvas.width / 2 + 150 &&
                     clickY > this.canvas.height / 2 + 150 && clickY < this.canvas.height / 2 + 200) {
                     this.inGuide = false;
+                    this.draw();
                 }
                 return;
             }
@@ -24,8 +24,7 @@ export default class Menu {
             // Nút GAME START
             if (clickY > this.canvas.height / 2 - 100 && clickY < this.canvas.height / 2 - 20 &&
                 clickX > this.canvas.width / 2 - 250 && clickX < this.canvas.width / 2 + 250) {
-                // Chuyển sang game (gọi hàm callback hoặc dispatch event)
-                document.dispatchEvent(new Event("startGame"));
+                this.startGameCallback();
                 return;
             }
 
@@ -33,6 +32,7 @@ export default class Menu {
             if (clickY > this.canvas.height / 2 + 20 && clickY < this.canvas.height / 2 + 100 &&
                 clickX > this.canvas.width / 2 - 250 && clickX < this.canvas.width / 2 + 250) {
                 this.inGuide = true;
+                this.drawGuide();
             }
         });
 
@@ -40,11 +40,12 @@ export default class Menu {
     }
 
     draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
         // Nền chấm chấm vàng cam
         this.ctx.fillStyle = "#FFD700";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Chấm chấm đen
         for (let y = 0; y < this.canvas.height; y += 8) {
             for (let x = 0; x < this.canvas.width; x += 8) {
                 this.ctx.fillStyle = "#000000";
@@ -101,16 +102,5 @@ export default class Menu {
         this.ctx.fillStyle = "#FFD700";
         this.ctx.font = "bold 36px 'Courier New', monospace";
         this.ctx.fillText("ĐÓNG", this.canvas.width / 2, boxY + boxHeight - 70);
-    }
-
-    loop() {
-        requestAnimationFrame(() => this.loop());
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        if (this.inGuide) {
-            this.drawGuide();
-        } else {
-            this.draw();
-        }
     }
 }
