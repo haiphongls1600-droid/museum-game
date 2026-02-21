@@ -13,6 +13,8 @@
         }
         canvas {
             display: block;
+            width: 100vw;
+            height: 100vh;
         }
     </style>
 </head>
@@ -20,14 +22,14 @@
     <canvas id="gameCanvas"></canvas>
 
     <script type="module">
-        import Menu from './core/menu.js';  // Sửa đường dẫn nếu menu.js ở folder khác
-        import Game from './core/game.js';  // Sửa đường dẫn nếu game.js ở folder khác
+        import Menu from './core/menu.js';  // Nếu menu.js ở folder core, giữ nguyên
+        import Game from './core/game.js';  // Nếu game.js ở folder core, giữ nguyên
 
         const canvas = document.getElementById("gameCanvas");
 
-        // Khởi tạo menu trước (menu sẽ vẽ và xử lý click)
+        // Khởi tạo menu trước tiên
         const menu = new Menu(canvas, () => {
-            // Khi nhấn GAME START, khởi tạo game
+            // Khi nhấn GAME START, khởi tạo và chạy game
             const game = new Game(canvas);
             console.log("Game started!");
         });
