@@ -46,9 +46,6 @@ export default class Game {
         this.uploadedFileName = "";
         this.uploadedFileType = "";
 
-        // Load link đã lưu từ localStorage (vĩnh viễn trên thiết bị)
-        this.loadStoredLinks();
-
         // Tạo shelves
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
@@ -180,19 +177,20 @@ export default class Game {
             }
         });
 
+        // Load link đã lưu từ localStorage khi khởi tạo
+        this.loadStoredLinks();
+
         this.loop();
     }
 
-    // Load link đã lưu từ localStorage khi khởi tạo hoặc mở popup
+    // Hàm load link từ localStorage (vĩnh viễn trên thiết bị)
     loadStoredLinks() {
         this.artifacts.forEach(artifact => {
             const storedURL = localStorage.getItem(`artifact_${artifact.id}_url`);
             const storedName = localStorage.getItem(`artifact_${artifact.id}_name`);
             if (storedURL) {
-                this.uploadedFileURL = storedURL;
-                this.uploadedFileName = storedName || "File đã lưu";
-                this.uploadedFileType = "image/"; // Giả định là ảnh để vẽ
                 console.log(`Load file vĩnh viễn cho ${artifact.id}:`, storedURL);
+                // Có thể gán cho biến chung hoặc load khi mở popup
             }
         });
     }
@@ -210,7 +208,6 @@ export default class Game {
     }
 
     update() {
-        // ... (giữ nguyên phần update cũ của bạn)
         let newX = this.player.x;
         let newY = this.player.y;
         this.nearShelfText = null;
@@ -284,24 +281,22 @@ export default class Game {
                 this.activeArtifact = artifact.id;
                 this.popup = artifact.name;
                 interacted = true;
+
+                // Load link từ localStorage khi mở popup
+                const storedURL = localStorage.getItem(`artifact_${artifact.id}_url`);
+                const storedName = localStorage.getItem(`artifact_${artifact.id}_name`);
+                if (storedURL) {
+                    this.uploadedFileURL = storedURL;
+                    this.uploadedFileName = storedName || "File đã lưu";
+                    this.uploadedFileType = "image/";
+                    console.log(`Load file vĩnh viễn cho ${artifact.id}:`, storedURL);
+                } else {
+                    this.uploadedFileURL = null;
+                    this.uploadedFileName = "";
+                    this.uploadedFileType = "";
+                }
             }
         });
-
-        // Load link đã lưu khi mở popup
-        if (this.activeArtifact) {
-            const storedURL = localStorage.getItem(`artifact_${this.activeArtifact}_url`);
-            const storedName = localStorage.getItem(`artifact_${this.activeArtifact}_name`);
-            if (storedURL) {
-                this.uploadedFileURL = storedURL;
-                this.uploadedFileName = storedName || "File đã lưu";
-                this.uploadedFileType = "image/";
-                console.log(`Load file vĩnh viễn cho ${this.activeArtifact}:`, storedURL);
-            } else {
-                this.uploadedFileURL = null;
-                this.uploadedFileName = "";
-                this.uploadedFileType = "";
-            }
-        }
 
         if (!interacted) {
             console.log("Không có hiện vật nào gần để tương tác");
@@ -309,7 +304,6 @@ export default class Game {
     }
 
     drawMap() {
-        // ... (giữ nguyên phần drawMap cũ)
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 const tile = this.map[y][x];
@@ -332,7 +326,6 @@ export default class Game {
     }
 
     drawPlayer() {
-        // ... (giữ nguyên phần drawPlayer cũ)
         const img = this.playerImg;
 
         if (img && img.complete && img.naturalWidth !== 0) {
