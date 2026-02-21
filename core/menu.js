@@ -15,7 +15,7 @@ export default class Menu {
         };
         this.textureImg.onerror = () => {
             console.error("Lỗi load menu_texture.png - kiểm tra đường dẫn hoặc upload lại nhé!");
-            this.drawPlaceholder();  // Gọi hàm placeholder khi lỗi
+            this.drawPlaceholder();  // Gọi placeholder khi lỗi
         };
 
         // Resize canvas full màn hình
@@ -98,7 +98,7 @@ export default class Menu {
         }
     }
 
-    // Hàm placeholder khi ảnh lỗi (nền cam chấm chấm + text lỗi dễ thương)
+    // Hàm placeholder khi ảnh lỗi (nền cam chấm chấm + text dễ thương)
     drawPlaceholder() {
         this.ctx.fillStyle = "#FF8C00"; // Cam đậm
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
