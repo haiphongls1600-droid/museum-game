@@ -8,7 +8,7 @@ export default class Menu {
 
         // Load ảnh texture pack menu
         this.textureImg = new Image();
-        this.textureImg.src = "../assets/textures/menu_texture.png"; // Tên file bạn muốn
+     this.textureImg.src = "../assets/textures/menu_texture.png";  // <-- sửa thành dòng này
         this.textureImg.onload = () => {
             console.log("Texture pack menu_texture.png đã load thành công!");
             this.draw();
