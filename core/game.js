@@ -46,7 +46,7 @@ export default class Game {
                 description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
                 x: 4 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact_4-3.png")
+                img: this.loadImage("../assets/textures/artifact43.png")
             },
             {
                 id: "5-1",
