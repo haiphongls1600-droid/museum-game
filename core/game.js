@@ -1,5 +1,7 @@
 import { Shelf } from "../entities/Shelf.js";
 import { museumMap } from "./map.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 export default class Game {
     constructor(canvas) {
@@ -8,6 +10,21 @@ export default class Game {
         this.tileSize = 64;
         this.map = museumMap;
         this.zoom = 1.2;
+
+        // Firebase config (đã dán từ Firebase của bạn)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZ831428SNW30b2PqPgNRSiSxhbaoIA",
+            authDomain: "hiaphongls1600.firebaseapp.com",
+            projectId: "hiaphongls1600",
+            storageBucket: "hiaphongls1600.appspot.com",
+            messagingSenderId: "511389224",
+            appId: "1:511389224:web:d2e5d266e59df95f84a845",
+            measurementId: "G-TSQB1190D"
+        };
+
+        // Khởi tạo Firebase
+        const app = initializeApp(firebaseConfig);
+        this.storage = getStorage(app);
 
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
@@ -59,7 +76,6 @@ export default class Game {
                 y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage("../assets/textures/artifact_5-1.png")
             }
-            // Thêm hiện vật mới ở đây
         ];
 
         // Load images cơ bản
@@ -90,24 +106,28 @@ export default class Game {
         // Upload input
         this.uploadInput = document.getElementById("uploadArtifact");
         if (this.uploadInput) {
-            this.uploadInput.addEventListener("change", (e) => {
+            this.uploadInput.addEventListener("change", async (e) => {
                 const file = e.target.files[0];
                 if (file) {
                     this.uploadedFileName = file.name;
                     this.uploadedFileType = file.type;
-                    this.uploadedFileURL = URL.createObjectURL(file);
-                    console.log("File uploaded:", file.name, "Type:", file.type);
+                    this.uploadedFileURL = URL.createObjectURL(file); // Preview tạm thời
+                    console.log("File selected:", file.name, "Type:", file.type);
 
-                    if (file.type.startsWith('image/')) {
-                        const uploadedImg = new Image();
-                        uploadedImg.src = this.uploadedFileURL;
-                        uploadedImg.onload = () => {
-                            console.log("Ảnh preview đã load thành công!");
-                            this.loop();
-                        };
-                    } else {
-                        this.loop();
+                    // Upload lên Firebase Storage
+                    const storageRef = ref(this.storage, 'uploads/' + Date.now() + '_' + file.name);
+                    try {
+                        await uploadBytes(storageRef, file);
+                        const downloadURL = await getDownloadURL(storageRef);
+                        this.uploadedFileURL = downloadURL; // Link vĩnh viễn
+                        console.log("Upload Firebase thành công:", downloadURL);
+                        this.loop(); // Vẽ lại với link mới
+                    } catch (error) {
+                        console.error("Lỗi upload Firebase:", error);
+                        alert("Upload lỗi: " + error.message);
                     }
+
+                    this.loop(); // Vẽ preview tạm thời ngay
                 }
             });
         }
