@@ -185,12 +185,20 @@ export default class Game {
 
     // Hàm load link từ localStorage (vĩnh viễn trên thiết bị)
     loadStoredLinks() {
+        if (!this.artifacts || !Array.isArray(this.artifacts)) {
+            console.log("this.artifacts chưa tồn tại hoặc không phải array");
+            return;
+        }
+
         this.artifacts.forEach(artifact => {
             const storedURL = localStorage.getItem(`artifact_${artifact.id}_url`);
             const storedName = localStorage.getItem(`artifact_${artifact.id}_name`);
             if (storedURL) {
                 console.log(`Load file vĩnh viễn cho ${artifact.id}:`, storedURL);
-                // Có thể gán cho biến chung hoặc load khi mở popup
+                // Lưu tạm vào biến chung (có thể dùng object nếu nhiều hiện vật)
+                this.uploadedFileURL = storedURL;
+                this.uploadedFileName = storedName || "File đã lưu";
+                this.uploadedFileType = "image/";
             }
         });
     }
