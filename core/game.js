@@ -52,8 +52,8 @@ export default class Game {
                 id: "5-1",
                 name: "Hiện vật 5-1 - Bình gốm cổ",
                 description: "Đây là hiện vật cổ từ thời Lý - Trần.",
-                x: 15 * this.tileSize + this.tileSize / 2,
-                y: 15 * this.tileSize + this.tileSize / 2,
+                x: 24 * this.tileSize + this.tileSize / 2,
+                y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage("../assets/textures/artifact_5-1.png") // Nếu có ảnh
             }
             // Thêm hiện vật khác nếu cần
