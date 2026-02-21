@@ -1,4 +1,4 @@
-// core/menu.js - Menu khởi đầu với texture pack menu_texture.png
+// core/menu.js - Menu dùng texture pack menu_texture.png
 export default class Menu {
     constructor(canvas, startGameCallback) {
         this.canvas = canvas;
@@ -6,15 +6,17 @@ export default class Menu {
         this.startGameCallback = startGameCallback;
         this.inGuide = false;
 
-        // Load ảnh texture pack
+        // Load ảnh texture pack menu
         this.textureImg = new Image();
-        this.textureImg.src = "../assets/textures/menu_texture.png";
+        this.textureImg.src = "../assets/textures/menu_texture.png"; // Tên file bạn muốn
         this.textureImg.onload = () => {
             console.log("Texture pack menu_texture.png đã load thành công!");
             this.draw();
         };
         this.textureImg.onerror = () => {
             console.error("Lỗi load menu_texture.png - kiểm tra đường dẫn assets/textures/");
+            // Placeholder nếu lỗi
+            this.drawPlaceholder();
         };
 
         // Resize canvas full màn hình
@@ -26,7 +28,7 @@ export default class Menu {
         window.addEventListener('resize', resize);
         resize();
 
-        // Focus canvas để nhận event tốt hơn
+        // Focus canvas
         canvas.tabIndex = 1;
         canvas.focus();
 
@@ -50,7 +52,7 @@ export default class Menu {
             }
 
             // Vùng nút GAME START (vùng vàng trên trong ảnh texture)
-            // Điều chỉnh tọa độ dựa trên ảnh thực tế của bạn (thử nghiệm bằng console)
+            // Điều chỉnh tọa độ dựa trên ảnh thực tế (dùng console để test)
             if (clickY > this.canvas.height / 2 - 150 && clickY < this.canvas.height / 2 - 30 &&
                 clickX > this.canvas.width / 2 - 350 && clickX < this.canvas.width / 2 + 350) {
                 console.log("Nhấn GAME START");
@@ -82,9 +84,17 @@ export default class Menu {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Vẽ ảnh texture pack full màn hình (nền + tiêu đề + 2 vùng vàng)
+        // Vẽ toàn bộ menu bằng ảnh texture pack
         if (this.textureImg.complete && this.textureImg.naturalWidth !== 0) {
-            this.ctx.drawImage(this.textureImg, 0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.drawImage(
+                this.textureImg,
+                0, 0,
+                this.textureImg.width,
+                this.textureImg.height,
+                0, 0,
+                this.canvas.width,
+                this.canvas.height
+            );
         } else {
             // Placeholder nếu ảnh chưa load
             this.ctx.fillStyle = "#FF8C00";
@@ -92,7 +102,7 @@ export default class Menu {
             this.ctx.fillStyle = "#000000";
             this.ctx.font = "bold 60px 'Courier New', monospace";
             this.ctx.textAlign = "center";
-            this.ctx.fillText("Loading texture...", this.canvas.width / 2, this.canvas.height / 2);
+            this.ctx.fillText("Loading menu texture...", this.canvas.width / 2, this.canvas.height / 2);
         }
     }
 
@@ -128,7 +138,7 @@ export default class Menu {
 
     loop() {
         requestAnimationFrame(() => this.loop());
-        this.draw();  // Luôn vẽ menu texture
+        this.draw();  // Vẽ menu từ texture pack
 
         if (this.inGuide) {
             this.drawGuide();
