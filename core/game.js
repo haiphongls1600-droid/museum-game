@@ -342,13 +342,15 @@ export default class Game {
                     // Hiển thị ảnh preview
                     const uploadedImg = new Image();
                     uploadedImg.src = this.uploadedFileURL;
-                    uploadedImg.onload = () => {
+                    if (uploadedImg.complete) {
                         const imgWidth = 400;
                         const imgHeight = 400 * (uploadedImg.height / uploadedImg.width);
                         this.ctx.drawImage(uploadedImg, boxX + boxWidth - 450, boxY + 100, imgWidth, imgHeight);
-                    };
+                    } else {
+                        uploadedImg.onload = () => this.loop(); // Redraw khi ảnh load xong
+                    }
                 } else {
-                    // File không phải ảnh (PDF, v.v.) → hiển thị tên
+                    // File không phải ảnh → hiển thị tên
                     this.ctx.font = "20px Arial";
                     this.ctx.fillText("File đã tải: " + this.uploadedFileName, boxX + boxWidth - 450, boxY + 150);
                 }
