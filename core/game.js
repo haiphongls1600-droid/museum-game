@@ -44,9 +44,9 @@ export default class Game {
                 id: "4-3",
                 name: "Hiện vật 4-3 - Rồng đất nung",
                 description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
-                x: 10 * this.tileSize + this.tileSize / 2,  // Vị trí tile 10,10
-                y: 10 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact43.png")  // Ảnh riêng
+                x: 4 * this.tileSize + this.tileSize / 2,  // Vị trí đúng x=4
+                y: 3 * this.tileSize + this.tileSize / 2,  // Vị trí đúng y=3
+                img: this.loadImage("../assets/textures/artifact_4-3.png")
             },
             {
                 id: "5-1",
@@ -54,7 +54,7 @@ export default class Game {
                 description: "Đây là hiện vật cổ từ thời Lý - Trần.",
                 x: 15 * this.tileSize + this.tileSize / 2,
                 y: 15 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact_5-1.png")  // Ảnh riêng (nếu có)
+                img: this.loadImage("../assets/textures/artifact_5-1.png") // Nếu có ảnh
             }
             // Thêm hiện vật khác nếu cần
         ];
