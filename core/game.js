@@ -12,6 +12,10 @@ export default class Game {
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
 
+        // Trạng thái menu
+        this.inMenu = true;           // Bắt đầu ở menu
+        this.showGuide = false;       // Popup hướng dẫn
+
         this.player = {
             x: 12 * this.tileSize,
             y: 8 * this.tileSize,
@@ -27,7 +31,7 @@ export default class Game {
         this.nearShelfText = null;
         this.activeArtifact = null;
 
-        // Tạo shelves từ map "S"
+        // Tạo shelves
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 if (this.map[y][x] === "S") {
@@ -38,7 +42,7 @@ export default class Game {
             }
         }
 
-        // Danh sách hiện vật (chỉ hiện ảnh gốc từ assets)
+        // Danh sách hiện vật
         this.artifacts = [
             {
                 id: "4-3",
@@ -46,7 +50,7 @@ export default class Game {
                 description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
                 x: 4 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact43.png")
+                img: this.loadImage("../assets/textures/artifact_4-3.png")
             },
             {
                 id: "5-1",
@@ -54,11 +58,11 @@ export default class Game {
                 description: "Đây là hiện vật cổ từ thời Lý - Trần.",
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact51.png")
+                img: this.loadImage("../assets/textures/artifact_5-1.png")
             }
         ];
 
-        // Load images cơ bản
+        // Load images
         this.wallImg = this.loadImage("../assets/textures/wall.png");
         this.floorImg = this.loadImage("../assets/textures/floor.png");
         this.playerImg = this.loadImage("../assets/textures/player.png");
@@ -67,13 +71,12 @@ export default class Game {
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
 
-        // Debug load ảnh hiện vật
         this.artifacts.forEach(art => {
             art.img.onload = () => console.log(`Ảnh ${art.name} đã load thành công!`);
             art.img.onerror = () => console.log(`Lỗi load ảnh ${art.name} - kiểm tra tên file/đường dẫn!`);
         });
 
-        // Nút interact cho mobile
+        // Nút interact mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
             this.interactBtn.addEventListener("touchstart", (e) => {
@@ -94,10 +97,39 @@ export default class Game {
             }
         });
 
-        // Click để di chuyển
+        // Click để tương tác menu + di chuyển game
         this.canvas.addEventListener("click", (e) => {
-            if (this.popup) return;
             const rect = this.canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            if (this.showGuide) {
+                // Nút ĐÓNG trong popup hướng dẫn
+                if (clickX > this.canvas.width / 2 - 100 && clickX < this.canvas.width / 2 + 100 &&
+                    clickY > this.canvas.height / 2 + 150 && clickY < this.canvas.height / 2 + 200) {
+                    this.showGuide = false;
+                }
+                return;
+            }
+
+            if (this.inMenu) {
+                // Nút GAME START (dòng đầu)
+                if (clickY > this.canvas.height / 2 - 100 && clickY < this.canvas.height / 2 - 20 &&
+                    clickX > this.canvas.width / 2 - 250 && clickX < this.canvas.width / 2 + 250) {
+                    this.inMenu = false;
+                    return;
+                }
+
+                // Nút HƯỚNG DẪN (dòng 2)
+                if (clickY > this.canvas.height / 2 + 20 && clickY < this.canvas.height / 2 + 100 &&
+                    clickX > this.canvas.width / 2 - 250 && clickX < this.canvas.width / 2 + 250) {
+                    this.showGuide = true;
+                    return;
+                }
+            }
+
+            // Di chuyển game nếu đã vào game
+            if (this.popup) return;
             const mouseScreenX = e.clientX - rect.left;
             const mouseScreenY = e.clientY - rect.top;
             const worldX = this.player.x + (mouseScreenX - this.canvas.width / 2) / this.zoom;
@@ -121,6 +153,8 @@ export default class Game {
     }
 
     update() {
+        if (this.inMenu || this.showGuide) return;
+
         let newX = this.player.x;
         let newY = this.player.y;
         this.nearShelfText = null;
@@ -180,7 +214,6 @@ export default class Game {
 
         let interacted = false;
 
-        // Tủ cũ (shelves)
         this.shelves.forEach(shelf => {
             if (shelf.isPlayerNear(this.player, 120)) {
                 this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
@@ -189,7 +222,6 @@ export default class Game {
             }
         });
 
-        // Check từng hiện vật
         this.artifacts.forEach(artifact => {
             const dist = Math.hypot(this.player.x - artifact.x, this.player.y - artifact.y);
             if (dist < 120) {
@@ -248,72 +280,144 @@ export default class Game {
         }
     }
 
+    drawMenu() {
+        // Nền chấm chấm vàng cam giống ảnh
+        this.ctx.fillStyle = "#FFD700"; // Vàng
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Chấm chấm đen
+        for (let y = 0; y < this.canvas.height; y += 8) {
+            for (let x = 0; x < this.canvas.width; x += 8) {
+                this.ctx.fillStyle = "#000000";
+                this.ctx.fillRect(x, y, 4, 4);
+            }
+        }
+
+        // Tiêu đề pixel art
+        this.ctx.fillStyle = "#8B4513"; // Nâu
+        this.ctx.font = "bold 70px 'Courier New', monospace";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("THE MUSEUM GAME", this.canvas.width / 2, this.canvas.height / 4);
+
+        // Nút GAME START (dòng đầu)
+        this.ctx.fillStyle = "#8B4513";
+        this.ctx.fillRect(this.canvas.width / 2 - 250, this.canvas.height / 2 - 80, 500, 100);
+        this.ctx.fillStyle = "#FFD700";
+        this.ctx.font = "bold 50px 'Courier New', monospace";
+        this.ctx.fillText("GAME START", this.canvas.width / 2, this.canvas.height / 2 + 10);
+
+        // Nút HƯỚNG DẪN (dòng 2)
+        this.ctx.fillStyle = "#8B4513";
+        this.ctx.fillRect(this.canvas.width / 2 - 250, this.canvas.height / 2 + 80, 500, 100);
+        this.ctx.fillStyle = "#FFD700";
+        this.ctx.font = "bold 50px 'Courier New', monospace";
+        this.ctx.fillText("HƯỚNG DẪN", this.canvas.width / 2, this.canvas.height / 2 + 170);
+    }
+
+    drawGuidePopup() {
+        this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const boxWidth = 800;
+        const boxHeight = 500;
+        const boxX = (this.canvas.width - boxWidth) / 2;
+        const boxY = (this.canvas.height - boxHeight) / 2;
+
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+        this.ctx.fillStyle = "#000000";
+        this.ctx.font = "bold 40px 'Courier New', monospace";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("HƯỚNG DẪN CHƠI", this.canvas.width / 2, boxY + 80);
+
+        this.ctx.font = "28px 'Courier New', monospace";
+        this.ctx.fillText("Di chuyển: Click chuột / AWSD", this.canvas.width / 2, boxY + 180);
+        this.ctx.fillText("Nhấn E để mở popup hiện vật", this.canvas.width / 2, boxY + 240);
+        this.ctx.fillText("Trong popup: Click chữ 'Chọn file' để upload file", this.canvas.width / 2, boxY + 300);
+        this.ctx.fillText("(Ảnh/file chỉ hiển thị tạm thời trong phiên chơi)", this.canvas.width / 2, boxY + 360);
+
+        // Nút ĐÓNG
+        this.ctx.fillStyle = "#8B4513";
+        this.ctx.fillRect(this.canvas.width / 2 - 150, boxY + boxHeight - 120, 300, 80);
+        this.ctx.fillStyle = "#FFD700";
+        this.ctx.font = "bold 36px 'Courier New', monospace";
+        this.ctx.fillText("ĐÓNG", this.canvas.width / 2, boxY + boxHeight - 70);
+    }
+
     loop() {
         requestAnimationFrame(() => this.loop());
-        this.update();
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.save();
-        this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-        this.ctx.scale(this.zoom, this.zoom);
-        this.ctx.translate(-this.player.x - this.player.size / 2, -this.player.y - this.player.size / 2);
+        if (this.inMenu) {
+            this.drawMenu();
+        } else if (this.showGuide) {
+            this.drawGuidePopup();
+        } else {
+            this.update();
 
-        this.drawMap();
-        this.shelves.forEach(shelf => shelf.draw(this.ctx));
-        this.drawPlayer();
-        this.ctx.restore();
+            this.ctx.save();
+            this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+            this.ctx.scale(this.zoom, this.zoom);
+            this.ctx.translate(-this.player.x - this.player.size / 2, -this.player.y - this.player.size / 2);
 
-        if (this.nearShelfText) {
-            this.ctx.fillStyle = "rgba(0,0,0,0.6)";
-            this.ctx.fillRect(this.canvas.width / 2 - 180, this.canvas.height - 80, 360, 50);
-            this.ctx.fillStyle = "#ffffff";
-            this.ctx.font = "bold 18px Arial";
-            this.ctx.textAlign = "center";
-            this.ctx.textBaseline = "middle";
-            this.ctx.fillText(this.nearShelfText, this.canvas.width / 2, this.canvas.height - 55);
-        }
+            this.drawMap();
+            this.shelves.forEach(shelf => shelf.draw(this.ctx));
+            this.drawPlayer();
+            this.ctx.restore();
 
-        if (this.popup) {
-            this.ctx.fillStyle = "rgba(0,0,0,0.7)";
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-            const boxWidth = 600;
-            const boxHeight = 550;
-            const boxX = (this.canvas.width - boxWidth) / 2;
-            const boxY = (this.canvas.height - boxHeight) / 2;
-
-            this.ctx.fillStyle = "#ffffff";
-            this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-
-            this.ctx.fillStyle = "#000000";
-            this.ctx.font = "bold 32px Arial";
-            this.ctx.textAlign = "center";
-            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + 60);
-
-            const currentArtifact = this.artifacts.find(a => a.id === this.activeArtifact);
-            if (currentArtifact) {
-                if (currentArtifact.img && currentArtifact.img.complete && currentArtifact.img.naturalWidth !== 0) {
-                    const imgWidth = 400;
-                    const imgHeight = 400 * (currentArtifact.img.height / currentArtifact.img.width);
-                    this.ctx.drawImage(
-                        currentArtifact.img,
-                        this.canvas.width / 2 - imgWidth / 2,
-                        boxY + 100,
-                        imgWidth,
-                        imgHeight
-                    );
-
-                    this.ctx.font = "20px Arial";
-                    this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 100 + imgHeight + 40);
-                } else {
-                    this.ctx.font = "20px Arial";
-                    this.ctx.fillText("(Ảnh hiện vật đang tải...)", this.canvas.width / 2, boxY + 250);
-                }
+            if (this.nearShelfText) {
+                this.ctx.fillStyle = "rgba(0,0,0,0.6)";
+                this.ctx.fillRect(this.canvas.width / 2 - 180, this.canvas.height - 80, 360, 50);
+                this.ctx.fillStyle = "#ffffff";
+                this.ctx.font = "bold 18px Arial";
+                this.ctx.textAlign = "center";
+                this.ctx.textBaseline = "middle";
+                this.ctx.fillText(this.nearShelfText, this.canvas.width / 2, this.canvas.height - 55);
             }
 
-            this.ctx.font = "18px Arial";
-            this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight - 40);
+            if (this.popup) {
+                this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const boxWidth = 600;
+                const boxHeight = 550;
+                const boxX = (this.canvas.width - boxWidth) / 2;
+                const boxY = (this.canvas.height - boxHeight) / 2;
+
+                this.ctx.fillStyle = "#ffffff";
+                this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+                this.ctx.fillStyle = "#000000";
+                this.ctx.font = "bold 32px Arial";
+                this.ctx.textAlign = "center";
+                this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + 60);
+
+                const currentArtifact = this.artifacts.find(a => a.id === this.activeArtifact);
+                if (currentArtifact) {
+                    if (currentArtifact.img && currentArtifact.img.complete && currentArtifact.img.naturalWidth !== 0) {
+                        const imgWidth = 400;
+                        const imgHeight = 400 * (currentArtifact.img.height / currentArtifact.img.width);
+                        this.ctx.drawImage(
+                            currentArtifact.img,
+                            this.canvas.width / 2 - imgWidth / 2,
+                            boxY + 100,
+                            imgWidth,
+                            imgHeight
+                        );
+
+                        this.ctx.font = "20px Arial";
+                        this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 100 + imgHeight + 40);
+                    } else {
+                        this.ctx.font = "20px Arial";
+                        this.ctx.fillText("(Ảnh hiện vật đang tải...)", this.canvas.width / 2, boxY + 250);
+                    }
+                }
+
+                this.ctx.font = "18px Arial";
+                this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight - 40);
+            }
         }
     }
 }
