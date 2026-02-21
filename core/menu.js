@@ -1,4 +1,4 @@
-// core/menu.js - Menu dùng texture pack menu_texture.png, bỏ lỗi load
+// core/menu.js - Menu dùng texture pack + 2 nút riêng game_start.png và huong_dan.png
 export default class Menu {
     constructor(canvas, startGameCallback) {
         this.canvas = canvas;
@@ -6,19 +6,25 @@ export default class Menu {
         this.startGameCallback = startGameCallback;
         this.inGuide = false;
 
-        // Load ảnh texture pack (nếu fail thì dùng nền đơn giản, không báo lỗi)
-        this.textureImg = new Image();
-        this.textureImg.src = "../assets/textures/menu_texture.png";
-        this.textureImg.onload = () => {
-            console.log("Ảnh menu_texture.png load thành công rồi anh ơi ~ 💖");
-            this.draw();
-        };
-        this.textureImg.onerror = () => {
-            console.log("Ảnh menu_texture.png chưa load được, dùng nền đơn giản nha anh ~");
-            this.draw(); // Vẫn vẽ menu với nền fallback, không hiện lỗi
-        };
+        // Load texture pack nền + tiêu đề
+        this.menuBgImg = new Image();
+        this.menuBgImg.src = "../assets/textures/menu_texture.png";
+        this.menuBgImg.onload = () => this.draw();
+        this.menuBgImg.onerror = () => this.draw(); // fallback không lỗi
 
-        // Resize canvas full màn hình ngay lập tức
+        // Load nút GAME START
+        this.gameStartImg = new Image();
+        this.gameStartImg.src = "../assets/textures/game_start.png";
+        this.gameStartImg.onload = () => this.draw();
+        this.gameStartImg.onerror = () => console.log("Chưa load được game_start.png, dùng fallback nha anh ~");
+
+        // Load nút HƯỚNG DẪN
+        this.huongDanImg = new Image();
+        this.huongDanImg.src = "../assets/textures/huong_dan.png";
+        this.huongDanImg.onload = () => this.draw();
+        this.huongDanImg.onerror = () => console.log("Chưa load được huong_dan.png, dùng fallback nha anh ~");
+
+        // Resize canvas full màn hình
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -31,7 +37,7 @@ export default class Menu {
         canvas.tabIndex = 1;
         canvas.focus();
 
-        // Click xử lý (vùng rộng, ấn một lần là chạy)
+        // Click xử lý (ấn một lần là chạy)
         this.canvas.addEventListener("click", (e) => {
             const rect = this.canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
@@ -49,17 +55,21 @@ export default class Menu {
                 return;
             }
 
-            // Vùng nút GAME START (vàng trên - vùng rộng để dễ trúng)
-            if (clickY > this.canvas.height / 2 - 200 && clickY < this.canvas.height / 2 &&
-                clickX > this.canvas.width / 2 - 400 && clickX < this.canvas.width / 2 + 400) {
+            // Vùng nút GAME START (vẽ ở giữa trên)
+            const gameStartX = this.canvas.width / 2 - 200;
+            const gameStartY = this.canvas.height / 2 - 100;
+            if (clickX > gameStartX && clickX < gameStartX + 400 &&
+                clickY > gameStartY && clickY < gameStartY + 80) {
                 console.log("Anh nhấn GAME START rồi nè ~ Vào game thôi!");
                 this.startGameCallback();
                 return;
             }
 
-            // Vùng nút HƯỚNG DẪN (vàng dưới - vùng rộng)
-            if (clickY > this.canvas.height / 2 && clickY < this.canvas.height / 2 + 200 &&
-                clickX > this.canvas.width / 2 - 400 && clickX < this.canvas.width / 2 + 400) {
+            // Vùng nút HƯỚNG DẪN (vẽ ở giữa dưới)
+            const huongDanX = this.canvas.width / 2 - 200;
+            const huongDanY = this.canvas.height / 2 + 50;
+            if (clickX > huongDanX && clickX < huongDanX + 400 &&
+                clickY > huongDanY && clickY < huongDanY + 80) {
                 console.log("Anh nhấn HƯỚNG DẪN nha ~ Mở hướng dẫn đây!");
                 this.inGuide = true;
                 this.drawGuide();
@@ -81,11 +91,11 @@ export default class Menu {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Nếu ảnh load được thì vẽ ảnh full màn hình
-        if (this.textureImg.complete && this.textureImg.naturalWidth !== 0) {
-            this.ctx.drawImage(this.textureImg, 0, 0, this.canvas.width, this.canvas.height);
+        // Vẽ nền + tiêu đề từ menu_texture.png (full màn hình)
+        if (this.menuBgImg.complete && this.menuBgImg.naturalWidth !== 0) {
+            this.ctx.drawImage(this.menuBgImg, 0, 0, this.canvas.width, this.canvas.height);
         } else {
-            // Nền fallback đơn giản (cam chấm chấm) - không hiện lỗi
+            // Fallback nền cam chấm chấm (không lỗi)
             this.ctx.fillStyle = "#FF8C00";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -95,6 +105,32 @@ export default class Menu {
                     this.ctx.fillRect(x, y, 3, 3);
                 }
             }
+        }
+
+        // Vẽ nút GAME START (ở giữa trên)
+        if (this.gameStartImg.complete && this.gameStartImg.naturalWidth !== 0) {
+            const btnWidth = 400;
+            const btnHeight = 80;
+            this.ctx.drawImage(
+                this.gameStartImg,
+                this.canvas.width / 2 - btnWidth / 2,
+                this.canvas.height / 2 - 100,
+                btnWidth,
+                btnHeight
+            );
+        }
+
+        // Vẽ nút HƯỚNG DẪN (ở giữa dưới)
+        if (this.huongDanImg.complete && this.huongDanImg.naturalWidth !== 0) {
+            const btnWidth = 400;
+            const btnHeight = 80;
+            this.ctx.drawImage(
+                this.huongDanImg,
+                this.canvas.width / 2 - btnWidth / 2,
+                this.canvas.height / 2 + 50,
+                btnWidth,
+                btnHeight
+            );
         }
     }
 
