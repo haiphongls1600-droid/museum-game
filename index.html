@@ -10,6 +10,7 @@
             padding: 0;
             overflow: hidden;
             background: #000;
+            height: 100%;
         }
         canvas {
             display: block;
@@ -22,13 +23,20 @@
     <canvas id="gameCanvas"></canvas>
 
     <script type="module">
-        // Import menu trước (menu sẽ vẽ đầu tiên)
-        import Menu from './core/menu.js';  // Nếu menu.js ở folder core, giữ nguyên
-        import Game from './core/game.js';  // Nếu game.js ở folder core, giữ nguyên
+        import Menu from './core/menu.js';  // Sửa nếu folder khác
+        import Game from './core/game.js';  // Sửa nếu folder khác
 
         const canvas = document.getElementById("gameCanvas");
 
-        // Khởi tạo menu (menu sẽ tự loop và vẽ liên tục)
+        // Resize canvas full màn hình ngay lập tức
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();  // Resize lần đầu
+
+        // Khởi tạo menu trước (menu sẽ tự vẽ và loop)
         const menu = new Menu(canvas, () => {
             // Khi nhấn GAME START, khởi tạo game
             const game = new Game(canvas);
