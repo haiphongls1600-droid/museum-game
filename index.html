@@ -22,14 +22,15 @@
     <canvas id="gameCanvas"></canvas>
 
     <script type="module">
+        // Import menu trước (menu sẽ vẽ đầu tiên)
         import Menu from './core/menu.js';  // Nếu menu.js ở folder core, giữ nguyên
         import Game from './core/game.js';  // Nếu game.js ở folder core, giữ nguyên
 
         const canvas = document.getElementById("gameCanvas");
 
-        // Khởi tạo menu trước tiên
+        // Khởi tạo menu (menu sẽ tự loop và vẽ liên tục)
         const menu = new Menu(canvas, () => {
-            // Khi nhấn GAME START, khởi tạo và chạy game
+            // Khi nhấn GAME START, khởi tạo game
             const game = new Game(canvas);
             console.log("Game started!");
         });
