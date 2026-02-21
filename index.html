@@ -1,12 +1,36 @@
-// index.js - Khởi tạo menu trước, game sau
-import Menu from './core/menu.js';  // Sửa đường dẫn nếu khác
-import Game from './core/game.js';  // Sửa đường dẫn nếu khác
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Museum Game</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
 
-const canvas = document.getElementById("gameCanvas");
+    <script type="module">
+        import Menu from './core/menu.js';  // Sửa đường dẫn nếu menu.js ở folder khác
+        import Game from './core/game.js';  // Sửa đường dẫn nếu game.js ở folder khác
 
-// Khởi tạo menu trước
-const menu = new Menu(canvas, () => {
-    // Khi nhấn GAME START, khởi tạo game
-    const game = new Game(canvas);
-    console.log("Game started!");
-});
+        const canvas = document.getElementById("gameCanvas");
+
+        // Khởi tạo menu trước (menu sẽ vẽ và xử lý click)
+        const menu = new Menu(canvas, () => {
+            // Khi nhấn GAME START, khởi tạo game
+            const game = new Game(canvas);
+            console.log("Game started!");
+        });
+    </script>
+</body>
+</html>
