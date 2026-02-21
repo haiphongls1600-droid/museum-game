@@ -3,7 +3,7 @@ export default class Menu {
     constructor(canvas, startGameCallback) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
-        this.startGameCallback = startGameCallback; // Hàm gọi khi nhấn GAME START
+        this.startGameCallback = startGameCallback;
         this.inGuide = false;
 
         this.canvas.addEventListener("click", (e) => {
@@ -36,7 +36,7 @@ export default class Menu {
             }
         });
 
-        this.draw();
+        this.loop();
     }
 
     draw() {
@@ -102,5 +102,16 @@ export default class Menu {
         this.ctx.fillStyle = "#FFD700";
         this.ctx.font = "bold 36px 'Courier New', monospace";
         this.ctx.fillText("ĐÓNG", this.canvas.width / 2, boxY + boxHeight - 70);
+    }
+
+    loop() {
+        requestAnimationFrame(() => this.loop());
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (this.inGuide) {
+            this.drawGuide();
+        } else {
+            this.draw();
+        }
     }
 }
