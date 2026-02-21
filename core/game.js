@@ -7,16 +7,15 @@ export default class Game {
         this.ctx = canvas.getContext("2d");
         this.tileSize = 64;
         this.map = museumMap;
-        this.zoom = 1.2;
+        this.zoom = 1.2; // Zoom chỉ dùng cho game
 
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
 
-        // Trạng thái menu (bắt đầu ở menu)
+        // Trạng thái menu
         this.inMenu = true;
         this.showGuide = false;
 
-        // Khởi tạo game nhưng chưa chạy loop game
         this.player = {
             x: 12 * this.tileSize,
             y: 8 * this.tileSize,
@@ -32,7 +31,7 @@ export default class Game {
         this.nearShelfText = null;
         this.activeArtifact = null;
 
-        // Tạo shelves từ map "S"
+        // Tạo shelves
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 if (this.map[y][x] === "S") {
@@ -90,6 +89,13 @@ export default class Game {
         // Key events
         window.addEventListener("keydown", (e) => {
             this.keys[e.key.toLowerCase()] = true;
+
+            // Thêm ESC để thoát hướng dẫn
+            if (e.key.toLowerCase() === "escape") {
+                if (this.showGuide) {
+                    this.showGuide = false;
+                }
+            }
         });
         window.addEventListener("keyup", (e) => {
             this.keys[e.key.toLowerCase()] = false;
@@ -154,7 +160,7 @@ export default class Game {
     }
 
     update() {
-        if (this.inMenu || this.showGuide) return; // Không update game khi ở menu/hướng dẫn
+        if (this.inMenu || this.showGuide) return;
 
         let newX = this.player.x;
         let newY = this.player.y;
@@ -282,11 +288,10 @@ export default class Game {
     }
 
     drawMenu() {
-        // Nền chấm chấm vàng cam giống ảnh
+        // Nền chấm chấm vàng cam (không zoom)
         this.ctx.fillStyle = "#FFD700";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Chấm chấm đen
         for (let y = 0; y < this.canvas.height; y += 8) {
             for (let x = 0; x < this.canvas.width; x += 8) {
                 this.ctx.fillStyle = "#000000";
@@ -294,20 +299,17 @@ export default class Game {
             }
         }
 
-        // Tiêu đề
         this.ctx.fillStyle = "#8B4513";
         this.ctx.font = "bold 70px 'Courier New', monospace";
         this.ctx.textAlign = "center";
         this.ctx.fillText("THE MUSEUM GAME", this.canvas.width / 2, this.canvas.height / 4);
 
-        // Nút GAME START (dòng đầu)
         this.ctx.fillStyle = "#8B4513";
         this.ctx.fillRect(this.canvas.width / 2 - 250, this.canvas.height / 2 - 80, 500, 100);
         this.ctx.fillStyle = "#FFD700";
         this.ctx.font = "bold 50px 'Courier New', monospace";
         this.ctx.fillText("GAME START", this.canvas.width / 2, this.canvas.height / 2 + 10);
 
-        // Nút HƯỚNG DẪN (dòng 2)
         this.ctx.fillStyle = "#8B4513";
         this.ctx.fillRect(this.canvas.width / 2 - 250, this.canvas.height / 2 + 80, 500, 100);
         this.ctx.fillStyle = "#FFD700";
@@ -335,9 +337,8 @@ export default class Game {
         this.ctx.font = "28px 'Courier New', monospace";
         this.ctx.fillText("Di chuyển: Click chuột / AWSD", this.canvas.width / 2, boxY + 180);
         this.ctx.fillText("Nhấn E để mở popup hiện vật", this.canvas.width / 2, boxY + 240);
-        this.ctx.fillText("Trong popup: Click để upload file (ảnh hiện tạm thời)", this.canvas.width / 2, boxY + 300);
+        this.ctx.fillText("Trong popup: Click để upload file", this.canvas.width / 2, boxY + 300);
 
-        // Nút ĐÓNG
         this.ctx.fillStyle = "#8B4513";
         this.ctx.fillRect(this.canvas.width / 2 - 150, boxY + boxHeight - 120, 300, 80);
         this.ctx.fillStyle = "#FFD700";
@@ -351,9 +352,9 @@ export default class Game {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (this.inMenu) {
-            this.drawMenu();
+            this.drawMenu(); // Không zoom khi vẽ menu
         } else if (this.showGuide) {
-            this.drawGuidePopup();
+            this.drawGuidePopup(); // Không zoom khi vẽ hướng dẫn
         } else {
             this.update();
 
