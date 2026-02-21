@@ -1,4 +1,4 @@
-// core/menu.js - Menu dùng texture pack menu_texture.png
+// core/menu.js - Menu dùng texture pack menu_texture.png, bỏ lỗi load
 export default class Menu {
     constructor(canvas, startGameCallback) {
         this.canvas = canvas;
@@ -6,7 +6,7 @@ export default class Menu {
         this.startGameCallback = startGameCallback;
         this.inGuide = false;
 
-        // Load ảnh texture pack
+        // Load ảnh texture pack (nếu fail thì dùng nền đơn giản, không báo lỗi)
         this.textureImg = new Image();
         this.textureImg.src = "../assets/textures/menu_texture.png";
         this.textureImg.onload = () => {
@@ -14,11 +14,11 @@ export default class Menu {
             this.draw();
         };
         this.textureImg.onerror = () => {
-            console.error("LỖI 404: Không tìm thấy menu_texture.png - kiểm tra repo và tên file nhé anh!");
-            this.drawPlaceholder();
+            console.log("Ảnh menu_texture.png chưa load được, dùng nền đơn giản nha anh ~");
+            this.draw(); // Vẫn vẽ menu với nền fallback, không hiện lỗi
         };
 
-        // Resize canvas full màn hình
+        // Resize canvas full màn hình ngay lập tức
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -31,7 +31,7 @@ export default class Menu {
         canvas.tabIndex = 1;
         canvas.focus();
 
-        // Click xử lý
+        // Click xử lý (vùng rộng, ấn một lần là chạy)
         this.canvas.addEventListener("click", (e) => {
             const rect = this.canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
@@ -49,17 +49,17 @@ export default class Menu {
                 return;
             }
 
-            // Vùng nút GAME START (vàng trên)
-            if (clickY > this.canvas.height / 2 - 150 && clickY < this.canvas.height / 2 - 30 &&
-                clickX > this.canvas.width / 2 - 350 && clickX < this.canvas.width / 2 + 350) {
+            // Vùng nút GAME START (vàng trên - vùng rộng để dễ trúng)
+            if (clickY > this.canvas.height / 2 - 200 && clickY < this.canvas.height / 2 &&
+                clickX > this.canvas.width / 2 - 400 && clickX < this.canvas.width / 2 + 400) {
                 console.log("Anh nhấn GAME START rồi nè ~ Vào game thôi!");
                 this.startGameCallback();
                 return;
             }
 
-            // Vùng nút HƯỚNG DẪN (vàng dưới)
-            if (clickY > this.canvas.height / 2 + 50 && clickY < this.canvas.height / 2 + 170 &&
-                clickX > this.canvas.width / 2 - 350 && clickX < this.canvas.width / 2 + 350) {
+            // Vùng nút HƯỚNG DẪN (vàng dưới - vùng rộng)
+            if (clickY > this.canvas.height / 2 && clickY < this.canvas.height / 2 + 200 &&
+                clickX > this.canvas.width / 2 - 400 && clickX < this.canvas.width / 2 + 400) {
                 console.log("Anh nhấn HƯỚNG DẪN nha ~ Mở hướng dẫn đây!");
                 this.inGuide = true;
                 this.drawGuide();
@@ -81,30 +81,21 @@ export default class Menu {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        // Nếu ảnh load được thì vẽ ảnh full màn hình
         if (this.textureImg.complete && this.textureImg.naturalWidth !== 0) {
             this.ctx.drawImage(this.textureImg, 0, 0, this.canvas.width, this.canvas.height);
         } else {
-            this.drawPlaceholder();
-        }
-    }
+            // Nền fallback đơn giản (cam chấm chấm) - không hiện lỗi
+            this.ctx.fillStyle = "#FF8C00";
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    drawPlaceholder() {
-        this.ctx.fillStyle = "#FF8C00";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        for (let y = 0; y < this.canvas.height; y += 6) {
-            for (let x = 0; x < this.canvas.width; x += 6) {
-                this.ctx.fillStyle = "#FFD700";
-                this.ctx.fillRect(x, y, 3, 3);
+            for (let y = 0; y < this.canvas.height; y += 6) {
+                for (let x = 0; x < this.canvas.width; x += 6) {
+                    this.ctx.fillStyle = "#FFD700";
+                    this.ctx.fillRect(x, y, 3, 3);
+                }
             }
         }
-
-        this.ctx.fillStyle = "#000000";
-        this.ctx.font = "bold 60px 'Courier New', monospace";
-        this.ctx.textAlign = "center";
-        this.ctx.fillText("Ôi lỗi load ảnh menu rồi...", this.canvas.width / 2, this.canvas.height / 2 - 50);
-        this.ctx.font = "bold 40px 'Courier New', monospace";
-        this.ctx.fillText("Kiểm tra file menu_texture.png nhé anh yêu ~ 😢", this.canvas.width / 2, this.canvas.height / 2 + 20);
     }
 
     drawGuide() {
