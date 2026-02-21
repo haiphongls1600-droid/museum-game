@@ -26,7 +26,9 @@ export default class Game {
         this.popup = null;
         this.nearShelfText = null;
         this.activeArtifact = null; // Lưu id hiện vật đang mở
-
+this.uploadedFileURL = null;     // Link tạm thời của file upload
+this.uploadedFileName = "";      // Tên file
+this.uploadedFileType = "";      // Loại file (image/png, application/pdf,...)
         // Tạo shelves từ map "S"
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
@@ -83,7 +85,21 @@ export default class Game {
             });
             this.interactBtn.addEventListener("click", () => this.handleInteract());
         }
-
+// Xử lý upload file từ input
+this.uploadInput = document.getElementById("uploadArtifact");
+if (this.uploadInput) {
+    this.uploadInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            this.uploadedFileName = file.name;
+            this.uploadedFileType = file.type;
+            this.uploadedFileURL = URL.createObjectURL(file); // Tạo link tạm để hiển thị
+            console.log("File uploaded:", file.name, "Type:", file.type);
+            // Force redraw popup để hiện file mới
+            this.loop(); // Gọi lại loop để vẽ ngay
+        }
+    });
+}
         // Key events
         window.addEventListener("keydown", (e) => {
             this.keys[e.key.toLowerCase()] = true;
@@ -180,7 +196,11 @@ export default class Game {
         }
 
         let interacted = false;
-
+// Khi mở popup hiện vật, tự động mở input upload
+if (this.activeArtifact && this.uploadInput) {
+    this.uploadInput.value = ""; // Reset input
+    this.uploadInput.click();   // Mở hộp thoại chọn file
+}
         // Tủ cũ (shelves)
         this.shelves.forEach(shelf => {
             if (shelf.isPlayerNear(this.player, 120)) {
@@ -276,49 +296,59 @@ export default class Game {
         }
 
         if (this.popup) {
-            this.ctx.fillStyle = "rgba(0,0,0,0.7)";
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            const boxWidth = 600;
-            const boxHeight = 550;
-            const boxX = (this.canvas.width - boxWidth) / 2;
-            const boxY = (this.canvas.height - boxHeight) / 2;
+    const boxWidth = 700;
+    const boxHeight = 650;
+    const boxX = (this.canvas.width - boxWidth) / 2;
+    const boxY = (this.canvas.height - boxHeight) / 2;
 
-            this.ctx.fillStyle = "#ffffff";
-            this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
-            this.ctx.fillStyle = "#000000";
-            this.ctx.font = "bold 32px Arial";
-            this.ctx.textAlign = "center";
-            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + 60); // Tên riêng của hiện vật
+    this.ctx.fillStyle = "#000000";
+    this.ctx.font = "bold 32px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(this.popup || "Khám phá hiện vật", this.canvas.width / 2, boxY + 60);
 
-            // Tìm hiện vật đang active để lấy ảnh và mô tả
-            const currentArtifact = this.artifacts.find(a => a.id === this.activeArtifact);
+    // Nếu có hiện vật gốc
+    const currentArtifact = this.artifacts.find(a => a.id === this.activeArtifact);
+    if (currentArtifact) {
+        // Ảnh gốc (nếu có)
+        if (currentArtifact.img && currentArtifact.img.complete && currentArtifact.img.naturalWidth !== 0) {
+            const imgWidth = 300;
+            const imgHeight = 300 * (currentArtifact.img.height / currentArtifact.img.width);
+            this.ctx.drawImage(currentArtifact.img, boxX + 50, boxY + 100, imgWidth, imgHeight);
+        }
 
-            if (currentArtifact) {
-                // Vẽ ảnh (nếu có)
-                if (currentArtifact.img && currentArtifact.img.complete && currentArtifact.img.naturalWidth !== 0) {
-                    const imgWidth = 400;
-                    const imgHeight = 400 * (currentArtifact.img.height / currentArtifact.img.width);
-                    this.ctx.drawImage(
-                        currentArtifact.img,
-                        this.canvas.width / 2 - imgWidth / 2,
-                        boxY + 100,
-                        imgWidth,
-                        imgHeight
-                    );
+        // Mô tả gốc
+        this.ctx.font = "20px Arial";
+        this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 500);
+    }
 
-                    // Mô tả riêng (dưới ảnh)
-                    this.ctx.font = "20px Arial";
-                    this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 100 + imgHeight + 40);
-                } else {
-                    this.ctx.font = "20px Arial";
-                    this.ctx.fillText("(Ảnh hiện vật đang tải...)", this.canvas.width / 2, boxY + 250);
-                }
-            }
+    // Phần upload & preview file người chơi tải lên
+    this.ctx.font = "22px Arial";
+    this.ctx.fillText("Tải file lên để xem hiện vật của bạn", this.canvas.width / 2, boxY + 550);
 
-            this.ctx.font = "18px Arial";
-            this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight - 40);
+    // Nếu đã upload file
+    if (this.uploadedFileURL) {
+        if (this.uploadedFileType.startsWith('image/')) {
+            // Hiển thị ảnh preview
+            const uploadedImg = new Image();
+            uploadedImg.src = this.uploadedFileURL;
+            uploadedImg.onload = () => {
+                const imgWidth = 400;
+                const imgHeight = 400 * (uploadedImg.height / uploadedImg.width);
+                this.ctx.drawImage(uploadedImg, boxX + boxWidth - 450, boxY + 100, imgWidth, imgHeight);
+            };
+        } else {
+            // File không phải ảnh (PDF, v.v.) → hiển thị tên
+            this.ctx.font = "20px Arial";
+            this.ctx.fillText("File đã tải: " + this.uploadedFileName, boxX + boxWidth - 450, boxY + 150);
         }
     }
+
+    this.ctx.font = "18px Arial";
+    this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight - 40);
 }
