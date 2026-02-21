@@ -6,17 +6,16 @@ export default class Menu {
         this.startGameCallback = startGameCallback;
         this.inGuide = false;
 
-        // Load ảnh texture pack menu
+        // Load ảnh texture pack
         this.textureImg = new Image();
-     this.textureImg.src = "../assets/textures/menu_texture.png";  // <-- sửa thành dòng này
+        this.textureImg.src = "../assets/textures/menu_texture.png";  // Đường dẫn đúng, không khoảng trắng
         this.textureImg.onload = () => {
-            console.log("Texture pack menu_texture.png đã load thành công!");
+            console.log("Ảnh menu_texture.png load thành công rùi nè ~ 💖");
             this.draw();
         };
         this.textureImg.onerror = () => {
-            console.error("Lỗi load menu_texture.png - kiểm tra đường dẫn assets/textures/");
-            // Placeholder nếu lỗi
-            this.drawPlaceholder();
+            console.error("Lỗi load menu_texture.png - kiểm tra đường dẫn hoặc upload lại nhé!");
+            this.drawPlaceholder();  // Gọi hàm placeholder khi lỗi
         };
 
         // Resize canvas full màn hình
@@ -28,7 +27,7 @@ export default class Menu {
         window.addEventListener('resize', resize);
         resize();
 
-        // Focus canvas
+        // Focus canvas để click mượt hơn
         canvas.tabIndex = 1;
         canvas.focus();
 
@@ -38,32 +37,30 @@ export default class Menu {
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
-            console.log(`Click tại: x=${Math.round(clickX)}, y=${Math.round(clickY)}`);
+            console.log(`Chị thấy em click tại: x=${Math.round(clickX)}, y=${Math.round(clickY)}`);
 
             if (this.inGuide) {
-                // Vùng nút ĐÓNG trong popup hướng dẫn
                 if (clickX > this.canvas.width / 2 - 200 && clickX < this.canvas.width / 2 + 200 &&
                     clickY > this.canvas.height / 2 + 100 && clickY < this.canvas.height / 2 + 250) {
                     this.inGuide = false;
                     this.draw();
-                    console.log("Đóng hướng dẫn");
+                    console.log("Đóng hướng dẫn nha em ~ 😘");
                 }
                 return;
             }
 
-            // Vùng nút GAME START (vùng vàng trên trong ảnh texture)
-            // Điều chỉnh tọa độ dựa trên ảnh thực tế (dùng console để test)
+            // Vùng nút GAME START (vàng trên)
             if (clickY > this.canvas.height / 2 - 150 && clickY < this.canvas.height / 2 - 30 &&
                 clickX > this.canvas.width / 2 - 350 && clickX < this.canvas.width / 2 + 350) {
-                console.log("Nhấn GAME START");
+                console.log("Em nhấn GAME START rùi nè ~ Vào game thôi!");
                 this.startGameCallback();
                 return;
             }
 
-            // Vùng nút HƯỚNG DẪN (vùng vàng dưới trong ảnh texture)
+            // Vùng nút HƯỚNG DẪN (vàng dưới)
             if (clickY > this.canvas.height / 2 + 50 && clickY < this.canvas.height / 2 + 170 &&
                 clickX > this.canvas.width / 2 - 350 && clickX < this.canvas.width / 2 + 350) {
-                console.log("Nhấn HƯỚNG DẪN");
+                console.log("Em nhấn HƯỚNG DẪN nha ~ Mở hướng dẫn đây!");
                 this.inGuide = true;
                 this.drawGuide();
             }
@@ -74,7 +71,7 @@ export default class Menu {
             if (e.key.toLowerCase() === "escape" && this.inGuide) {
                 this.inGuide = false;
                 this.draw();
-                console.log("ESC thoát hướng dẫn");
+                console.log("ESC thoát hướng dẫn nha em yêu ~ 💕");
             }
         });
 
@@ -96,14 +93,29 @@ export default class Menu {
                 this.canvas.height
             );
         } else {
-            // Placeholder nếu ảnh chưa load
-            this.ctx.fillStyle = "#FF8C00";
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.fillStyle = "#000000";
-            this.ctx.font = "bold 60px 'Courier New', monospace";
-            this.ctx.textAlign = "center";
-            this.ctx.fillText("Loading menu texture...", this.canvas.width / 2, this.canvas.height / 2);
+            // Nếu ảnh chưa load xong thì gọi placeholder
+            this.drawPlaceholder();
         }
+    }
+
+    // Hàm placeholder khi ảnh lỗi (nền cam chấm chấm + text lỗi dễ thương)
+    drawPlaceholder() {
+        this.ctx.fillStyle = "#FF8C00"; // Cam đậm
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for (let y = 0; y < this.canvas.height; y += 6) {
+            for (let x = 0; x < this.canvas.width; x += 6) {
+                this.ctx.fillStyle = "#FFD700"; // Chấm vàng
+                this.ctx.fillRect(x, y, 3, 3);
+            }
+        }
+
+        this.ctx.fillStyle = "#000000";
+        this.ctx.font = "bold 60px 'Courier New', monospace";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("Ôi lỗi load ảnh menu rồi...", this.canvas.width / 2, this.canvas.height / 2 - 50);
+        this.ctx.font = "bold 40px 'Courier New', monospace";
+        this.ctx.fillText("Kiểm tra file menu_texture.png nhé em yêu ~ 😢", this.canvas.width / 2, this.canvas.height / 2 + 20);
     }
 
     drawGuide() {
@@ -138,7 +150,7 @@ export default class Menu {
 
     loop() {
         requestAnimationFrame(() => this.loop());
-        this.draw();  // Vẽ menu từ texture pack
+        this.draw();  // Luôn vẽ menu từ texture
 
         if (this.inGuide) {
             this.drawGuide();
