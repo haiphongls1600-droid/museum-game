@@ -11,7 +11,7 @@ export default class Game {
         this.map = museumMap;
         this.zoom = 1.2;
 
-        // Firebase config (đã dán từ Firebase của bạn)
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyCZ831428SNW30b2PqPgNRSiSxhbaoIA",
             authDomain: "hiaphongls1600.firebaseapp.com",
@@ -22,7 +22,6 @@ export default class Game {
             measurementId: "G-TSQB1190D"
         };
 
-        // Khởi tạo Firebase
         const app = initializeApp(firebaseConfig);
         this.storage = getStorage(app);
 
@@ -47,6 +46,9 @@ export default class Game {
         this.uploadedFileName = "";
         this.uploadedFileType = "";
 
+        // Load link đã lưu từ localStorage (vĩnh viễn trên thiết bị)
+        this.loadStoredLinks();
+
         // Tạo shelves
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
@@ -58,7 +60,7 @@ export default class Game {
             }
         }
 
-        // Danh sách hiện vật (tất cả đều có nút upload)
+        // Danh sách hiện vật
         this.artifacts = [
             {
                 id: "4-3",
@@ -121,13 +123,18 @@ export default class Game {
                         const downloadURL = await getDownloadURL(storageRef);
                         this.uploadedFileURL = downloadURL; // Link vĩnh viễn
                         console.log("Upload Firebase thành công:", downloadURL);
+
+                        // Lưu link vào localStorage theo id hiện vật
+                        localStorage.setItem(`artifact_${this.activeArtifact}_url`, downloadURL);
+                        localStorage.setItem(`artifact_${this.activeArtifact}_name`, file.name);
+
                         this.loop(); // Vẽ lại với link mới
                     } catch (error) {
                         console.error("Lỗi upload Firebase:", error);
                         alert("Upload lỗi: " + error.message);
                     }
 
-                    this.loop(); // Vẽ preview tạm thời ngay
+                    this.loop(); // Vẽ preview tạm thời
                 }
             });
         }
@@ -155,7 +162,6 @@ export default class Game {
                 return;
             }
 
-            // Nếu popup mở, kiểm tra click vào nút "Tải file lên"
             const rect = this.canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
@@ -164,7 +170,7 @@ export default class Game {
             const boxX = (this.canvas.width - boxWidth) / 2;
             const boxY = (this.canvas.height - boxHeight) / 2;
 
-            // Vùng nút "Tải file lên" (300x60 ở giữa dưới)
+            // Vùng nút "Tải file lên"
             if (mouseX > boxX + boxWidth/2 - 150 && mouseX < boxX + boxWidth/2 + 150 &&
                 mouseY > boxY + 550 && mouseY < boxY + 610) {
                 if (this.uploadInput) {
@@ -175,6 +181,20 @@ export default class Game {
         });
 
         this.loop();
+    }
+
+    // Load link đã lưu từ localStorage khi khởi tạo hoặc mở popup
+    loadStoredLinks() {
+        this.artifacts.forEach(artifact => {
+            const storedURL = localStorage.getItem(`artifact_${artifact.id}_url`);
+            const storedName = localStorage.getItem(`artifact_${artifact.id}_name`);
+            if (storedURL) {
+                this.uploadedFileURL = storedURL;
+                this.uploadedFileName = storedName || "File đã lưu";
+                this.uploadedFileType = "image/"; // Giả định là ảnh để vẽ
+                console.log(`Load file vĩnh viễn cho ${artifact.id}:`, storedURL);
+            }
+        });
     }
 
     resize() {
@@ -190,6 +210,7 @@ export default class Game {
     }
 
     update() {
+        // ... (giữ nguyên phần update cũ của bạn)
         let newX = this.player.x;
         let newY = this.player.y;
         this.nearShelfText = null;
@@ -244,9 +265,6 @@ export default class Game {
         if (this.popup) {
             this.popup = null;
             this.activeArtifact = null;
-            this.uploadedFileURL = null;
-            this.uploadedFileName = "";
-            this.uploadedFileType = "";
             return;
         }
 
@@ -269,12 +287,29 @@ export default class Game {
             }
         });
 
+        // Load link đã lưu khi mở popup
+        if (this.activeArtifact) {
+            const storedURL = localStorage.getItem(`artifact_${this.activeArtifact}_url`);
+            const storedName = localStorage.getItem(`artifact_${this.activeArtifact}_name`);
+            if (storedURL) {
+                this.uploadedFileURL = storedURL;
+                this.uploadedFileName = storedName || "File đã lưu";
+                this.uploadedFileType = "image/";
+                console.log(`Load file vĩnh viễn cho ${this.activeArtifact}:`, storedURL);
+            } else {
+                this.uploadedFileURL = null;
+                this.uploadedFileName = "";
+                this.uploadedFileType = "";
+            }
+        }
+
         if (!interacted) {
             console.log("Không có hiện vật nào gần để tương tác");
         }
     }
 
     drawMap() {
+        // ... (giữ nguyên phần drawMap cũ)
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 const tile = this.map[y][x];
@@ -297,6 +332,7 @@ export default class Game {
     }
 
     drawPlayer() {
+        // ... (giữ nguyên phần drawPlayer cũ)
         const img = this.playerImg;
 
         if (img && img.complete && img.naturalWidth !== 0) {
@@ -373,14 +409,14 @@ export default class Game {
                 this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 500);
             }
 
-            // Nút "Tải file lên" ở giữa (bấm để upload)
+            // Nút "Tải file lên" ở giữa
             this.ctx.fillStyle = "#4CAF50";
             this.ctx.fillRect(boxX + boxWidth/2 - 150, boxY + 550, 300, 60);
             this.ctx.fillStyle = "#ffffff";
             this.ctx.font = "24px Arial";
             this.ctx.fillText("Tải file lên", this.canvas.width / 2, boxY + 580);
 
-            // Preview file đã upload
+            // Preview file đã upload (từ localStorage hoặc upload mới)
             if (this.uploadedFileURL) {
                 if (this.uploadedFileType.startsWith('image/')) {
                     const uploadedImg = new Image();
