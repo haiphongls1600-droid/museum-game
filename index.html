@@ -1,12 +1,12 @@
-// index.js - File khởi tạo chính (thay hết nội dung)
-import Game from './core/game.js';  // Đường dẫn đến game.js của bạn
-import Menu from './core/menu.js';  // Đường dẫn đến menu.js mới tạo
+// index.js - Khởi tạo menu trước, game sau
+import Menu from './core/menu.js';  // Sửa đường dẫn nếu khác
+import Game from './core/game.js';  // Sửa đường dẫn nếu khác
 
 const canvas = document.getElementById("gameCanvas");
 
 // Khởi tạo menu trước
 const menu = new Menu(canvas, () => {
-    // Khi nhấn GAME START trong menu, khởi tạo và chạy game
+    // Khi nhấn GAME START, khởi tạo game
     const game = new Game(canvas);
     console.log("Game started!");
 });
