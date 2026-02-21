@@ -7,7 +7,7 @@ export default class Game {
         this.ctx = canvas.getContext("2d");
         this.tileSize = 64;
         this.map = museumMap;
-        this.zoom = 1.2; // Zoom chỉ dùng cho game
+        this.zoom = 1.0; // Zoom chỉ dùng cho game
 
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
