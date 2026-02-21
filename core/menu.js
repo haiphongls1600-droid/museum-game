@@ -1,4 +1,4 @@
-// menu.js - Màn hình menu khởi đầu
+// core/menu.js
 export default class Menu {
     constructor(canvas, startGameCallback) {
         this.canvas = canvas;
@@ -6,17 +6,25 @@ export default class Menu {
         this.startGameCallback = startGameCallback;
         this.inGuide = false;
 
+        // Resize canvas
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        window.addEventListener("resize", () => {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        });
+
+        // Click xử lý
         this.canvas.addEventListener("click", (e) => {
             const rect = this.canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
             if (this.inGuide) {
-                // Nút ĐÓNG
+                // Nút ĐÓNG hoặc ESC
                 if (clickX > this.canvas.width / 2 - 150 && clickX < this.canvas.width / 2 + 150 &&
                     clickY > this.canvas.height / 2 + 150 && clickY < this.canvas.height / 2 + 200) {
                     this.inGuide = false;
-                    this.draw();
                 }
                 return;
             }
@@ -32,7 +40,13 @@ export default class Menu {
             if (clickY > this.canvas.height / 2 + 20 && clickY < this.canvas.height / 2 + 100 &&
                 clickX > this.canvas.width / 2 - 250 && clickX < this.canvas.width / 2 + 250) {
                 this.inGuide = true;
-                this.drawGuide();
+            }
+        });
+
+        // ESC thoát hướng dẫn
+        window.addEventListener("keydown", (e) => {
+            if (e.key.toLowerCase() === "escape" && this.inGuide) {
+                this.inGuide = false;
             }
         });
 
@@ -42,7 +56,6 @@ export default class Menu {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Nền chấm chấm vàng cam
         this.ctx.fillStyle = "#FFD700";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -53,20 +66,17 @@ export default class Menu {
             }
         }
 
-        // Tiêu đề
         this.ctx.fillStyle = "#8B4513";
         this.ctx.font = "bold 70px 'Courier New', monospace";
         this.ctx.textAlign = "center";
         this.ctx.fillText("THE MUSEUM GAME", this.canvas.width / 2, this.canvas.height / 4);
 
-        // Nút GAME START
         this.ctx.fillStyle = "#8B4513";
         this.ctx.fillRect(this.canvas.width / 2 - 250, this.canvas.height / 2 - 80, 500, 100);
         this.ctx.fillStyle = "#FFD700";
         this.ctx.font = "bold 50px 'Courier New', monospace";
         this.ctx.fillText("GAME START", this.canvas.width / 2, this.canvas.height / 2 + 10);
 
-        // Nút HƯỚNG DẪN
         this.ctx.fillStyle = "#8B4513";
         this.ctx.fillRect(this.canvas.width / 2 - 250, this.canvas.height / 2 + 80, 500, 100);
         this.ctx.fillStyle = "#FFD700";
@@ -94,9 +104,9 @@ export default class Menu {
         this.ctx.font = "28px 'Courier New', monospace";
         this.ctx.fillText("Di chuyển: Click chuột / AWSD", this.canvas.width / 2, boxY + 180);
         this.ctx.fillText("Nhấn E để mở popup hiện vật", this.canvas.width / 2, boxY + 240);
-        this.ctx.fillText("Trong popup: Click để upload file (ảnh hiện tạm thời)", this.canvas.width / 2, boxY + 300);
+        this.ctx.fillText("Trong popup: Click để upload file", this.canvas.width / 2, boxY + 300);
+        this.ctx.fillText("Nhấn ESC để thoát hướng dẫn", this.canvas.width / 2, boxY + 360);
 
-        // Nút ĐÓNG
         this.ctx.fillStyle = "#8B4513";
         this.ctx.fillRect(this.canvas.width / 2 - 150, boxY + boxHeight - 120, 300, 80);
         this.ctx.fillStyle = "#FFD700";
