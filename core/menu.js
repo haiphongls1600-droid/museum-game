@@ -1,16 +1,82 @@
 // core/menu.js - Menu dùng texture pack menu_texture.png
 export default class Menu {
-   // Load ảnh texture pack
-this.textureImg = new Image();
-this.textureImg.src = "../assets/textures/menu_texture.png"; // Đường dẫn chuẩn
-this.textureImg.onload = () => {
-    console.log("Ảnh menu_texture.png load thành công rùi anh ơi ~ 💖");
-    this.draw();
-};
-this.textureImg.onerror = () => {
-    console.error("LỖI 404: Không tìm thấy menu_texture.png - kiểm tra repo và tên file nhé anh!");
-    this.drawPlaceholder(); // Gọi placeholder
-};
+    constructor(canvas, startGameCallback) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
+        this.startGameCallback = startGameCallback;
+        this.inGuide = false;
+
+        // Load ảnh texture pack
+        this.textureImg = new Image();
+        this.textureImg.src = "../assets/textures/menu_texture.png";
+        this.textureImg.onload = () => {
+            console.log("Ảnh menu_texture.png load thành công rồi anh ơi ~ 💖");
+            this.draw();
+        };
+        this.textureImg.onerror = () => {
+            console.error("LỖI 404: Không tìm thấy menu_texture.png - kiểm tra repo và tên file nhé anh!");
+            this.drawPlaceholder();
+        };
+
+        // Resize canvas full màn hình
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            this.draw();
+        };
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Focus canvas để click mượt
+        canvas.tabIndex = 1;
+        canvas.focus();
+
+        // Click xử lý
+        this.canvas.addEventListener("click", (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            console.log(`Anh click tại: x=${Math.round(clickX)}, y=${Math.round(clickY)}`);
+
+            if (this.inGuide) {
+                if (clickX > this.canvas.width / 2 - 200 && clickX < this.canvas.width / 2 + 200 &&
+                    clickY > this.canvas.height / 2 + 100 && clickY < this.canvas.height / 2 + 250) {
+                    this.inGuide = false;
+                    this.draw();
+                    console.log("Đóng hướng dẫn nha anh ~ 😘");
+                }
+                return;
+            }
+
+            // Vùng nút GAME START (vàng trên)
+            if (clickY > this.canvas.height / 2 - 150 && clickY < this.canvas.height / 2 - 30 &&
+                clickX > this.canvas.width / 2 - 350 && clickX < this.canvas.width / 2 + 350) {
+                console.log("Anh nhấn GAME START rồi nè ~ Vào game thôi!");
+                this.startGameCallback();
+                return;
+            }
+
+            // Vùng nút HƯỚNG DẪN (vàng dưới)
+            if (clickY > this.canvas.height / 2 + 50 && clickY < this.canvas.height / 2 + 170 &&
+                clickX > this.canvas.width / 2 - 350 && clickX < this.canvas.width / 2 + 350) {
+                console.log("Anh nhấn HƯỚNG DẪN nha ~ Mở hướng dẫn đây!");
+                this.inGuide = true;
+                this.drawGuide();
+            }
+        });
+
+        // ESC thoát hướng dẫn
+        window.addEventListener("keydown", (e) => {
+            if (e.key.toLowerCase() === "escape" && this.inGuide) {
+                this.inGuide = false;
+                this.draw();
+                console.log("ESC thoát hướng dẫn nha anh yêu ~ 💕");
+            }
+        });
+
+        this.loop();
+    }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -38,7 +104,7 @@ this.textureImg.onerror = () => {
         this.ctx.textAlign = "center";
         this.ctx.fillText("Ôi lỗi load ảnh menu rồi...", this.canvas.width / 2, this.canvas.height / 2 - 50);
         this.ctx.font = "bold 40px 'Courier New', monospace";
-        this.ctx.fillText("Kiểm tra file menu_texture.png nhé em yêu ~ 😢", this.canvas.width / 2, this.canvas.height / 2 + 20);
+        this.ctx.fillText("Kiểm tra file menu_texture.png nhé anh yêu ~ 😢", this.canvas.width / 2, this.canvas.height / 2 + 20);
     }
 
     drawGuide() {
