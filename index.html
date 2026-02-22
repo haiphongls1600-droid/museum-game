@@ -17,13 +17,37 @@
             width: 100vw;
             height: 100vh;
         }
+        #interactBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        #interactBtn.active {
+            display: flex;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    <button id="interactBtn">E</button>
 
     <script type="module">
-        
+        import Game from './game.js';
+
+        const canvas = document.getElementById('gameCanvas');
+        new Game(canvas);
     </script>
 </body>
 </html>
