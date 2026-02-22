@@ -43,19 +43,16 @@
     <canvas id="gameCanvas"></canvas>
     <button id="interactBtn">E</button>
 
-    <script type="module">
-        // Import đúng đường dẫn file game.js (kiểm tra tên file trong repo)
-        import Menu from './core/menu.js'; // nếu menu.js trong core/
-        import Game from './game.js'; // sửa thành './core/game.js' nếu file ở core/
+   <script type="module">
+    import Menu from './core/menu.js'; // giữ nguyên nếu menu.js trong core/
+    import Game from './game.js'; // file game.js phải ở cùng cấp index.html (root)
 
-        const canvas = document.getElementById("gameCanvas");
+    const canvas = document.getElementById("gameCanvas");
 
-        // Khởi tạo menu trước
-        const menu = new Menu(canvas, () => {
-            // Khi nhấn GAME START, khởi tạo game
-            const game = new Game(canvas);
-            console.log("Game started!");
-        });
-    </script>
+    const menu = new Menu(canvas, () => {
+        const game = new Game(canvas);
+        console.log("Game started!");
+    });
+</script>
 </body>
 </html>
