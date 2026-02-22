@@ -1,4 +1,4 @@
-import { Shelf } from "./entities/Shelf.js";
+import { Shelf } from "./entities/shelf.js"; // chữ thường nếu file là shelf.js
 import { museumMap } from "./map.js";
 
 export default class Game {
