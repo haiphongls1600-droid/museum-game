@@ -5,14 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Museum Game</title>
     <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; background: #000; height: 100%; }
-        canvas { display: block; width: 100vw; height: 100vh; }
-        #interactBtn {
-            position: fixed; bottom: 20px; right: 20px; width: 80px; height: 80px;
-            background: #4CAF50; color: white; font-size: 16px; border: none; border-radius: 50%;
-            display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 1000;
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            height: 100%;
         }
-        #interactBtn.active { display: flex; }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        #interactBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        #interactBtn.active {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -20,10 +44,18 @@
     <button id="interactBtn">E</button>
 
     <script type="module">
-        import Game from './game.js';
+        // Import đúng đường dẫn file game.js (kiểm tra tên file trong repo)
+        import Menu from './core/menu.js'; // nếu menu.js trong core/
+        import Game from './game.js'; // sửa thành './core/game.js' nếu file ở core/
 
-        const canvas = document.getElementById('gameCanvas');
-        new Game(canvas);
+        const canvas = document.getElementById("gameCanvas");
+
+        // Khởi tạo menu trước
+        const menu = new Menu(canvas, () => {
+            // Khi nhấn GAME START, khởi tạo game
+            const game = new Game(canvas);
+            console.log("Game started!");
+        });
     </script>
 </body>
 </html>
