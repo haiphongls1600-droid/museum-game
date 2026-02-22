@@ -1,4 +1,4 @@
-import { Shelf } from "./entities/Shelf.js";  // sửa đường dẫn nếu Shelf.js nằm trong entities/
+import { Shelf } from "./entities/Shelf.js";
 import { museumMap } from "./map.js";
 
 export default class Game {
@@ -7,7 +7,7 @@ export default class Game {
         this.ctx = canvas.getContext("2d");
         this.tileSize = 64;
         this.map = museumMap;
-        this.zoom = 1.2;
+        this.zoom = 1.0; // Giảm zoom để game đi mượt, sau tăng lại 1.2 nếu muốn
 
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
@@ -38,7 +38,7 @@ export default class Game {
             }
         }
 
-        // Hiện vật
+        // Hiện vật (sửa đường dẫn ảnh đúng)
         this.artifacts = [
             {
                 id: "4-3",
@@ -58,7 +58,7 @@ export default class Game {
             }
         ];
 
-        // Load images
+        // Load images (sửa tên file khớp repo)
         this.wallImg = this.loadImage("../assets/textures/wall.png");
         this.floorImg = this.loadImage("../assets/textures/floor.png");
         this.playerImg = this.loadImage("../assets/textures/player.png");
@@ -67,10 +67,10 @@ export default class Game {
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
 
-        // Debug
+        // Debug load ảnh
         this.artifacts.forEach(art => {
             art.img.onload = () => console.log(`Ảnh ${art.name} load OK`);
-            art.img.onerror = () => console.log(`Lỗi load ${art.name}`);
+            art.img.onerror = () => console.log(`Lỗi load ${art.name} - kiểm tra tên file/đường dẫn`);
         });
 
         // Mobile button
@@ -84,7 +84,10 @@ export default class Game {
         }
 
         // Keys
-        window.addEventListener("keydown", e => this.keys[e.key.toLowerCase()] = true);
+        window.addEventListener("keydown", e => {
+            this.keys[e.key.toLowerCase()] = true;
+            if (e.key.toLowerCase() === "e") this.handleInteract();
+        });
         window.addEventListener("keyup", e => this.keys[e.key.toLowerCase()] = false);
 
         // Click move
@@ -108,7 +111,7 @@ export default class Game {
 
     loadImage(path) {
         const img = new Image();
-        img.src = new URL(path, import.meta.url).href;
+        img.src = path; // Không dùng new URL để tránh lỗi import.meta
         return img;
     }
 
@@ -164,7 +167,6 @@ export default class Game {
         }
 
         let interacted = false;
-
         this.shelves.forEach(s => {
             if (s.isPlayerNear(this.player, 120)) {
                 this.popup = "Hiện vật bí ẩn";
@@ -217,12 +219,10 @@ export default class Game {
         requestAnimationFrame(() => this.loop());
         this.update();
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
         this.ctx.save();
         this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
         this.ctx.scale(this.zoom, this.zoom);
         this.ctx.translate(-this.player.x - this.player.size / 2, -this.player.y - this.player.size / 2);
-
         this.drawMap();
         this.shelves.forEach(s => s.draw(this.ctx));
         this.drawPlayer();
@@ -241,19 +241,15 @@ export default class Game {
         if (this.popup) {
             this.ctx.fillStyle = "rgba(0,0,0,0.7)";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
             const bw = 600, bh = 550;
             const bx = (this.canvas.width - bw) / 2;
             const by = (this.canvas.height - bh) / 2;
-
             this.ctx.fillStyle = "#fff";
             this.ctx.fillRect(bx, by, bw, bh);
-
             this.ctx.fillStyle = "#000";
             this.ctx.font = "bold 32px Arial";
             this.ctx.textAlign = "center";
             this.ctx.fillText(this.popup, this.canvas.width / 2, by + 60);
-
             const art = this.artifacts.find(a => a.id === this.activeArtifact);
             if (art) {
                 if (art.img?.complete && art.img.naturalWidth) {
@@ -267,7 +263,6 @@ export default class Game {
                     this.ctx.fillText("(Ảnh đang tải...)", this.canvas.width / 2, by + 250);
                 }
             }
-
             this.ctx.font = "18px Arial";
             this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, by + bh - 40);
         }
