@@ -1,4 +1,4 @@
-import { Shelf } from "../entities/Shelf.js";
+import { Shelf } from "./entities/Shelf.js";  // sửa đường dẫn nếu Shelf.js nằm trong entities/
 import { museumMap } from "./map.js";
 
 export default class Game {
@@ -38,7 +38,7 @@ export default class Game {
             }
         }
 
-        // Hiện vật gốc
+        // Hiện vật
         this.artifacts = [
             {
                 id: "4-3",
@@ -58,7 +58,7 @@ export default class Game {
             }
         ];
 
-        // Load images cơ bản
+        // Load images
         this.wallImg = this.loadImage("../assets/textures/wall.png");
         this.floorImg = this.loadImage("../assets/textures/floor.png");
         this.playerImg = this.loadImage("../assets/textures/player.png");
@@ -67,42 +67,35 @@ export default class Game {
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
 
-        // Debug load ảnh
+        // Debug
         this.artifacts.forEach(art => {
-            art.img.onload = () => console.log(`Ảnh ${art.name} đã load thành công!`);
-            art.img.onerror = () => console.log(`Lỗi load ảnh ${art.name}`);
+            art.img.onload = () => console.log(`Ảnh ${art.name} load OK`);
+            art.img.onerror = () => console.log(`Lỗi load ${art.name}`);
         });
 
-        // Nút interact mobile
+        // Mobile button
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
-            this.interactBtn.addEventListener("touchstart", (e) => {
+            this.interactBtn.addEventListener("touchstart", e => {
                 e.preventDefault();
                 this.handleInteract();
             });
             this.interactBtn.addEventListener("click", () => this.handleInteract());
         }
 
-        // Key events
-        window.addEventListener("keydown", (e) => {
-            this.keys[e.key.toLowerCase()] = true;
-        });
-        window.addEventListener("keyup", (e) => {
-            this.keys[e.key.toLowerCase()] = false;
-            if (e.key.toLowerCase() === "e") {
-                this.handleInteract();
-            }
-        });
+        // Keys
+        window.addEventListener("keydown", e => this.keys[e.key.toLowerCase()] = true);
+        window.addEventListener("keyup", e => this.keys[e.key.toLowerCase()] = false);
 
-        // Click để di chuyển
-        this.canvas.addEventListener("click", (e) => {
+        // Click move
+        this.canvas.addEventListener("click", e => {
             if (this.popup) return;
             const rect = this.canvas.getBoundingClientRect();
-            const mouseScreenX = e.clientX - rect.left;
-            const mouseScreenY = e.clientY - rect.top;
-            const worldX = this.player.x + (mouseScreenX - this.canvas.width / 2) / this.zoom;
-            const worldY = this.player.y + (mouseScreenY - this.canvas.height / 2) / this.zoom;
-            this.target = { x: worldX, y: worldY };
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const wx = this.player.x + (mx - this.canvas.width / 2) / this.zoom;
+            const wy = this.player.y + (my - this.canvas.height / 2) / this.zoom;
+            this.target = { x: wx, y: wy };
         });
 
         this.loop();
@@ -116,59 +109,51 @@ export default class Game {
     loadImage(path) {
         const img = new Image();
         img.src = new URL(path, import.meta.url).href;
-        img.onerror = () => console.warn(`Failed to load image: ${path}`);
         return img;
     }
 
     update() {
-        let newX = this.player.x;
-        let newY = this.player.y;
-        this.nearShelfText = null;
+        let nx = this.player.x;
+        let ny = this.player.y;
 
-        if (this.keys["w"] || this.keys["arrowup"]) newY -= this.player.speed;
-        if (this.keys["s"] || this.keys["arrowdown"]) newY += this.player.speed;
-        if (this.keys["a"] || this.keys["arrowleft"]) newX -= this.player.speed;
-        if (this.keys["d"] || this.keys["arrowright"]) newX += this.player.speed;
+        if (this.keys["w"] || this.keys["arrowup"]) ny -= this.player.speed;
+        if (this.keys["s"] || this.keys["arrowdown"]) ny += this.player.speed;
+        if (this.keys["a"] || this.keys["arrowleft"]) nx -= this.player.speed;
+        if (this.keys["d"] || this.keys["arrowright"]) nx += this.player.speed;
 
-        if (!this.keys["w"] && !this.keys["s"] && !this.keys["a"] && !this.keys["d"] &&
-            !this.keys["arrowup"] && !this.keys["arrowdown"] && !this.keys["arrowleft"] && !this.keys["arrowright"] &&
-            this.target) {
+        if (this.target) {
             const dx = this.target.x - this.player.x;
             const dy = this.target.y - this.player.y;
             const dist = Math.hypot(dx, dy);
             if (dist > 5) {
-                newX += (dx / dist) * this.player.speed;
-                newY += (dy / dist) * this.player.speed;
+                nx += (dx / dist) * this.player.speed;
+                ny += (dy / dist) * this.player.speed;
             } else {
                 this.target = null;
             }
         }
 
-        if (!this.isColliding(newX, newY)) {
-            this.player.x = newX;
-            this.player.y = newY;
+        if (!this.isColliding(nx, ny)) {
+            this.player.x = nx;
+            this.player.y = ny;
         }
 
-        this.shelves.forEach(shelf => {
-            if (shelf.isPlayerNear(this.player, 80)) {
-                this.nearShelfText = "Nhấn E hoặc chạm nút để xem";
+        this.nearShelfText = null;
+        this.shelves.forEach(s => {
+            if (s.isPlayerNear(this.player, 80)) {
+                this.nearShelfText = "Nhấn E để xem";
             }
         });
 
         if (this.interactBtn) {
-            if (this.nearShelfText) {
-                this.interactBtn.classList.add("active");
-            } else {
-                this.interactBtn.classList.remove("active");
-            }
+            this.interactBtn.classList.toggle("active", !!this.nearShelfText);
         }
     }
 
     isColliding(x, y) {
-        const tileX = Math.floor(x / this.tileSize);
-        const tileY = Math.floor(y / this.tileSize);
-        const tile = this.map[tileY]?.[tileX];
-        return tile === "W" || tile === "S" || tile === "T" || tile === "G" || tile === "P";
+        const tx = Math.floor(x / this.tileSize);
+        const ty = Math.floor(y / this.tileSize);
+        return this.map[ty]?.[tx] === "W" || this.map[ty]?.[tx] === "S";
     }
 
     handleInteract() {
@@ -180,36 +165,30 @@ export default class Game {
 
         let interacted = false;
 
-        this.shelves.forEach(shelf => {
-            if (shelf.isPlayerNear(this.player, 120)) {
-                this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
-                this.activeArtifact = null;
+        this.shelves.forEach(s => {
+            if (s.isPlayerNear(this.player, 120)) {
+                this.popup = "Hiện vật bí ẩn";
                 interacted = true;
             }
         });
 
-        this.artifacts.forEach(artifact => {
-            const dist = Math.hypot(this.player.x - artifact.x, this.player.y - artifact.y);
-            if (dist < 120) {
-                this.activeArtifact = artifact.id;
-                this.popup = artifact.name;
+        this.artifacts.forEach(a => {
+            const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
+            if (d < 120) {
+                this.activeArtifact = a.id;
+                this.popup = a.name;
                 interacted = true;
             }
         });
-
-        if (!interacted) {
-            console.log("Không có hiện vật nào gần để tương tác");
-        }
     }
 
     drawMap() {
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 const tile = this.map[y][x];
-                const posX = x * this.tileSize;
-                const posY = y * this.tileSize;
-                let img = null;
-
+                const px = x * this.tileSize;
+                const py = y * this.tileSize;
+                let img;
                 if (tile === "F" || tile === "C") img = this.floorImg;
                 if (tile === "W") img = this.wallImg;
                 if (tile === "S") img = this.shelfImg;
@@ -217,8 +196,8 @@ export default class Game {
                 if (tile === "G") img = this.glassImg || this.shelfImg;
                 if (tile === "P") img = this.plantImg;
 
-                if (img && img.complete && img.naturalWidth !== 0) {
-                    this.ctx.drawImage(img, posX, posY, this.tileSize, this.tileSize);
+                if (img?.complete && img.naturalWidth) {
+                    this.ctx.drawImage(img, px, py, this.tileSize, this.tileSize);
                 }
             }
         }
@@ -226,30 +205,17 @@ export default class Game {
 
     drawPlayer() {
         const img = this.playerImg;
-
-        if (img && img.complete && img.naturalWidth !== 0) {
-            this.ctx.drawImage(
-                img,
-                this.player.x - this.player.size / 2,
-                this.player.y - this.player.size / 2,
-                this.player.size,
-                this.player.size
-            );
+        if (img?.complete && img.naturalWidth) {
+            this.ctx.drawImage(img, this.player.x - this.player.size / 2, this.player.y - this.player.size / 2, this.player.size, this.player.size);
         } else {
             this.ctx.fillStyle = "#ffcc00";
-            this.ctx.fillRect(
-                this.player.x - this.player.size / 2,
-                this.player.y - this.player.size / 2,
-                this.player.size,
-                this.player.size
-            );
+            this.ctx.fillRect(this.player.x - this.player.size / 2, this.player.y - this.player.size / 2, this.player.size, this.player.size);
         }
     }
 
     loop() {
         requestAnimationFrame(() => this.loop());
         this.update();
-
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.save();
@@ -258,14 +224,14 @@ export default class Game {
         this.ctx.translate(-this.player.x - this.player.size / 2, -this.player.y - this.player.size / 2);
 
         this.drawMap();
-        this.shelves.forEach(shelf => shelf.draw(this.ctx));
+        this.shelves.forEach(s => s.draw(this.ctx));
         this.drawPlayer();
         this.ctx.restore();
 
         if (this.nearShelfText) {
             this.ctx.fillStyle = "rgba(0,0,0,0.6)";
             this.ctx.fillRect(this.canvas.width / 2 - 180, this.canvas.height - 80, 360, 50);
-            this.ctx.fillStyle = "#ffffff";
+            this.ctx.fillStyle = "#fff";
             this.ctx.font = "bold 18px Arial";
             this.ctx.textAlign = "center";
             this.ctx.textBaseline = "middle";
@@ -276,42 +242,34 @@ export default class Game {
             this.ctx.fillStyle = "rgba(0,0,0,0.7)";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            const boxWidth = 600;
-            const boxHeight = 550;
-            const boxX = (this.canvas.width - boxWidth) / 2;
-            const boxY = (this.canvas.height - boxHeight) / 2;
+            const bw = 600, bh = 550;
+            const bx = (this.canvas.width - bw) / 2;
+            const by = (this.canvas.height - bh) / 2;
 
-            this.ctx.fillStyle = "#ffffff";
-            this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+            this.ctx.fillStyle = "#fff";
+            this.ctx.fillRect(bx, by, bw, bh);
 
-            this.ctx.fillStyle = "#000000";
+            this.ctx.fillStyle = "#000";
             this.ctx.font = "bold 32px Arial";
             this.ctx.textAlign = "center";
-            this.ctx.fillText(this.popup, this.canvas.width / 2, boxY + 60);
+            this.ctx.fillText(this.popup, this.canvas.width / 2, by + 60);
 
-            const currentArtifact = this.artifacts.find(a => a.id === this.activeArtifact);
-            if (currentArtifact) {
-                if (currentArtifact.img && currentArtifact.img.complete && currentArtifact.img.naturalWidth !== 0) {
-                    const imgWidth = 400;
-                    const imgHeight = 400 * (currentArtifact.img.height / currentArtifact.img.width);
-                    this.ctx.drawImage(
-                        currentArtifact.img,
-                        this.canvas.width / 2 - imgWidth / 2,
-                        boxY + 100,
-                        imgWidth,
-                        imgHeight
-                    );
-
+            const art = this.artifacts.find(a => a.id === this.activeArtifact);
+            if (art) {
+                if (art.img?.complete && art.img.naturalWidth) {
+                    const iw = 400;
+                    const ih = 400 * (art.img.height / art.img.width);
+                    this.ctx.drawImage(art.img, this.canvas.width / 2 - iw / 2, by + 100, iw, ih);
                     this.ctx.font = "20px Arial";
-                    this.ctx.fillText(currentArtifact.description, this.canvas.width / 2, boxY + 100 + imgHeight + 40);
+                    this.ctx.fillText(art.description, this.canvas.width / 2, by + 100 + ih + 40);
                 } else {
                     this.ctx.font = "20px Arial";
-                    this.ctx.fillText("(Ảnh hiện vật đang tải...)", this.canvas.width / 2, boxY + 250);
+                    this.ctx.fillText("(Ảnh đang tải...)", this.canvas.width / 2, by + 250);
                 }
             }
 
             this.ctx.font = "18px Arial";
-            this.ctx.fillText("Nhấn E hoặc chạm nút để đóng", this.canvas.width / 2, boxY + boxHeight - 40);
+            this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, by + bh - 40);
         }
     }
 }
