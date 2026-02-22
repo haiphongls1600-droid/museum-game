@@ -7,7 +7,7 @@ export default class Game {
         this.ctx = canvas.getContext("2d");
         this.tileSize = 64;
         this.map = museumMap;
-        this.zoom = 1.0; // Giảm zoom để game đi mượt, sau tăng lại 1.2 nếu muốn
+        this.zoom = 1.0; // Giảm để đi mượt, sau tăng lại nếu muốn
 
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
@@ -38,7 +38,7 @@ export default class Game {
             }
         }
 
-        // Hiện vật (sửa đường dẫn ảnh đúng)
+        // Hiện vật
         this.artifacts = [
             {
                 id: "4-3",
@@ -58,7 +58,7 @@ export default class Game {
             }
         ];
 
-        // Load images (sửa tên file khớp repo)
+        // Load images
         this.wallImg = this.loadImage("../assets/textures/wall.png");
         this.floorImg = this.loadImage("../assets/textures/floor.png");
         this.playerImg = this.loadImage("../assets/textures/player.png");
@@ -67,10 +67,10 @@ export default class Game {
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
 
-        // Debug load ảnh
+        // Debug load
         this.artifacts.forEach(art => {
             art.img.onload = () => console.log(`Ảnh ${art.name} load OK`);
-            art.img.onerror = () => console.log(`Lỗi load ${art.name} - kiểm tra tên file/đường dẫn`);
+            art.img.onerror = () => console.log(`Lỗi load ${art.name}`);
         });
 
         // Mobile button
@@ -111,7 +111,7 @@ export default class Game {
 
     loadImage(path) {
         const img = new Image();
-        img.src = path; // Không dùng new URL để tránh lỗi import.meta
+        img.src = path;
         return img;
     }
 
