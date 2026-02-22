@@ -27,7 +27,7 @@ export default class Game {
         this.nearShelfText = null;
         this.activeArtifact = null;
 
-        // Tạo shelves từ map "S"
+        // Tạo shelves
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 if (this.map[y][x] === "S") {
@@ -38,7 +38,7 @@ export default class Game {
             }
         }
 
-        // Danh sách hiện vật (ảnh từ assets/textures)
+        // Hiện vật gốc
         this.artifacts = [
             {
                 id: "4-3",
@@ -67,13 +67,13 @@ export default class Game {
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
 
-        // Debug load ảnh hiện vật
+        // Debug load ảnh
         this.artifacts.forEach(art => {
             art.img.onload = () => console.log(`Ảnh ${art.name} đã load thành công!`);
-            art.img.onerror = () => console.log(`Lỗi load ảnh ${art.name} - kiểm tra tên file/đường dẫn!`);
+            art.img.onerror = () => console.log(`Lỗi load ảnh ${art.name}`);
         });
 
-        // Nút interact cho mobile
+        // Nút interact mobile
         this.interactBtn = document.getElementById("interactBtn");
         if (this.interactBtn) {
             this.interactBtn.addEventListener("touchstart", (e) => {
