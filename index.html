@@ -23,25 +23,7 @@
     <canvas id="gameCanvas"></canvas>
 
     <script type="module">
-        import Menu from './core/menu.js';  // Sửa nếu folder khác
-        import Game from './core/game.js';  // Sửa nếu folder khác
-
-        const canvas = document.getElementById("gameCanvas");
-
-        // Resize canvas full màn hình ngay lập tức
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();  // Resize lần đầu
-
-        // Khởi tạo menu trước (menu sẽ tự vẽ và loop)
-        const menu = new Menu(canvas, () => {
-            // Khi nhấn GAME START, khởi tạo game
-            const game = new Game(canvas);
-            console.log("Game started!");
-        });
+        
     </script>
 </body>
 </html>
