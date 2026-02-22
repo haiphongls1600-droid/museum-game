@@ -180,7 +180,6 @@ export default class Game {
 
         let interacted = false;
 
-        // Tủ cũ (shelves)
         this.shelves.forEach(shelf => {
             if (shelf.isPlayerNear(this.player, 120)) {
                 this.popup = shelf.popupId || "Hiện vật bí ẩn - Khám phá thêm!";
@@ -189,7 +188,6 @@ export default class Game {
             }
         });
 
-        // Check từng hiện vật
         this.artifacts.forEach(artifact => {
             const dist = Math.hypot(this.player.x - artifact.x, this.player.y - artifact.y);
             if (dist < 120) {
