@@ -41,12 +41,12 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật (thêm 3 cái mới ở vị trí 9;8, 9;22, 9;23)
+        // Hiện vật (caption xuống dòng 3 dòng)
         this.artifacts = [
             {
                 id: "4-3",
                 name: "Sơ đồ tổ chức bộ máy nhà nước",
-                description: "Từ thời Lý Thái Tổ (nhà Nhà Lý), bộ máy nhà nước dần được tổ chức chặt chẽ. Đến thời Lê Thánh Tông (nhà Nhà Lê sơ), mô hình quân chủ chuyên chế đạt đến đỉnh cao với hệ thống 6 bộ, các cơ quan giám sát và chính quyền địa phương hoàn chỉnh.",
+                description: "Từ thời Lý Thái Tổ, bộ máy nhà nước dần được tổ chức chặt chẽ.\nĐến thời Lê Thánh Tông, mô hình quân chủ chuyên chế đạt đỉnh cao.\nHệ thống 6 bộ, cơ quan giám sát và chính quyền địa phương hoàn chỉnh.",
                 x: 4 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_4-3.png")
@@ -54,7 +54,7 @@ export default class Game {
             {
                 id: "5-1",
                 name: "Bộ luật Hồng Đức",
-                description: "Thời Lý: Hình thư (1042) – bộ luật thành văn đầu tiên,Thời Lê sơ Quốc triều hình luật (Bộ luật Hồng Đức, 1483) – tiến bộ, nhân văn, bảo vệ phụ nữ, trẻ em, hạn chế quyền lực quan lại.",
+                description: "Bộ luật Hồng Đức (Quốc triều Hình luật) là bộ luật tiến bộ nhất thời phong kiến Việt Nam.\nBiên soạn dưới triều Lê Thánh Tông (1470-1497), gồm 13 chương, 722 điều.\nNổi bật tính nhân đạo, bảo vệ phụ nữ và người yếu thế, thể hiện chủ quyền dân tộc.",
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_5-1.png")
@@ -62,8 +62,8 @@ export default class Game {
             // Hiện vật mới: vị trí 9;8
             {
                 id: "9-8",
-                name: "tổ chức các khoa thi cử",
-                description: "Hệ thống khoa cử Nho học được phát triển mạnh từ thời Nhà Trần (mở khoa thi Thái học sinh năm 1232, quy định Tam khôi từ 1247, thi đều đặn hơn) và hoàn thiện dưới Nhà Lê sơ (3 năm/khoa, thi nghiêm ngặt, Nho giáo độc tôn). Giúp chọn nhân tài dựa trên học vấn thay vì dòng dõi (tiến cử hoặc tập ấm)",
+                name: "Tổ chức các khoa thi cử",
+                description: "Hệ thống khoa cử Nho học phát triển mạnh từ thời Nhà Trần.\nMở khoa thi Thái học sinh năm 1232, quy định Tam khôi từ 1247.\nHoàn thiện dưới Nhà Lê sơ: 3 năm/khoa, thi nghiêm ngặt, Nho giáo độc tôn.",
                 x: 9 * this.tileSize + this.tileSize / 2,
                 y: 8 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-8.png")
@@ -71,8 +71,8 @@ export default class Game {
             // Hiện vật mới: vị trí 9;22
             {
                 id: "9-22",
-                name: "Hiện vật tại vị trí (9;22)",
-                description: "Hệ thống khoa cử Nho học được phát triển mạnh từ thời Nhà Trần (mở khoa thi Thái học sinh năm 1232, quy định Tam khôi từ 1247, thi đều đặn hơn) và hoàn thiện dưới Nhà Lê sơ (3 năm/khoa, thi nghiêm ngặt, Nho giáo độc tôn). Giúp chọn nhân tài dựa trên học vấn thay vì dòng dõi (tiến cử hoặc tập ấm).",
+                name: "Tổ chức các khoa thi cử",
+                description: "Hệ thống khoa cử Nho học phát triển mạnh từ thời Nhà Trần.\nMở khoa thi Thái học sinh năm 1232, quy định Tam khôi từ 1247.\nHoàn thiện dưới Nhà Lê sơ: 3 năm/khoa, thi nghiêm ngặt, Nho giáo độc tôn.",
                 x: 9 * this.tileSize + this.tileSize / 2,
                 y: 22 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-22.png")
@@ -81,7 +81,7 @@ export default class Game {
             {
                 id: "9-23",
                 name: "Hiện vật tại vị trí (9;23)",
-                description: "Hiện vật bạn tự thêm tại vị trí (9;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-23.png",
+                description: "Đây là hiện vật bạn tự thêm tại vị trí (9;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-23.png",
                 x: 9 * this.tileSize + this.tileSize / 2,
                 y: 23 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-23.png")
@@ -196,17 +196,17 @@ export default class Game {
 
         // Kiểm tra shelves
         this.shelves.forEach(s => {
-            if (s.isPlayerNear(this.player, 200)) { // tăng khoảng cách lên 200 để dễ trigger hơn
+            if (s.isPlayerNear(this.player, 200)) {
                 this.popup = "Hiện vật bí ẩn";
                 interacted = true;
             }
         });
 
-        // Kiểm tra artifacts (tăng khoảng cách lên 200 để dễ tương tác)
+        // Kiểm tra artifacts (tăng khoảng cách lên 250 để dễ tương tác hơn)
         this.artifacts.forEach(a => {
             const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
-            if (d < 200) { // tăng từ 120 lên 200
-                console.log(`Gần hiện vật ${a.id} (khoảng cách: ${d.toFixed(0)})`); // debug
+            if (d < 250) {
+                console.log(`Gần hiện vật ${a.id} (khoảng cách: ${d.toFixed(0)})`);
                 this.activeArtifact = a.id;
                 this.popup = a.name;
                 interacted = true;
