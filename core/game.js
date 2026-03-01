@@ -1,4 +1,4 @@
-import { Shelf } from "./entities/Shelf.js"; // chữ thường nếu file là shelf.js
+import { Shelf } from "../entities/Shelf.js";  // Đi lên 1 cấp (từ core/ lên root) rồi vào entities/
 import { museumMap } from "./map.js";
 
 export default class Game {
