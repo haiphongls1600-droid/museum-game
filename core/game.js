@@ -41,7 +41,7 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật (caption xuống dòng 3 dòng)
+        // Hiện vật (caption đã xuống dòng 3 dòng)
         this.artifacts = [
             {
                 id: "4-3",
@@ -194,7 +194,6 @@ export default class Game {
 
         let interacted = false;
 
-        // Kiểm tra shelves
         this.shelves.forEach(s => {
             if (s.isPlayerNear(this.player, 200)) {
                 this.popup = "Hiện vật bí ẩn";
@@ -202,7 +201,6 @@ export default class Game {
             }
         });
 
-        // Kiểm tra artifacts (tăng khoảng cách lên 250 để dễ tương tác hơn)
         this.artifacts.forEach(a => {
             const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
             if (d < 250) {
@@ -276,7 +274,8 @@ export default class Game {
             this.ctx.fillStyle = "rgba(0,0,0,0.7)";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            const bw = 600, bh = 550;
+            const bw = 700; // tăng chiều rộng popup để chữ không bị cắt
+            const bh = 650;
             const bx = (this.canvas.width - bw) / 2;
             const by = (this.canvas.height - bh) / 2;
 
@@ -294,11 +293,28 @@ export default class Game {
                     const iw = 400;
                     const ih = 400 * (art.img.height / art.img.width);
                     this.ctx.drawImage(art.img, this.canvas.width / 2 - iw / 2, by + 100, iw, ih);
+
+                    // Vẽ mô tả (xuống dòng tự động nếu quá dài + giữ \n)
                     this.ctx.font = "20px Arial";
+                    this.ctx.textAlign = "center";
+                    const maxWidth = bw - 80; // giới hạn chiều rộng chữ
+                    let lineY = by + 100 + ih + 60;
                     const lines = art.description.split('\n');
-                    let lineY = by + 100 + ih + 40;
-                    lines.forEach(line => {
-                        this.ctx.fillText(line, this.canvas.width / 2, lineY);
+                    lines.forEach(originalLine => {
+                        const words = originalLine.split(' ');
+                        let currentLine = '';
+                        words.forEach(word => {
+                            const testLine = currentLine + word + ' ';
+                            const metrics = this.ctx.measureText(testLine);
+                            if (metrics.width > maxWidth && currentLine !== '') {
+                                this.ctx.fillText(currentLine, this.canvas.width / 2, lineY);
+                                lineY += 30;
+                                currentLine = word + ' ';
+                            } else {
+                                currentLine = testLine;
+                            }
+                        });
+                        this.ctx.fillText(currentLine, this.canvas.width / 2, lineY);
                         lineY += 30;
                     });
                 } else {
