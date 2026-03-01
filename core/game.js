@@ -7,7 +7,7 @@ export default class Game {
         this.ctx = canvas.getContext("2d");
         this.tileSize = 64;
         this.map = museumMap;
-        this.zoom = 1.0; // Giảm để đi mượt, sau tăng lại nếu muốn
+        this.zoom = 1.2; // Zoom hợp lý để map rõ
 
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
@@ -46,7 +46,7 @@ export default class Game {
                 description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
                 x: 4 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact_4-3.png")
+                img: null
             },
             {
                 id: "5-1",
@@ -54,38 +54,23 @@ export default class Game {
                 description: "Đây là hiện vật cổ từ thời Lý - Trần.",
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage("../assets/textures/artifact_5-1.png")
+                img: null
             }
         ];
 
-        // Load images
-    const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
-    this.wallImg = this.loadImage(base + "wall.png");
-    this.floorImg = this.loadImage(base + "floor.png");
-    this.playerImg = this.loadImage(base + "player.png");
-    this.shelfImg = this.loadImage(base + "shelf.png");
-    this.plantImg = this.loadImage(base + "plant.png");
-    this.artifacts[0].img = this.loadImage(base + "artifact_4-3.png");
-    this.artifacts[1].img = this.loadImage(base + "artifact_5-1.png");
+        // Base URL cho ảnh (đường dẫn tuyệt đối từ GitHub Pages)
+        const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        this.artifacts = [
-    {
-        id: "4-3",
-        name: "Hiện vật 4-3 - Rồng đất nung",
-        description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
-        x: 4 * this.tileSize + this.tileSize / 2,
-        y: 3 * this.tileSize + this.tileSize / 2,
-        img: this.loadImage("../assets/textures/artifact_4-3.png")
-    },
-    {
-        id: "5-1",
-        name: "Hiện vật 5-1 - Bình gốm cổ",
-        description: "Đây là hiện vật cổ từ thời Lý - Trần.",
-        x: 24 * this.tileSize + this.tileSize / 2,
-        y: 3 * this.tileSize + this.tileSize / 2,
-        img: this.loadImage("../assets/textures/artifact_5-1.png")
-    }
-];
+        // Load images
+        this.wallImg = this.loadImage(base + "wall.png");
+        this.floorImg = this.loadImage(base + "floor.png");
+        this.playerImg = this.loadImage(base + "player.png");
+        this.shelfImg = this.loadImage(base + "shelf.png");
+        this.plantImg = this.loadImage(base + "plant.png");
+
+        // Load ảnh hiện vật
+        this.artifacts[0].img = this.loadImage(base + "artifact_4-3.png");
+        this.artifacts[1].img = this.loadImage(base + "artifact_5-1.png");
 
         // Mobile button
         this.interactBtn = document.getElementById("interactBtn");
@@ -126,6 +111,8 @@ export default class Game {
     loadImage(path) {
         const img = new Image();
         img.src = path;
+        img.onload = () => console.log(`Load OK: ${path}`);
+        img.onerror = () => console.error(`Load FAIL (404?): ${path}`);
         return img;
     }
 
@@ -181,6 +168,7 @@ export default class Game {
         }
 
         let interacted = false;
+
         this.shelves.forEach(s => {
             if (s.isPlayerNear(this.player, 120)) {
                 this.popup = "Hiện vật bí ẩn";
@@ -231,10 +219,12 @@ export default class Game {
         requestAnimationFrame(() => this.loop());
         this.update();
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
         this.ctx.save();
         this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
         this.ctx.scale(this.zoom, this.zoom);
         this.ctx.translate(-this.player.x - this.player.size / 2, -this.player.y - this.player.size / 2);
+
         this.drawMap();
         this.shelves.forEach(s => s.draw(this.ctx));
         this.drawPlayer();
@@ -253,15 +243,19 @@ export default class Game {
         if (this.popup) {
             this.ctx.fillStyle = "rgba(0,0,0,0.7)";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
             const bw = 600, bh = 550;
             const bx = (this.canvas.width - bw) / 2;
             const by = (this.canvas.height - bh) / 2;
+
             this.ctx.fillStyle = "#fff";
             this.ctx.fillRect(bx, by, bw, bh);
+
             this.ctx.fillStyle = "#000";
             this.ctx.font = "bold 32px Arial";
             this.ctx.textAlign = "center";
             this.ctx.fillText(this.popup, this.canvas.width / 2, by + 60);
+
             const art = this.artifacts.find(a => a.id === this.activeArtifact);
             if (art) {
                 if (art.img?.complete && art.img.naturalWidth) {
@@ -275,6 +269,7 @@ export default class Game {
                     this.ctx.fillText("(Ảnh đang tải...)", this.canvas.width / 2, by + 250);
                 }
             }
+
             this.ctx.font = "18px Arial";
             this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, by + bh - 40);
         }
