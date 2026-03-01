@@ -67,11 +67,24 @@ export default class Game {
         this.tableImg = this.loadImage("../assets/textures/table.png");
         this.glassImg = this.loadImage("../assets/textures/glass.png");
 
-        // Debug load
-        this.artifacts.forEach(art => {
-            art.img.onload = () => console.log(`Ảnh ${art.name} load OK`);
-            art.img.onerror = () => console.log(`Lỗi load ${art.name}`);
-        });
+        this.artifacts = [
+    {
+        id: "4-3",
+        name: "Hiện vật 4-3 - Rồng đất nung",
+        description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
+        x: 4 * this.tileSize + this.tileSize / 2,
+        y: 3 * this.tileSize + this.tileSize / 2,
+        img: this.loadImage("../assets/textures/artifact_4-3.png")
+    },
+    {
+        id: "5-1",
+        name: "Hiện vật 5-1 - Bình gốm cổ",
+        description: "Đây là hiện vật cổ từ thời Lý - Trần.",
+        x: 24 * this.tileSize + this.tileSize / 2,
+        y: 3 * this.tileSize + this.tileSize / 2,
+        img: this.loadImage("../assets/textures/artifact_5-1.png")
+    }
+];
 
         // Mobile button
         this.interactBtn = document.getElementById("interactBtn");
