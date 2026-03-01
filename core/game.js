@@ -74,7 +74,7 @@ export default class Game {
                 name: "Hiện vật tại vị trí (9;22)",
                 description: "Hiện vật bạn tự thêm tại vị trí (9;22).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-22.png",
                 x: 9 * this.tileSize + this.tileSize / 2,
-                y: 21 * this.tileSize + this.tileSize / 2,
+                y: 22 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-22.png")
             },
             // Hiện vật mới: vị trí 9;23
@@ -83,7 +83,7 @@ export default class Game {
                 name: "Hiện vật tại vị trí (9;23)",
                 description: "Hiện vật bạn tự thêm tại vị trí (9;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-23.png",
                 x: 9 * this.tileSize + this.tileSize / 2,
-                y: 22 * this.tileSize + this.tileSize / 2,
+                y: 23 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-23.png")
             }
         ];
@@ -194,16 +194,19 @@ export default class Game {
 
         let interacted = false;
 
+        // Kiểm tra shelves
         this.shelves.forEach(s => {
-            if (s.isPlayerNear(this.player, 120)) {
+            if (s.isPlayerNear(this.player, 200)) { // tăng khoảng cách lên 200 để dễ trigger hơn
                 this.popup = "Hiện vật bí ẩn";
                 interacted = true;
             }
         });
 
+        // Kiểm tra artifacts (tăng khoảng cách lên 200 để dễ tương tác)
         this.artifacts.forEach(a => {
             const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
-            if (d < 120) {
+            if (d < 200) { // tăng từ 120 lên 200
+                console.log(`Gần hiện vật ${a.id} (khoảng cách: ${d.toFixed(0)})`); // debug
                 this.activeArtifact = a.id;
                 this.popup = a.name;
                 interacted = true;
@@ -292,12 +295,11 @@ export default class Game {
                     const ih = 400 * (art.img.height / art.img.width);
                     this.ctx.drawImage(art.img, this.canvas.width / 2 - iw / 2, by + 100, iw, ih);
                     this.ctx.font = "20px Arial";
-                    // Mô tả xuống dòng tự nhiên
                     const lines = art.description.split('\n');
                     let lineY = by + 100 + ih + 40;
                     lines.forEach(line => {
                         this.ctx.fillText(line, this.canvas.width / 2, lineY);
-                        lineY += 30; // khoảng cách dòng
+                        lineY += 30;
                     });
                 } else {
                     this.ctx.font = "20px Arial";
