@@ -41,7 +41,7 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật (caption đã xuống dòng 3 dòng)
+        // Hiện vật
         this.artifacts = [
             {
                 id: "4-3",
@@ -59,7 +59,6 @@ export default class Game {
                 y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_5-1.png")
             },
-            // Hiện vật mới: vị trí 9;8
             {
                 id: "9-8",
                 name: "Tổ chức các khoa thi cử",
@@ -68,7 +67,6 @@ export default class Game {
                 y: 8 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-8.png")
             },
-            // Hiện vật mới: vị trí 9;22
             {
                 id: "9-22",
                 name: "Tổ chức các khoa thi cử",
@@ -77,7 +75,6 @@ export default class Game {
                 y: 22 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-22.png")
             },
-            // Hiện vật mới: vị trí 9;23
             {
                 id: "9-23",
                 name: "Hiện vật tại vị trí (9;23)",
@@ -194,15 +191,7 @@ export default class Game {
 
         let interacted = false;
 
-        // Kiểm tra shelves
-        this.shelves.forEach(s => {
-            if (s.isPlayerNear(this.player, 250)) { // tăng lên 250
-                this.popup = "Hiện vật bí ẩn";
-                interacted = true;
-            }
-        });
-
-        // Kiểm tra artifacts (tăng lên 350 để dễ tương tác với hiện vật xa)
+        // ƯU TIÊN KIỂM TRA ARTIFACTS TRƯỚC (để hiển thị caption + ảnh của hiện vật cụ thể)
         this.artifacts.forEach(a => {
             const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
             if (d < 350) {
@@ -210,8 +199,19 @@ export default class Game {
                 this.activeArtifact = a.id;
                 this.popup = a.name;
                 interacted = true;
+                return; // thoát sớm nếu tìm thấy artifact
             }
         });
+
+        // Nếu không gần artifact nào → kiểm tra shelves
+        if (!interacted) {
+            this.shelves.forEach(s => {
+                if (s.isPlayerNear(this.player, 250)) {
+                    this.popup = "Hiện vật bí ẩn";
+                    interacted = true;
+                }
+            });
+        }
 
         if (!interacted) {
             console.log("Không có hiện vật nào gần để tương tác");
