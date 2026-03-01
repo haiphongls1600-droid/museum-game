@@ -45,15 +45,14 @@
     <button id="interactBtn">E</button>
 
   <script type="module">
-    import Menu from './core/menu.js'; // giữ nguyên
-    import Game from './core/game.js'; // sửa thành ./core/game.js (vì file nằm trong core/)
+    // Không cần import Menu nữa
+    import Game from './core/game.js'; // đường dẫn đến game.js của anh
 
     const canvas = document.getElementById("gameCanvas");
 
-    const menu = new Menu(canvas, () => {
-        const game = new Game(canvas);
-        console.log("Game started!");
-    });
+    // Vào thẳng game luôn, không qua menu
+    const game = new Game(canvas);
+    console.log("Game started directly!");
 </script>
 </body>
 </html>
