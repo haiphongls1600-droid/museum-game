@@ -1,4 +1,4 @@
-import { Shelf } from "../entities/Shelf.js"; // S hoa đầu, khớp tên file
+import { Shelf } from "../entities/Shelf.js";
 import { museumMap } from "./map.js";
 
 export default class Game {
@@ -7,7 +7,7 @@ export default class Game {
         this.ctx = canvas.getContext("2d");
         this.tileSize = 64;
         this.map = museumMap;
-        this.zoom = 1.2; // Zoom hợp lý để map rõ
+        this.zoom = 1.2;
 
         this.resize();
         window.addEventListener("resize", this.resize.bind(this));
@@ -38,6 +38,9 @@ export default class Game {
             }
         }
 
+        // Base URL cho ảnh (đường dẫn tuyệt đối từ GitHub Pages)
+        const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
+
         // Hiện vật
         this.artifacts = [
             {
@@ -46,7 +49,7 @@ export default class Game {
                 description: "Đây là hiện vật ở Việt Nam từ rất lâu về trước.",
                 x: 4 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: null
+                img: this.loadImage(base + "artifact_4-3.png")
             },
             {
                 id: "5-1",
@@ -54,23 +57,16 @@ export default class Game {
                 description: "Đây là hiện vật cổ từ thời Lý - Trần.",
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
-                img: null
+                img: this.loadImage(base + "artifact_5-1.png")
             }
         ];
 
-        // Base URL cho ảnh (đường dẫn tuyệt đối từ GitHub Pages)
-        const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
-
-        // Load images
+        // Load images cơ bản
         this.wallImg = this.loadImage(base + "wall.png");
         this.floorImg = this.loadImage(base + "floor.png");
         this.playerImg = this.loadImage(base + "player.png");
         this.shelfImg = this.loadImage(base + "shelf.png");
         this.plantImg = this.loadImage(base + "plant.png");
-
-        // Load ảnh hiện vật
-        this.artifacts[0].img = this.loadImage(base + "artifact_4-3.png");
-        this.artifacts[1].img = this.loadImage(base + "artifact_5-1.png");
 
         // Mobile button
         this.interactBtn = document.getElementById("interactBtn");
@@ -85,9 +81,11 @@ export default class Game {
         // Keys
         window.addEventListener("keydown", e => {
             this.keys[e.key.toLowerCase()] = true;
+        });
+        window.addEventListener("keyup", e => {
+            this.keys[e.key.toLowerCase()] = false;
             if (e.key.toLowerCase() === "e") this.handleInteract();
         });
-        window.addEventListener("keyup", e => this.keys[e.key.toLowerCase()] = false);
 
         // Click move
         this.canvas.addEventListener("click", e => {
