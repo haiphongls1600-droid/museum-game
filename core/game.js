@@ -45,7 +45,7 @@ export default class Game {
         this.artifacts = [
             {
                 id: "4-3",
-                name: "Hiện vật 4-3 - sơ đồ tôt chức bộ máy nhà nước thời Đại Việt",
+                name: "sơ đồ tổ chức bộ máy nhà nước ",
                 description: "Từ thời Lý Thái Tổ (nhà Nhà Lý), bộ máy nhà nước dần được tổ chức chặt chẽ. Đến thời Lê Thánh Tông (nhà Nhà Lê sơ), mô hình quân chủ chuyên chế đạt đến đỉnh cao với hệ thống 6 bộ, các cơ quan giám sát và chính quyền địa phương hoàn chỉnh.",
                 x: 4 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
@@ -53,7 +53,7 @@ export default class Game {
             },
             {
                 id: "5-1",
-                name: "Hiện vật 5-1 - Bộ luật Hồng Đức",
+                name: "Bộ luật Hồng Đức",
                 description: "Bộ luật Hồng Đức (Quốc triều Hình luật) là bộ luật tổng hợp, hoàn chỉnh và tiến bộ nhất thời phong kiến Việt Namđược biên soạn dưới triều vua Lê Thánh Tông (1470-1497). Bộ luật gồm 13 chương, 722 điều, bao quát nhiều lĩnh vực (hình sự, dân sự, hôn nhân), nổi bật với tính nhân đạo, bảo vệ phụ nữ và người yếu thế, thể hiện chủ quyền dân tộc. ",
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
