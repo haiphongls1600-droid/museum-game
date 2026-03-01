@@ -62,8 +62,8 @@ export default class Game {
             // Hiện vật mới: vị trí 9;8
             {
                 id: "9-8",
-                name: "Hiện vật tại vị trí (9;8)",
-                description: "Đây là hiện vật bạn tự thêm tại vị trí (9;8).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-8.png",
+                name: "tổ chức các khoa thi cử",
+                description: "Hệ thống khoa cử Nho học được phát triển mạnh từ thời Nhà Trần (mở khoa thi Thái học sinh năm 1232, quy định Tam khôi từ 1247, thi đều đặn hơn) và hoàn thiện dưới Nhà Lê sơ (3 năm/khoa, thi nghiêm ngặt, Nho giáo độc tôn). Giúp chọn nhân tài dựa trên học vấn thay vì dòng dõi (tiến cử hoặc tập ấm)",
                 x: 9 * this.tileSize + this.tileSize / 2,
                 y: 8 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-8.png")
