@@ -46,7 +46,7 @@ export default class Game {
             {
                 id: "4-3",
                 name: "Sơ đồ tổ chức bộ máy nhà nước",
-                description: "Từ thời Lý Thái Tổ, bộ máy nhà nước dần được tổ chức chặt chẽ.\nĐến thời Lê Thánh Tông, mô hình quân chủ chuyên chế đạt đỉnh cao.\nHệ thống 6 bộ, cơ quan giám sát và chính quyền địa phương hoàn chỉnh.",
+                description: "Từ thời Lý Thái Tổ (nhà Nhà Lý), bộ máy nhà nước dần được tổ chức chặt chẽ. Đến thời Lê Thánh Tông (nhà Nhà Lê sơ), mô hình quân chủ chuyên chế đạt đến đỉnh cao với hệ thống 6 bộ, các cơ quan giám sát và chính quyền địa phương hoàn chỉnh.",
                 x: 4 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_4-3.png")
@@ -54,7 +54,7 @@ export default class Game {
             {
                 id: "5-1",
                 name: "Bộ luật Hồng Đức",
-                description: "Bộ luật Hồng Đức (Quốc triều Hình luật) là bộ luật tiến bộ nhất thời phong kiến Việt Nam.\nBiên soạn dưới triều Lê Thánh Tông (1470-1497), gồm 13 chương, 722 điều.\nNổi bật tính nhân đạo, bảo vệ phụ nữ và người yếu thế, thể hiện chủ quyền dân tộc.",
+                description: "Thời Lý: Hình thư (1042) – bộ luật thành văn đầu tiên,Thời Lê sơ Quốc triều hình luật (Bộ luật Hồng Đức, 1483) – tiến bộ, nhân văn, bảo vệ phụ nữ, trẻ em, hạn chế quyền lực quan lại.",
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_5-1.png")
@@ -72,7 +72,7 @@ export default class Game {
             {
                 id: "9-22",
                 name: "Hiện vật tại vị trí (9;22)",
-                description: "Hiện vật bạn tự thêm tại vị trí (9;22).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-22.png",
+                description: "Hệ thống khoa cử Nho học được phát triển mạnh từ thời Nhà Trần (mở khoa thi Thái học sinh năm 1232, quy định Tam khôi từ 1247, thi đều đặn hơn) và hoàn thiện dưới Nhà Lê sơ (3 năm/khoa, thi nghiêm ngặt, Nho giáo độc tôn). Giúp chọn nhân tài dựa trên học vấn thay vì dòng dõi (tiến cử hoặc tập ấm).",
                 x: 9 * this.tileSize + this.tileSize / 2,
                 y: 22 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-22.png")
