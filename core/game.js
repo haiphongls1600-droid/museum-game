@@ -59,11 +59,14 @@ export default class Game {
         ];
 
         // Load images
-        this.wallImg = this.loadImage("../assets/textures/wall.png");
-        this.floorImg = this.loadImage("../assets/textures/floor.png");
-        this.playerImg = this.loadImage("../assets/textures/player.png");
-        this.shelfImg = this.loadImage("../assets/textures/shelf.png");
-        this.plantImg = this.loadImage("../assets/textures/plant.png");
+    const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
+    this.wallImg = this.loadImage(base + "wall.png");
+    this.floorImg = this.loadImage(base + "floor.png");
+    this.playerImg = this.loadImage(base + "player.png");
+    this.shelfImg = this.loadImage(base + "shelf.png");
+    this.plantImg = this.loadImage(base + "plant.png");
+    this.artifacts[0].img = this.loadImage(base + "artifact_4-3.png");
+    this.artifacts[1].img = this.loadImage(base + "artifact_5-1.png");
 
         this.artifacts = [
     {
