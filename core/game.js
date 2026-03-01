@@ -41,7 +41,7 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật
+        // Hiện vật (caption đã xuống dòng 3 dòng)
         this.artifacts = [
             {
                 id: "4-3",
@@ -194,7 +194,7 @@ export default class Game {
         // ƯU TIÊN KIỂM TRA ARTIFACTS TRƯỚC (để hiển thị caption + ảnh của hiện vật cụ thể)
         this.artifacts.forEach(a => {
             const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
-            if (d < 350) {
+            if (d < 400) { // tăng lên 400 để dễ tương tác với hiện vật xa
                 console.log(`Gần hiện vật ${a.id} (khoảng cách: ${d.toFixed(0)})`);
                 this.activeArtifact = a.id;
                 this.popup = a.name;
