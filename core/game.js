@@ -41,7 +41,7 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật (mô tả xuống dòng thành 3 dòng)
+        // Hiện vật (thêm 3 cái mới ở vị trí 9;8, 9;22, 9;23)
         this.artifacts = [
             {
                 id: "4-3",
@@ -58,6 +58,33 @@ export default class Game {
                 x: 24 * this.tileSize + this.tileSize / 2,
                 y: 3 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_5-1.png")
+            },
+            // Hiện vật mới: vị trí 9;8
+            {
+                id: "9-8",
+                name: "Hiện vật tại vị trí (9;8)",
+                description: "Đây là hiện vật bạn tự thêm tại vị trí (9;8).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-8.png",
+                x: 9 * this.tileSize + this.tileSize / 2,
+                y: 8 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_9-8.png")
+            },
+            // Hiện vật mới: vị trí 9;22
+            {
+                id: "9-22",
+                name: "Hiện vật tại vị trí (9;22)",
+                description: "Hiện vật bạn tự thêm tại vị trí (9;22).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-22.png",
+                x: 9 * this.tileSize + this.tileSize / 2,
+                y: 22 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_9-22.png")
+            },
+            // Hiện vật mới: vị trí 9;23
+            {
+                id: "9-23",
+                name: "Hiện vật tại vị trí (9;23)",
+                description: "Hiện vật bạn tự thêm tại vị trí (9;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-23.png",
+                x: 9 * this.tileSize + this.tileSize / 2,
+                y: 23 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_9-23.png")
             }
         ];
 
@@ -182,6 +209,10 @@ export default class Game {
                 interacted = true;
             }
         });
+
+        if (!interacted) {
+            console.log("Không có hiện vật nào gần để tương tác");
+        }
     }
 
     drawMap() {
@@ -261,12 +292,12 @@ export default class Game {
                     const ih = 400 * (art.img.height / art.img.width);
                     this.ctx.drawImage(art.img, this.canvas.width / 2 - iw / 2, by + 100, iw, ih);
                     this.ctx.font = "20px Arial";
-                    // Mô tả xuống dòng tự nhiên (split theo \n)
+                    // Mô tả xuống dòng tự nhiên
                     const lines = art.description.split('\n');
                     let lineY = by + 100 + ih + 40;
                     lines.forEach(line => {
                         this.ctx.fillText(line, this.canvas.width / 2, lineY);
-                        lineY += 30; // khoảng cách giữa các dòng
+                        lineY += 30; // khoảng cách dòng
                     });
                 } else {
                     this.ctx.font = "20px Arial";
