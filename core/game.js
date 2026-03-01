@@ -64,8 +64,6 @@ export default class Game {
         this.playerImg = this.loadImage("../assets/textures/player.png");
         this.shelfImg = this.loadImage("../assets/textures/shelf.png");
         this.plantImg = this.loadImage("../assets/textures/plant.png");
-        this.tableImg = this.loadImage("../assets/textures/table.png");
-        this.glassImg = this.loadImage("../assets/textures/glass.png");
 
         this.artifacts = [
     {
@@ -207,8 +205,6 @@ export default class Game {
                 if (tile === "F" || tile === "C") img = this.floorImg;
                 if (tile === "W") img = this.wallImg;
                 if (tile === "S") img = this.shelfImg;
-                if (tile === "T") img = this.tableImg || this.shelfImg;
-                if (tile === "G") img = this.glassImg || this.shelfImg;
                 if (tile === "P") img = this.plantImg;
 
                 if (img?.complete && img.naturalWidth) {
