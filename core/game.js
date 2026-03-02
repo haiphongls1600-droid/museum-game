@@ -197,7 +197,7 @@ export default class Game {
             if (d < 400) {
                 console.log(`Gần hiện vật ${a.id} (khoảng cách: ${d.toFixed(0)})`);
                 this.activeArtifact = a.id;
-                this.popup = a.name; // vẫn giữ name để biết đang xem gì, nhưng không vẽ
+                this.popup = "artifact_fullscreen"; // dùng flag đặc biệt để biết hiển thị full ảnh
                 interacted = true;
                 return;
             }
@@ -275,19 +275,20 @@ export default class Game {
         if (this.popup) {
             const art = this.artifacts.find(a => a.id === this.activeArtifact);
 
-            // Nếu là hiện vật có ảnh và ảnh đã load → hiển thị ảnh FULL SCREEN
-            if (art && art.img?.complete && art.img.naturalWidth) {
-                // Ảnh tràn toàn màn hình (fit to canvas, giữ tỷ lệ)
+            // Nếu là hiện vật có ảnh và ảnh đã load → hiển thị ảnh FULL SCREEN (không chữ, không khung)
+            if (this.popup === "artifact_fullscreen" && art && art.img?.complete && art.img.naturalWidth) {
+                // Ảnh tràn toàn màn hình, fit giữ tỷ lệ
                 const canvasRatio = this.canvas.width / this.canvas.height;
                 const imgRatio = art.img.width / art.img.height;
-
                 let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
 
                 if (imgRatio > canvasRatio) {
+                    // Ảnh rộng hơn màn hình → fit width
                     drawWidth = this.canvas.width;
                     drawHeight = drawWidth / imgRatio;
                     offsetY = (this.canvas.height - drawHeight) / 2;
                 } else {
+                    // Ảnh cao hơn màn hình → fit height
                     drawHeight = this.canvas.height;
                     drawWidth = drawHeight * imgRatio;
                     offsetX = (this.canvas.width - drawWidth) / 2;
@@ -295,13 +296,7 @@ export default class Game {
 
                 this.ctx.drawImage(art.img, offsetX, offsetY, drawWidth, drawHeight);
 
-                // Nút đóng nhỏ góc dưới phải
-                this.ctx.fillStyle = "rgba(0,0,0,0.5)";
-                this.ctx.fillRect(this.canvas.width - 120, this.canvas.height - 60, 100, 40);
-                this.ctx.fillStyle = "#fff";
-                this.ctx.font = "20px Arial";
-                this.ctx.textAlign = "center";
-                this.ctx.fillText("Nhấn E đóng", this.canvas.width - 70, this.canvas.height - 35);
+                // Không vẽ chữ nào hết, chỉ ảnh full
             } else {
                 // Popup cũ cho kệ S hoặc ảnh chưa load
                 this.ctx.fillStyle = "rgba(0,0,0,0.7)";
