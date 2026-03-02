@@ -41,7 +41,7 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật (caption đã xuống dòng 3 dòng)
+        // Hiện vật
         this.artifacts = [
             {
                 id: "4-3",
@@ -191,19 +191,19 @@ export default class Game {
 
         let interacted = false;
 
-        // ƯU TIÊN KIỂM TRA ARTIFACTS TRƯỚC (để hiển thị caption + ảnh của hiện vật cụ thể)
+        // ƯU TIÊN KIỂM TRA ARTIFACTS TRƯỚC
         this.artifacts.forEach(a => {
             const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
-            if (d < 400) { // tăng lên 400 để dễ tương tác với hiện vật xa
+            if (d < 400) {
                 console.log(`Gần hiện vật ${a.id} (khoảng cách: ${d.toFixed(0)})`);
                 this.activeArtifact = a.id;
-                this.popup = a.name;
+                this.popup = a.name; // vẫn giữ name để biết đang xem gì, nhưng không vẽ
                 interacted = true;
-                return; // thoát sớm nếu tìm thấy artifact
+                return;
             }
         });
 
-        // Nếu không gần artifact nào → kiểm tra shelves
+        // Nếu không gần artifact → kiểm tra shelves
         if (!interacted) {
             this.shelves.forEach(s => {
                 if (s.isPlayerNear(this.player, 250)) {
@@ -273,43 +273,74 @@ export default class Game {
         }
 
         if (this.popup) {
-            this.ctx.fillStyle = "rgba(0,0,0,0.7)";
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-            const bw = 700;
-            const bh = 650;
-            const bx = (this.canvas.width - bw) / 2;
-            const by = (this.canvas.height - bh) / 2;
-
-            this.ctx.fillStyle = "#fff";
-            this.ctx.fillRect(bx, by, bw, bh);
-
-            this.ctx.fillStyle = "#000";
-            this.ctx.font = "bold 32px Arial";
-            this.ctx.textAlign = "center";
-            this.ctx.fillText(this.popup, this.canvas.width / 2, by + 60);
-
             const art = this.artifacts.find(a => a.id === this.activeArtifact);
-            if (art) {
-                if (art.img?.complete && art.img.naturalWidth) {
-                    const iw = 400;
-                    const ih = 400 * (art.img.height / art.img.width);
-                    this.ctx.drawImage(art.img, this.canvas.width / 2 - iw / 2, by + 100, iw, ih);
-                    this.ctx.font = "20px Arial";
-                    const lines = art.description.split('\n');
-                    let lineY = by + 100 + ih + 60;
-                    lines.forEach(line => {
-                        this.ctx.fillText(line, this.canvas.width / 2, lineY);
-                        lineY += 30;
-                    });
-                } else {
-                    this.ctx.font = "20px Arial";
-                    this.ctx.fillText("(Ảnh đang tải...)", this.canvas.width / 2, by + 250);
-                }
-            }
 
-            this.ctx.font = "18px Arial";
-            this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, by + bh - 40);
+            // Nếu là hiện vật có ảnh và ảnh đã load → hiển thị ảnh FULL SCREEN
+            if (art && art.img?.complete && art.img.naturalWidth) {
+                // Ảnh tràn toàn màn hình (fit to canvas, giữ tỷ lệ)
+                const canvasRatio = this.canvas.width / this.canvas.height;
+                const imgRatio = art.img.width / art.img.height;
+
+                let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+
+                if (imgRatio > canvasRatio) {
+                    drawWidth = this.canvas.width;
+                    drawHeight = drawWidth / imgRatio;
+                    offsetY = (this.canvas.height - drawHeight) / 2;
+                } else {
+                    drawHeight = this.canvas.height;
+                    drawWidth = drawHeight * imgRatio;
+                    offsetX = (this.canvas.width - drawWidth) / 2;
+                }
+
+                this.ctx.drawImage(art.img, offsetX, offsetY, drawWidth, drawHeight);
+
+                // Nút đóng nhỏ góc dưới phải
+                this.ctx.fillStyle = "rgba(0,0,0,0.5)";
+                this.ctx.fillRect(this.canvas.width - 120, this.canvas.height - 60, 100, 40);
+                this.ctx.fillStyle = "#fff";
+                this.ctx.font = "20px Arial";
+                this.ctx.textAlign = "center";
+                this.ctx.fillText("Nhấn E đóng", this.canvas.width - 70, this.canvas.height - 35);
+            } else {
+                // Popup cũ cho kệ S hoặc ảnh chưa load
+                this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const bw = 700;
+                const bh = 650;
+                const bx = (this.canvas.width - bw) / 2;
+                const by = (this.canvas.height - bh) / 2;
+
+                this.ctx.fillStyle = "#fff";
+                this.ctx.fillRect(bx, by, bw, bh);
+
+                this.ctx.fillStyle = "#000";
+                this.ctx.font = "bold 32px Arial";
+                this.ctx.textAlign = "center";
+                this.ctx.fillText(this.popup || "Hiện vật bí ẩn", this.canvas.width / 2, by + 60);
+
+                if (art) {
+                    if (art.img?.complete && art.img.naturalWidth) {
+                        const iw = 400;
+                        const ih = 400 * (art.img.height / art.img.width);
+                        this.ctx.drawImage(art.img, this.canvas.width / 2 - iw / 2, by + 100, iw, ih);
+                        this.ctx.font = "20px Arial";
+                        const lines = art.description.split('\n');
+                        let lineY = by + 100 + ih + 60;
+                        lines.forEach(line => {
+                            this.ctx.fillText(line, this.canvas.width / 2, lineY);
+                            lineY += 30;
+                        });
+                    } else {
+                        this.ctx.font = "20px Arial";
+                        this.ctx.fillText("(Ảnh đang tải...)", this.canvas.width / 2, by + 250);
+                    }
+                }
+
+                this.ctx.font = "18px Arial";
+                this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, by + bh - 40);
+            }
         }
     }
 }
