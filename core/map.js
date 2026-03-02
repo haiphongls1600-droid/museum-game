@@ -18,11 +18,11 @@ export const museumMap = [
   ["W","F","P","P","P","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","P","P","P","W"],
 
   // Hàng 14: Tường dưới cũ (giữ nguyên)
-  ["W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W","W"],
+  ["W","W","W","W","W","W","W","W","W","W","F","F","F","F","F","F","F","F","W","W","W","W","W","W","W","W","W","W","W","W"],
 
   // === PHÒNG MỚI THÊM DƯỚI (hàng 15 trở đi) ===
   // Hàng 15: Tường trên phòng mới (có lối đi ra vào ở giữa - dùng "O" cho cửa mở)
-  ["W","W","W","W","W","W","W","W","W","W","O","O","O","O","O","O","O","O","W","W","W","W","W","W","W","W","W","W","W","W"],
+  ["W","W","W","W","W","W","W","W","W","W","F","F","F","F","F","F","F","F","W","W","W","W","W","W","W","W","W","W","W","W"],
 
   // Hàng 16-19: Nội thất phòng mới (có thể thêm shelf, hiện vật mới sau)
   ["W","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","W"],
