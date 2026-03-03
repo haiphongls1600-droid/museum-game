@@ -41,7 +41,7 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật
+        // Hiện vật (giữ cũ + thêm 5 cái mới ở vị trí bạn yêu cầu)
         this.artifacts = [
             {
                 id: "4-3",
@@ -82,6 +82,47 @@ export default class Game {
                 x: 9 * this.tileSize + this.tileSize / 2,
                 y: 23 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-23.png")
+            },
+            // === Hiện vật mới bạn yêu cầu ===
+            {
+                id: "4-17",
+                name: "Hiện vật tại (4;17)",
+                description: "Đây là hiện vật mới tại vị trí (4;17).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_4-17.png",
+                x: 4 * this.tileSize + this.tileSize / 2,
+                y: 17 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_4-17.png")
+            },
+            {
+                id: "25-17",
+                name: "Hiện vật tại (25;17)",
+                description: "Đây là hiện vật mới tại vị trí (25;17).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_25-17.png",
+                x: 25 * this.tileSize + this.tileSize / 2,
+                y: 17 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_25-17.png")
+            },
+            {
+                id: "8-23",
+                name: "Hiện vật tại (8;23)",
+                description: "Đây là hiện vật mới tại vị trí (8;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_8-23.png",
+                x: 8 * this.tileSize + this.tileSize / 2,
+                y: 23 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_8-23.png")
+            },
+            {
+                id: "9-23",
+                name: "Hiện vật tại (9;23)",
+                description: "Đây là hiện vật mới tại vị trí (9;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-23.png",
+                x: 9 * this.tileSize + this.tileSize / 2,
+                y: 23 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_9-23.png")
+            },
+            {
+                id: "22-23",
+                name: "Hiện vật tại (22;23)",
+                description: "Đây là hiện vật mới tại vị trí (22;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_22-23.png",
+                x: 22 * this.tileSize + this.tileSize / 2,
+                y: 23 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_22-23.png")
             }
         ];
 
@@ -197,7 +238,7 @@ export default class Game {
             if (d < 400) {
                 console.log(`Gần hiện vật ${a.id} (khoảng cách: ${d.toFixed(0)})`);
                 this.activeArtifact = a.id;
-                this.popup = "artifact_fullscreen"; // dùng flag đặc biệt để biết hiển thị full ảnh
+                this.popup = "artifact_fullscreen"; // flag để hiển thị full ảnh
                 interacted = true;
                 return;
             }
@@ -283,19 +324,16 @@ export default class Game {
                 let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
 
                 if (imgRatio > canvasRatio) {
-                    // Ảnh rộng hơn màn hình → fit width
                     drawWidth = this.canvas.width;
                     drawHeight = drawWidth / imgRatio;
                     offsetY = (this.canvas.height - drawHeight) / 2;
                 } else {
-                    // Ảnh cao hơn màn hình → fit height
                     drawHeight = this.canvas.height;
                     drawWidth = drawHeight * imgRatio;
                     offsetX = (this.canvas.width - drawWidth) / 2;
                 }
 
                 this.ctx.drawImage(art.img, offsetX, offsetY, drawWidth, drawHeight);
-
                 // Không vẽ chữ nào hết, chỉ ảnh full
             } else {
                 // Popup cũ cho kệ S hoặc ảnh chưa load
