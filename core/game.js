@@ -27,19 +27,14 @@ export default class Game {
         this.nearShelfText = null;
         this.activeArtifact = null;
 
-        // === THÊM NPC ===
+        // === NPC tại hàng 3, cột 10 ===
         this.npcs = [
             {
                 id: "guide",
                 name: "Hướng dẫn viên",
-                x: 10 * this.tileSize + this.tileSize / 2,  // cột 10
-                y: 3 * this.tileSize + this.tileSize / 2,   // hàng 3
-                description: "Chào mừng bạn đến với Bảo tàng Lịch sử Việt Nam!\n" +
-                             "Đây là nơi lưu giữ những hiện vật quý giá từ thời Lý - Trần - Lê.\n" +
-                             "Bạn có thể di chuyển bằng phím WASD hoặc click chuột vào vị trí mong muốn.\n" +
-                             "Đứng gần kệ trưng bày (S) hoặc hiện vật rồi nhấn E để xem chi tiết.\n" +
-                             "Chúc bạn có trải nghiệm thú vị và học hỏi được nhiều điều!",
-                img: this.loadImage("https://haiphongls1600-droid.github.io/museum-game/assets/textures/npc_guide.png")  // ảnh NPC (upload nếu có)
+                x: 10 * this.tileSize + this.tileSize / 2,
+                y: 3 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage("https://haiphongls1600-droid.github.io/museum-game/assets/textures/npc_guide.png") // ảnh NPC (tùy chọn)
             }
         ];
         this.nearNpcText = null;
@@ -59,7 +54,7 @@ export default class Game {
         // Base URL cho ảnh hiện vật
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật (giữ nguyên phần của bạn)
+        // Hiện vật (giữ nguyên phần cũ của bạn)
         this.artifacts = [
             {
                 id: "4-3",
@@ -101,7 +96,6 @@ export default class Game {
                 y: 23 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-23.png")
             },
-            // Các hiện vật khác bạn đã có (giữ nguyên)
             {
                 id: "4-30",
                 name: "Hiện vật tại (4;30)",
@@ -110,7 +104,46 @@ export default class Game {
                 y: 30 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_4-30.png")
             },
-            // ... (các hiện vật khác giữ nguyên)
+            {
+                id: "24-30",
+                name: "Hiện vật tại (24;30)",
+                description: "Đây là hiện vật mới tại vị trí (24;30).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_24-30.png",
+                x: 24 * this.tileSize + this.tileSize / 2,
+                y: 30 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_24-30.png")
+            },
+            {
+                id: "8-36",
+                name: "Hiện vật tại (8;36)",
+                description: "Đây là hiện vật mới tại vị trí (8;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_8-36.png",
+                x: 8 * this.tileSize + this.tileSize / 2,
+                y: 36 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_8-36.png")
+            },
+            {
+                id: "9-36",
+                name: "Hiện vật tại (9;36)",
+                description: "Đây là hiện vật mới tại vị trí (9;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-36.png",
+                x: 9 * this.tileSize + this.tileSize / 2,
+                y: 36 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_9-36.png")
+            },
+            {
+                id: "22-36",
+                name: "Hiện vật tại (22;36)",
+                description: "Đây là hiện vật mới tại vị trí (22;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_22-36.png",
+                x: 22 * this.tileSize + this.tileSize / 2,
+                y: 36 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_22-36.png")
+            },
+            {
+                id: "23-36",
+                name: "Hiện vật tại (23;36)",
+                description: "Đây là hiện vật mới tại vị trí (23;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_23-36.png",
+                x: 23 * this.tileSize + this.tileSize / 2,
+                y: 36 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_23-36.png")
+            }
         ];
 
         // Load images cơ bản
@@ -205,7 +238,7 @@ export default class Game {
         this.npcs.forEach(npc => {
             const d = Math.hypot(this.player.x - npc.x, this.player.y - npc.y);
             if (d < 150) {
-                this.nearNpcText = "Nhấn E để trò chuyện với " + npc.name;
+                this.nearNpcText = "Nhấn E để trò chuyện";
             }
         });
 
@@ -299,19 +332,15 @@ export default class Game {
         }
     }
 
-    // Vẽ NPC
     drawNpcs() {
         this.npcs.forEach(npc => {
             if (npc.img?.complete && npc.img.naturalWidth) {
-                this.ctx.drawImage(npc.img, npc.x - 32, npc.y - 64, 64, 128);  // kích thước NPC
+                // NPC size bằng player (64x64)
+                this.ctx.drawImage(npc.img, npc.x - 32, npc.y - 32, 64, 64);
             } else {
-                // Hình thay thế nếu chưa có ảnh
-                this.ctx.fillStyle = "#8B4513";  // màu nâu
-                this.ctx.fillRect(npc.x - 32, npc.y - 64, 64, 128);
-                this.ctx.fillStyle = "#fff";
-                this.ctx.font = "16px Arial";
-                this.ctx.textAlign = "center";
-                this.ctx.fillText("NPC", npc.x, npc.y - 20);
+                // Placeholder nếu chưa có ảnh
+                this.ctx.fillStyle = "#8B4513";
+                this.ctx.fillRect(npc.x - 32, npc.y - 32, 64, 64);
             }
         });
     }
@@ -328,7 +357,7 @@ export default class Game {
 
         this.drawMap();
         this.shelves.forEach(s => s.draw(this.ctx));
-        this.drawNpcs();  // vẽ NPC
+        this.drawNpcs();
         this.drawPlayer();
         this.ctx.restore();
 
@@ -357,47 +386,35 @@ export default class Game {
         // Popup
         if (this.popup) {
             if (this.popup === "npc_intro") {
-                const npc = this.npcs.find(n => n.id === this.activeNpc);
-                if (npc) {
-                    this.ctx.fillStyle = "rgba(0,0,0,0.7)";
-                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                // Popup chỉ là ảnh (không text mặc định)
+                this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-                    const bw = 800;
-                    const bh = 500;
-                    const bx = (this.canvas.width - bw) / 2;
-                    const by = (this.canvas.height - bh) / 2;
+                const pw = 800;  // Chiều rộng ảnh popup - bạn điều chỉnh ở đây
+                const ph = 600;  // Chiều cao ảnh popup - bạn điều chỉnh ở đây
+                const px = (this.canvas.width - pw) / 2;
+                const py = (this.canvas.height - ph) / 2;
 
+                // Ảnh popup chính (upload file popup_npc.png vào assets/textures/)
+                const popupImg = this.loadImage("https://haiphongls1600-droid.github.io/museum-game/assets/textures/popup_npc.png");
+                if (popupImg?.complete && popupImg.naturalWidth) {
+                    this.ctx.drawImage(popupImg, px, py, pw, ph);
+                } else {
+                    // Nếu chưa có ảnh, hiện placeholder
                     this.ctx.fillStyle = "#fff";
-                    this.ctx.fillRect(bx, by, bw, bh);
-
-                    // Tiêu đề
+                    this.ctx.fillRect(px, py, pw, ph);
                     this.ctx.fillStyle = "#000";
-                    this.ctx.font = "bold 36px Arial";
+                    this.ctx.font = "32px Arial";
                     this.ctx.textAlign = "center";
-                    this.ctx.fillText(npc.name, this.canvas.width / 2, by + 80);
-
-                    // Ảnh NPC (nếu có)
-                    if (npc.img?.complete && npc.img.naturalWidth) {
-                        this.ctx.drawImage(npc.img, bx + 40, by + 120, 200, 300);
-                    }
-
-                    // Nội dung giới thiệu
-                    this.ctx.font = "24px Arial";
-                    this.ctx.textAlign = "left";
-                    let lineY = by + 140;
-                    const lines = npc.description.split('\n');
-                    lines.forEach(line => {
-                        this.ctx.fillText(line, bx + 260, lineY);
-                        lineY += 40;
-                    });
-
-                    // Hướng dẫn đóng
-                    this.ctx.font = "20px Arial";
-                    this.ctx.textAlign = "center";
-                    this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, by + bh - 40);
+                    this.ctx.fillText("Giới thiệu Bảo tàng", this.canvas.width / 2, this.canvas.height / 2);
                 }
+
+                // Nút đóng
+                this.ctx.font = "20px Arial";
+                this.ctx.fillStyle = "#fff";
+                this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, this.canvas.height - 40);
             } else {
-                // Popup hiện vật cũ (giữ nguyên phần của bạn)
+                // Popup hiện vật cũ (giữ nguyên)
                 const art = this.artifacts.find(a => a.id === this.activeArtifact);
                 if (this.popup === "artifact_fullscreen" && art && art.img?.complete && art.img.naturalWidth) {
                     const canvasRatio = this.canvas.width / this.canvas.height;
