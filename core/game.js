@@ -113,7 +113,7 @@ export default class Game {
                 name: "Hiện vật tại (9;36)",
                 description: "Đây là hiện vật mới tại vị trí (9;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-36.png",
                 x: 22 * this.tileSize + this.tileSize / 2,
-                y: 18 * this.tileSize + this.tileSize / 2,
+                y: 24 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-36.png")
             },
             {
@@ -129,7 +129,7 @@ export default class Game {
                 name: "Hiện vật tại (23;36)",
                 description: "Đây là hiện vật mới tại vị trí (23;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_23-36.png",
                 x: 23 * this.tileSize + this.tileSize / 2,
-                y: 18 * this.tileSize + this.tileSize / 2,
+                y: 24 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_23-36.png")
             }
         ];
