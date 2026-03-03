@@ -39,37 +39,42 @@ loop() {
     // Popup
     if (this.popup) {
         if (this.popup === "npc_intro") {
-            this.ctx.fillStyle = "rgba(0,0,0,0.7)";
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    // Popup chỉ là ảnh
+    this.ctx.fillStyle = "rgba(0,0,0,0.7)";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            // Kích thước popup ảnh - chỉnh 2 số này để thay đổi size
-            const pw = 800;  // chiều rộng
-            const ph = 600;  // chiều cao
-            const px = (this.canvas.width - pw) / 2;
-            const py = (this.canvas.height - ph) / 2;
+    // Kích thước popup ảnh - bạn chỉnh 2 số này
+    const pw = 800;   // rộng
+    const ph = 600;   // cao
+    const px = (this.canvas.width - pw) / 2;
+    const py = (this.canvas.height - ph) / 2;
 
-            // Ảnh popup (tên file phải là popup_npc.png)
-            const popupImg = new Image();
-            popupImg.src = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/popup_npc.png";
+    // Ảnh popup (đường dẫn cố định, không dùng base để tránh lỗi)
+    const popupImg = new Image();
+    popupImg.src = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/popup_npc.png";
 
-            if (popupImg.complete && popupImg.naturalWidth !== 0) {
-                this.ctx.drawImage(popupImg, px, py, pw, ph);
-            } else {
-                // Placeholder khi ảnh chưa load
-                this.ctx.fillStyle = "#ffffff";
-                this.ctx.fillRect(px, py, pw, ph);
-                this.ctx.fillStyle = "#000000";
-                this.ctx.font = "32px Arial";
-                this.ctx.textAlign = "center";
-                this.ctx.textBaseline = "middle";
-                this.ctx.fillText("Đang tải ảnh giới thiệu...", this.canvas.width / 2, this.canvas.height / 2);
-            }
+    // Kiểm tra ảnh đã load chưa
+    if (popupImg.complete && popupImg.naturalWidth > 0) {
+        this.ctx.drawImage(popupImg, px, py, pw, ph);
+    } else {
+        // Placeholder khi ảnh chưa load hoặc không tồn tại
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.fillRect(px, py, pw, ph);
+        this.ctx.fillStyle = "#000000";
+        this.ctx.font = "32px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.fillText("Đang tải ảnh giới thiệu...", this.canvas.width / 2, this.canvas.height / 2);
+        this.ctx.font = "20px Arial";
+        this.ctx.fillText("(Kiểm tra file popup_npc.png trong assets/textures/)", this.canvas.width / 2, this.canvas.height / 2 + 50);
+    }
 
-            // Nút đóng
-            this.ctx.font = "20px Arial";
-            this.ctx.fillStyle = "#ffffff";
-            this.ctx.textAlign = "center";
-            this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, this.canvas.height - 40);
+    // Nút đóng
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, this.canvas.height - 40);
+}
         } else {
             // Phần popup hiện vật cũ giữ nguyên
             const art = this.artifacts.find(a => a.id === this.activeArtifact);
