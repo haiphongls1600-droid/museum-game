@@ -88,8 +88,8 @@ export default class Game {
                 id: "4-30",
                 name: "Hiện vật tại (4;30)",
                 description: "Đây là hiện vật mới tại vị trí (4;30).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_4-30.png",
-                x: 4 * this.tileSize + this.tileSize / 2,
-                y: 30 * this.tileSize + this.tileSize / 2,
+                x: 5 * this.tileSize + this.tileSize / 2,
+                y: 31 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_4-30.png")
             },
             {
