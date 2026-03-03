@@ -41,7 +41,7 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật - sửa đúng tọa độ (x = cột, y = hàng)
+        // Hiện vật (giữ cũ + thêm 6 cái mới ở vị trí bạn yêu cầu)
         this.artifacts = [
             {
                 id: "4-3",
@@ -83,46 +83,54 @@ export default class Game {
                 y: 23 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-23.png")
             },
-            // Hiện vật mới bạn yêu cầu (đúng tọa độ)
+            // Hiện vật mới bạn yêu cầu (đúng tọa độ x=cột, y=hàng)
             {
-                id: "4-17",
-                name: "Hiện vật tại (4;17)",
-                description: "Đây là hiện vật mới tại vị trí (4;17).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_4-17.png",
+                id: "4-30",
+                name: "Hiện vật tại (4;30)",
+                description: "Đây là hiện vật mới tại vị trí (4;30).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_4-30.png",
                 x: 4 * this.tileSize + this.tileSize / 2,
-                y: 17 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage(base + "artifact_4-17.png")
+                y: 30 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_4-30.png")
             },
             {
-                id: "25-17",
-                name: "Hiện vật tại (25;17)",
-                description: "Đây là hiện vật mới tại vị trí (25;17).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_25-17.png",
-                x: 25 * this.tileSize + this.tileSize / 2,
-                y: 17 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage(base + "artifact_25-17.png")
+                id: "24-30",
+                name: "Hiện vật tại (24;30)",
+                description: "Đây là hiện vật mới tại vị trí (24;30).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_24-30.png",
+                x: 24 * this.tileSize + this.tileSize / 2,
+                y: 30 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_24-30.png")
             },
             {
-                id: "8-23",
-                name: "Hiện vật tại (8;23)",
-                description: "Đây là hiện vật mới tại vị trí (8;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_8-23.png",
+                id: "8-36",
+                name: "Hiện vật tại (8;36)",
+                description: "Đây là hiện vật mới tại vị trí (8;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_8-36.png",
                 x: 8 * this.tileSize + this.tileSize / 2,
-                y: 23 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage(base + "artifact_8-23.png")
+                y: 36 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_8-36.png")
             },
             {
-                id: "9-23",
-                name: "Hiện vật tại (9;23)",
-                description: "Đây là hiện vật mới tại vị trí (9;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-23.png",
+                id: "9-36",
+                name: "Hiện vật tại (9;36)",
+                description: "Đây là hiện vật mới tại vị trí (9;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-36.png",
                 x: 9 * this.tileSize + this.tileSize / 2,
-                y: 23 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage(base + "artifact_9-23.png")
+                y: 36 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_9-36.png")
             },
             {
-                id: "22-23",
-                name: "Hiện vật tại (22;23)",
-                description: "Đây là hiện vật mới tại vị trí (22;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_22-23.png",
+                id: "22-36",
+                name: "Hiện vật tại (22;36)",
+                description: "Đây là hiện vật mới tại vị trí (22;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_22-36.png",
                 x: 22 * this.tileSize + this.tileSize / 2,
-                y: 23 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage(base + "artifact_22-23.png")
+                y: 36 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_22-36.png")
+            },
+            {
+                id: "23-36",
+                name: "Hiện vật tại (23;36)",
+                description: "Đây là hiện vật mới tại vị trí (23;36).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_23-36.png",
+                x: 23 * this.tileSize + this.tileSize / 2,
+                y: 36 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_23-36.png")
             }
         ];
 
