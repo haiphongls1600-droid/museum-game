@@ -54,7 +54,7 @@ export default class Game {
         // Base URL cho ảnh hiện vật
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật (giữ nguyên phần cũ của bạn)
+        // Hiện vật (giữ nguyên phần cũ)
         this.artifacts = [
             {
                 id: "4-3",
@@ -225,7 +225,6 @@ export default class Game {
             this.player.y = ny;
         }
 
-        // Phát hiện gần shelf
         this.nearShelfText = null;
         this.shelves.forEach(s => {
             if (s.isPlayerNear(this.player, 80)) {
@@ -233,7 +232,6 @@ export default class Game {
             }
         });
 
-        // Phát hiện gần NPC
         this.nearNpcText = null;
         this.npcs.forEach(npc => {
             const d = Math.hypot(this.player.x - npc.x, this.player.y - npc.y);
@@ -263,7 +261,7 @@ export default class Game {
 
         let interacted = false;
 
-        // 1. Kiểm tra NPC trước
+        // Kiểm tra NPC
         this.npcs.forEach(npc => {
             const d = Math.hypot(this.player.x - npc.x, this.player.y - npc.y);
             if (d < 150) {
@@ -274,7 +272,7 @@ export default class Game {
             }
         });
 
-        // 2. Kiểm tra artifacts
+        // Kiểm tra artifacts
         if (!interacted) {
             this.artifacts.forEach(a => {
                 const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
@@ -288,7 +286,7 @@ export default class Game {
             });
         }
 
-        // 3. Kiểm tra shelves
+        // Kiểm tra shelves
         if (!interacted) {
             this.shelves.forEach(s => {
                 if (s.isPlayerNear(this.player, 250)) {
@@ -335,10 +333,8 @@ export default class Game {
     drawNpcs() {
         this.npcs.forEach(npc => {
             if (npc.img?.complete && npc.img.naturalWidth) {
-                // NPC size bằng player (64x64)
-                this.ctx.drawImage(npc.img, npc.x - 32, npc.y - 32, 64, 64);
+                this.ctx.drawImage(npc.img, npc.x - 32, npc.y - 32, 64, 64); // size bằng player
             } else {
-                // Placeholder nếu chưa có ảnh
                 this.ctx.fillStyle = "#8B4513";
                 this.ctx.fillRect(npc.x - 32, npc.y - 32, 64, 64);
             }
@@ -361,7 +357,6 @@ export default class Game {
         this.drawPlayer();
         this.ctx.restore();
 
-        // Text gần shelf
         if (this.nearShelfText) {
             this.ctx.fillStyle = "rgba(0,0,0,0.6)";
             this.ctx.fillRect(this.canvas.width / 2 - 180, this.canvas.height - 80, 360, 50);
@@ -372,7 +367,6 @@ export default class Game {
             this.ctx.fillText(this.nearShelfText, this.canvas.width / 2, this.canvas.height - 55);
         }
 
-        // Text gần NPC
         if (this.nearNpcText) {
             this.ctx.fillStyle = "rgba(0,0,0,0.6)";
             this.ctx.fillRect(this.canvas.width / 2 - 220, this.canvas.height - 140, 440, 50);
@@ -383,24 +377,25 @@ export default class Game {
             this.ctx.fillText(this.nearNpcText, this.canvas.width / 2, this.canvas.height - 115);
         }
 
-        // Popup
         if (this.popup) {
             if (this.popup === "npc_intro") {
-                // Popup chỉ là ảnh (không text mặc định)
+                // Popup chỉ là ảnh
                 this.ctx.fillStyle = "rgba(0,0,0,0.7)";
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-                const pw = 800;  // Chiều rộng ảnh popup - bạn điều chỉnh ở đây
-                const ph = 600;  // Chiều cao ảnh popup - bạn điều chỉnh ở đây
+                // Kích thước popup ảnh - bạn chỉnh 2 số này để thay đổi size
+                const pw = 800;  // Chiều rộng
+                const ph = 600;  // Chiều cao
                 const px = (this.canvas.width - pw) / 2;
                 const py = (this.canvas.height - ph) / 2;
 
                 // Ảnh popup chính (upload file popup_npc.png vào assets/textures/)
-                const popupImg = this.loadImage("https://haiphongls1600-droid.github.io/museum-game/assets/textures/popup_npc.png");
+                const popupImg = this.loadImage(base + "popup_npc.png");
+
                 if (popupImg?.complete && popupImg.naturalWidth) {
                     this.ctx.drawImage(popupImg, px, py, pw, ph);
                 } else {
-                    // Nếu chưa có ảnh, hiện placeholder
+                    // Placeholder nếu ảnh chưa load
                     this.ctx.fillStyle = "#fff";
                     this.ctx.fillRect(px, py, pw, ph);
                     this.ctx.fillStyle = "#000";
@@ -420,7 +415,6 @@ export default class Game {
                     const canvasRatio = this.canvas.width / this.canvas.height;
                     const imgRatio = art.img.width / art.img.height;
                     let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
-
                     if (imgRatio > canvasRatio) {
                         drawWidth = this.canvas.width;
                         drawHeight = drawWidth / imgRatio;
@@ -430,25 +424,20 @@ export default class Game {
                         drawWidth = drawHeight * imgRatio;
                         offsetX = (this.canvas.width - drawWidth) / 2;
                     }
-
                     this.ctx.drawImage(art.img, offsetX, offsetY, drawWidth, drawHeight);
                 } else {
                     this.ctx.fillStyle = "rgba(0,0,0,0.7)";
                     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
                     const bw = 700;
                     const bh = 650;
                     const bx = (this.canvas.width - bw) / 2;
                     const by = (this.canvas.height - bh) / 2;
-
                     this.ctx.fillStyle = "#fff";
                     this.ctx.fillRect(bx, by, bw, bh);
-
                     this.ctx.fillStyle = "#000";
                     this.ctx.font = "bold 32px Arial";
                     this.ctx.textAlign = "center";
                     this.ctx.fillText(this.popup || "Hiện vật bí ẩn", this.canvas.width / 2, by + 60);
-
                     if (art) {
                         if (art.img?.complete && art.img.naturalWidth) {
                             const iw = 400;
@@ -466,7 +455,6 @@ export default class Game {
                             this.ctx.fillText("(Ảnh đang tải...)", this.canvas.width / 2, by + 250);
                         }
                     }
-
                     this.ctx.font = "18px Arial";
                     this.ctx.fillText("Nhấn E để đóng", this.canvas.width / 2, by + bh - 40);
                 }
