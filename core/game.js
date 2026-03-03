@@ -41,7 +41,7 @@ export default class Game {
         // Base URL cho ảnh
         const base = "https://haiphongls1600-droid.github.io/museum-game/assets/textures/";
 
-        // Hiện vật (giữ cũ + thêm 5 cái mới ở vị trí bạn yêu cầu)
+        // Hiện vật - sửa đúng tọa độ (x = cột, y = hàng)
         this.artifacts = [
             {
                 id: "4-3",
@@ -71,19 +71,19 @@ export default class Game {
                 id: "9-22",
                 name: "Tổ chức các khoa thi cử",
                 description: "Hệ thống khoa cử Nho học phát triển mạnh từ thời Nhà Trần.\nMở khoa thi Thái học sinh năm 1232, quy định Tam khôi từ 1247.\nHoàn thiện dưới Nhà Lê sơ: 3 năm/khoa, thi nghiêm ngặt, Nho giáo độc tôn.",
-                x: 22 * this.tileSize + this.tileSize / 2,
-                y: 9 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage(base + "artifact_22-9.png")
+                x: 9 * this.tileSize + this.tileSize / 2,
+                y: 22 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_9-22.png")
             },
             {
                 id: "9-23",
                 name: "Hiện vật tại vị trí (9;23)",
                 description: "Đây là hiện vật bạn tự thêm tại vị trí (9;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-23.png",
-                x: 23 * this.tileSize + this.tileSize / 2,
-                y: 9 * this.tileSize + this.tileSize / 2,
-                img: this.loadImage(base + "artifact_23-9.png")
+                x: 9 * this.tileSize + this.tileSize / 2,
+                y: 23 * this.tileSize + this.tileSize / 2,
+                img: this.loadImage(base + "artifact_9-23.png")
             },
-            // === Hiện vật mới bạn yêu cầu ===
+            // Hiện vật mới bạn yêu cầu (đúng tọa độ)
             {
                 id: "4-17",
                 name: "Hiện vật tại (4;17)",
@@ -235,10 +235,10 @@ export default class Game {
         // ƯU TIÊN KIỂM TRA ARTIFACTS TRƯỚC
         this.artifacts.forEach(a => {
             const d = Math.hypot(this.player.x - a.x, this.player.y - a.y);
-            if (d < 400) {
+            if (d < 450) {  // tăng lên 450 để dễ tương tác với hiện vật xa
                 console.log(`Gần hiện vật ${a.id} (khoảng cách: ${d.toFixed(0)})`);
                 this.activeArtifact = a.id;
-                this.popup = "artifact_fullscreen"; // flag để hiển thị full ảnh
+                this.popup = "artifact_fullscreen";
                 interacted = true;
                 return;
             }
@@ -318,7 +318,6 @@ export default class Game {
 
             // Nếu là hiện vật có ảnh và ảnh đã load → hiển thị ảnh FULL SCREEN (không chữ, không khung)
             if (this.popup === "artifact_fullscreen" && art && art.img?.complete && art.img.naturalWidth) {
-                // Ảnh tràn toàn màn hình, fit giữ tỷ lệ
                 const canvasRatio = this.canvas.width / this.canvas.height;
                 const imgRatio = art.img.width / art.img.height;
                 let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
@@ -334,7 +333,6 @@ export default class Game {
                 }
 
                 this.ctx.drawImage(art.img, offsetX, offsetY, drawWidth, drawHeight);
-                // Không vẽ chữ nào hết, chỉ ảnh full
             } else {
                 // Popup cũ cho kệ S hoặc ảnh chưa load
                 this.ctx.fillStyle = "rgba(0,0,0,0.7)";
