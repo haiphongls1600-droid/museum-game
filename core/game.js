@@ -71,16 +71,16 @@ export default class Game {
                 id: "9-22",
                 name: "Tổ chức các khoa thi cử",
                 description: "Hệ thống khoa cử Nho học phát triển mạnh từ thời Nhà Trần.\nMở khoa thi Thái học sinh năm 1232, quy định Tam khôi từ 1247.\nHoàn thiện dưới Nhà Lê sơ: 3 năm/khoa, thi nghiêm ngặt, Nho giáo độc tôn.",
-                x: 9 * this.tileSize + this.tileSize / 2,
-                y: 22 * this.tileSize + this.tileSize / 2,
+                x: 22 * this.tileSize + this.tileSize / 2,
+                y: 9 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-22.png")
             },
             {
                 id: "9-23",
                 name: "Hiện vật tại vị trí (9;23)",
                 description: "Đây là hiện vật bạn tự thêm tại vị trí (9;23).\nCaption/mô tả chi tiết bạn có thể chỉnh sửa sau.\nẢnh: artifact_9-23.png",
-                x: 9 * this.tileSize + this.tileSize / 2,
-                y: 23 * this.tileSize + this.tileSize / 2,
+                x: 23 * this.tileSize + this.tileSize / 2,
+                y: 9 * this.tileSize + this.tileSize / 2,
                 img: this.loadImage(base + "artifact_9-23.png")
             },
             // === Hiện vật mới bạn yêu cầu ===
